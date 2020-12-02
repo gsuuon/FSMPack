@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="MessagePack/Spec.fs" />
+        <Compile Include="MessagePack/ReadValue.fs" />
+        <Compile Include="Library.fs" />
+    </ItemGroup>
+
+</Project>
