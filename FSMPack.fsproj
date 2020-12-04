@@ -5,9 +5,14 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Compile Include="Utility/Byte.fs" />
         <Compile Include="MessagePack/Spec.fs" />
         <Compile Include="MessagePack/ReadValue.fs" />
         <Compile Include="Library.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="System.Memory" Version="4.5.4" />
     </ItemGroup>
 
 </Project>

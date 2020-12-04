@@ -1,10 +1,12 @@
 namespace FSMPack.Spec
 
+open System.Collections.Generic
+
 type Format =
-    | PositiveFixInt = 0b00000000uy // - 0x7f
-    | FixMap = 0b10000000uy // - 0x8f
-    | FixArray = 0b10010000uy // - 0x9f
-    | FixStr = 0b10100000uy // - 0xbf
+    | PositiveFixInt = 0b00000000uy
+    | FixMap = 0b10000000uy
+    | FixArray = 0b10010000uy
+    | FixStr = 0b10100000uy
     | Nil = 0b11000000uy
     //| NeverUsed = 0b11000001uy
     | False = 0b11000010uy
@@ -17,24 +19,39 @@ type Format =
     | Ext32 = 0b11001001uy
     | Float32 = 0b11001010uy
     | Float64 = 0b11001011uy
-    | Uint8 = 0b11001100uy
-    | Uint16 = 0b11001101uy
-    | Uint32 = 0b11001110uy
-    | Uint64 = 0b11001111uy
+    | UInt8 = 0b11001100uy
+    | UInt16 = 0b11001101uy
+    | UInt32 = 0b11001110uy
+    | UInt64 = 0b11001111uy
     | Int8 = 0b11010000uy
     | Int16 = 0b11010001uy
     | Int32 = 0b11010010uy
     | Int64 = 0b11010011uy
-    | Fixext = 0b11010100uy
-    | Fixext2 = 0b11010101uy
-    | Fixext4 = 0b11010110uy
-    | Fixext8 = 0b11010111uy
-    | Fixext16 = 0b11011000uy
+    | FixExt = 0b11010100uy
+    | FixExt2 = 0b11010101uy
+    | FixExt4 = 0b11010110uy
+    | FixExt8 = 0b11010111uy
+    | FixExt16 = 0b11011000uy
     | Str8 = 0b11011001uy
     | Str16 = 0b11011010uy
     | Str32 = 0b11011011uy
-    | Array1 = 0b11011100uy
+    | Array16 = 0b11011100uy
     | Array32 = 0b11011101uy
     | Map16 = 0b11011110uy
     | Map32 = 0b11011111uy
     | NegativeFixInt = 0b11100000uy
+
+[<Struct>]
+type Value =
+    | Integer of i: int
+    | Integer64 of i64: int64
+    | UInteger of ui: uint32
+    | UInteger64 of ui64: uint64
+    | Nil
+    | Boolean of b: bool
+    | Float of f: float
+    | RawString of rs: string
+    | RawBinary of rb: byte[]
+    | Array of vs: Value array
+    | Map of map: Dictionary<Value, Value>
+    | Extension of ty: int * bin: byte[]
