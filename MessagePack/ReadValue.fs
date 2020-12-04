@@ -7,7 +7,6 @@ open FSMPack.Utility.Byte
 
 open System
 open System.Buffers.Binary
-open System.Runtime.CompilerServices
 open System.Collections.Generic
 
 type BufReader =
@@ -17,6 +16,9 @@ type BufReader =
     member x.Advance count =
         x.idx <- x.idx + count
 
+let asFormat (byt: byte) = LanguagePrimitives.EnumOfValue<byte, Format> byt
+let asValue (x: Format) : byte = LanguagePrimitives.EnumToValue x
+
 let readByte (bufReader: BufReader) (bytes: inref<Bytes>) =
     let idx = bufReader.idx
     bufReader.Advance 1
@@ -25,16 +27,7 @@ let readByte (bufReader: BufReader) (bytes: inref<Bytes>) =
 let readBytes (bufReader: BufReader) (bytes: inref<Bytes>) count =
     let idx = bufReader.idx
     bufReader.Advance count
-    let x = bytes.Slice(idx, count)
-    x
-
-let readFormat (byt: byte) =
-    let format : Format =
-        LanguagePrimitives.EnumOfValue<byte, Format>(byt)
-
-    format
-
-let enumValue = LanguagePrimitives.EnumToValue
+    bytes.Slice(idx, count)
 
 let readString (br: BufReader) (bytes: inref<Bytes>) len =
     // netstandard2.1 adds ReadOnlySpan api for Encoding.x.GetString
@@ -43,8 +36,7 @@ let readString (br: BufReader) (bytes: inref<Bytes>) len =
     |> Value.RawString
 
 let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
-    // figure out format by header byte
-    match readFormat <| readByte br &bytes with
+    match asFormat <| readByte br &bytes with
     | Format.Nil -> Value.Nil
     | Format.False -> Value.Boolean false
     | Format.True -> Value.Boolean true
@@ -53,9 +45,9 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
         |> int
         |> Value.Integer
     | Format.UInt16 ->
+        BinaryPrimitives.ReadUInt16BigEndian
             // Can't pipe into byref function
             // https://github.com/dotnet/fsharp/issues/5286#issuecomment-402249997
-        BinaryPrimitives.ReadUInt16BigEndian
             (readBytes br &bytes 2)
         |> int
         |> Value.Integer
@@ -158,7 +150,7 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
 
         readMapValues br &bytes (Dictionary()) len
     | format ->
-        match enumValue format with
+        match asValue format with
         | byt when
             format >= Format.PositiveFixInt &&
             byt <= 0x7fuy ->
@@ -210,7 +202,6 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
                 sprintf "Unsupported format, header byte: %A" byt
 
             failwith msg
-
 and readArrayValues
     (br: BufReader)
     (bytes: inref<Bytes>)

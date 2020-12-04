@@ -52,6 +52,6 @@ type Value =
     | Float of f: float
     | RawString of rs: string
     | RawBinary of rb: byte[]
-    | Array of vs: Value array
+    | Array of arr: Value array
     | Map of map: Dictionary<Value, Value>
     | Extension of ty: int * bin: byte[]
