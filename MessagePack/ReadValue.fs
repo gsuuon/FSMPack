@@ -71,7 +71,7 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
         |> Value.Integer
     | Format.Int32 ->
         BinaryPrimitives.ReadInt32BigEndian
-            (readBytes br &bytes 3)
+            (readBytes br &bytes 4)
         |> int
         |> Value.Integer
     | Format.Int64 ->
@@ -187,9 +187,7 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
                 maskByte 0b11100000uy byt
                 |> int
 
-            (readBytes br &bytes len).ToArray()
-            |> Text.Encoding.UTF8.GetString
-            |> Value.RawString
+            readString br &bytes len
 
         | byt when
             format >= Format.NegativeFixInt ->
@@ -197,6 +195,7 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
             byt
             |> intFromNegFixNum
             |> Value.Integer
+
         | byt ->
             let msg =
                 sprintf "Unsupported format, header byte: %A" byt
@@ -208,22 +207,25 @@ and readArrayValues
     (values: Stack<Value>)
     count
     =
-    if count = 0 then
-        Value.Array <| values.ToArray()
-    else
+    let mutable curCount = count
+
+    while count <> 0 do
         values.Push <| readNextValue br &bytes
-        readArrayValues br &bytes values (count - 1)
+        curCount <- curCount - 1
+
+    Value.Array <| values.ToArray()
 and readMapValues
     (br: BufReader)
     (bytes: inref<Bytes>)
     (values: Dictionary<Value, Value>)
     count
     =
-    if count = 0 then
-        Value.Map values
-    else
+    let mutable curCount = count
+
+    while count <> 0 do
         let key = readNextValue br &bytes
         let value = readNextValue br &bytes
         values.[key] <- value
+        curCount <- curCount - 1
 
-        readMapValues br &bytes values (count - 1)
+    Value.Map values
