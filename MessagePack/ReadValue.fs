@@ -155,6 +155,7 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
             BinaryPrimitives.ReadUInt32BigEndian
                 (readBytes br &bytes 4)
             |> int
+
         readMapValues br &bytes (Dictionary()) len
     | format ->
         match enumValue format with
@@ -171,7 +172,7 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
             byt <= 0x8fuy ->
 
             let len =
-                maskByte 0b11110000 byt
+                maskByte 0b11110000uy byt
                 |> int
 
             readMapValues br &bytes (Dictionary()) len
