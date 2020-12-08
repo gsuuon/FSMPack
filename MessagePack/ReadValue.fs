@@ -75,6 +75,23 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
         BinaryPrimitives.ReadInt64BigEndian
             (readBytes br &bytes 8)
         |> Value.Integer64
+    | Format.Float32 ->
+        let floatBytes = (readBytes br &bytes 4).ToArray()
+
+        if BitConverter.IsLittleEndian then
+            Array.Reverse floatBytes
+
+        BitConverter.ToSingle (floatBytes, 0)
+        |> float
+        |> Value.Float
+    | Format.Float64 ->
+        let floatBytes = (readBytes br &bytes 8).ToArray()
+
+        if BitConverter.IsLittleEndian then
+            Array.Reverse floatBytes
+
+        BitConverter.ToDouble (floatBytes, 0)
+        |> Value.Float
     | Format.Str8 ->
         let len =
             readByte br &bytes
