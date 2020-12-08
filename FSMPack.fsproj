@@ -8,6 +8,7 @@
         <Compile Include="Utility/Byte.fs" />
         <Compile Include="MessagePack/Spec.fs" />
         <Compile Include="MessagePack/ReadValue.fs" />
+        <Compile Include="MessagePack/WriteValue.fs" />
     </ItemGroup>
 
     <ItemGroup>
