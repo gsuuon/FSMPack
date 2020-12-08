@@ -43,12 +43,12 @@ type Format =
 
 [<Struct>]
 type Value =
+    | Nil
+    | Boolean of b: bool
     | Integer of i: int
     | Integer64 of i64: int64
     | UInteger of ui: uint32
     | UInteger64 of ui64: uint64
-    | Nil
-    | Boolean of b: bool
     | Float of f: float
     | RawString of rs: string
     | RawBinary of rb: byte[]

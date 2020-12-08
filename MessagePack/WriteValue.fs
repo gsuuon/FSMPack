@@ -54,6 +54,7 @@ let writeFormat (bw: BufWriter) (format: Format) =
 
 [<Literal>]
 let WriteSizeIntError = "Write value was expected to be int size or smaller"
+let WriteSizeIntElemsError = "Write value was expected to be int size elements or fewer"
 
 /// Positive or negative integer of 4 bytes max
 let writeInteger (bw: BufWriter) i =
@@ -104,7 +105,29 @@ let writeUInteger (bw: BufWriter) (ui: uint32) =
     else
         failwith WriteSizeIntError
 
-let writeValue (bw: BufWriter) mpv =
+let writeString (bw: BufWriter) (s: string) =
+    if s.Length <= 31 then
+        let header =
+            Cast.asValue Format.FixStr &&& byte s.Length
+
+        writeByte bw header
+    else if s.Length <= 255 then
+        writeByte bw (Cast.asValue Format.Str8)
+        writeByte bw (byte s.Length)
+    else if s.Length <= 32767 then
+        writeByte bw (Cast.asValue Format.Str16)
+        BinaryPrimitives.WriteUInt16BigEndian
+            (bw.GetSpan 2, uint16 s.Length)
+    else if s.Length <= 2147483647 then
+        writeByte bw (Cast.asValue Format.Str32)
+        BinaryPrimitives.WriteUInt32BigEndian
+            (bw.GetSpan 4, uint32 s.Length)
+    else
+        failwith WriteSizeIntElemsError
+
+    writeBytes bw (System.Text.Encoding.UTF8.GetBytes s)
+
+let rec writeValue (bw: BufWriter) mpv =
     match mpv with
     | Nil ->
         writeByte bw (Cast.asValue Format.Nil)
@@ -127,5 +150,64 @@ let writeValue (bw: BufWriter) mpv =
         writeByte bw (Cast.asValue Format.UInt64)
         BinaryPrimitives.WriteUInt64BigEndian
             (bw.GetSpan 8, x)
-    | _ ->
-        ()
+    | RawString x ->
+        writeString bw x
+    | RawBinary x ->
+        if x.Length <= 255 then
+            writeByte bw (Cast.asValue Format.Bin8)
+        else if x.Length <= 32767 then
+            writeByte bw (Cast.asValue Format.Bin16)
+            BinaryPrimitives.WriteUInt16BigEndian
+                (bw.GetSpan 2, uint16 x.Length)
+        else if x.Length <= 2147483647 then
+            writeByte bw (Cast.asValue Format.Bin32)
+            BinaryPrimitives.WriteUInt32BigEndian
+                (bw.GetSpan 4, uint32 x.Length)
+        else
+            failwith WriteSizeIntElemsError
+
+        writeBytes bw x
+    | Array x ->
+        let len = x.Length
+        if len <= 15 then
+            let header = Cast.asValue Format.FixArray &&& byte len
+            writeByte bw header
+        else if len <= 32767 then
+            writeByte bw (Cast.asValue Format.Array16)
+            BinaryPrimitives.WriteUInt16BigEndian
+                (bw.GetSpan 2, uint16 len)
+        else if len <= 2147483647 then
+            writeByte bw (Cast.asValue Format.Array32)
+            BinaryPrimitives.WriteUInt32BigEndian
+                (bw.GetSpan 4, uint32 len)
+        else
+            failwith WriteSizeIntElemsError
+
+        let mutable i = 0
+        while i < len do
+            writeValue bw x.[i]
+            i <- i + 1
+    | Map x ->
+        let len = x.Count
+
+        if len <= 15 then
+            let header = Cast.asValue Format.FixMap &&& byte len
+            writeByte bw header
+        else if len <= 32767 then
+            writeByte bw (Cast.asValue Format.Map16)
+            BinaryPrimitives.WriteUInt16BigEndian
+                (bw.GetSpan 2, uint16 len)
+        else if len <= 2147483647 then
+            writeByte bw (Cast.asValue Format.Map32)
+            BinaryPrimitives.WriteUInt32BigEndian
+                (bw.GetSpan 4, uint32 len)
+        else
+            failwith WriteSizeIntElemsError
+
+        for KeyValue(key, value) in x do
+            writeValue bw key
+            writeValue bw value
+    | x ->
+        let msg = "Tried to write unsupported value: " + x.ToString()
+
+        failwith msg
