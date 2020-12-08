@@ -55,3 +55,7 @@ type Value =
     | Array of arr: Value array
     | Map of map: Dictionary<Value, Value>
     | Extension of ty: int * bin: byte[]
+
+module Cast =
+    let asFormat (byt: byte) = LanguagePrimitives.EnumOfValue<byte, Format> byt
+    let asValue (x: Format) : byte = LanguagePrimitives.EnumToValue x

@@ -16,9 +16,6 @@ type BufReader =
     member x.Advance count =
         x.idx <- x.idx + count
 
-let asFormat (byt: byte) = LanguagePrimitives.EnumOfValue<byte, Format> byt
-let asValue (x: Format) : byte = LanguagePrimitives.EnumToValue x
-
 let readByte (bufReader: BufReader) (bytes: inref<Bytes>) =
     let idx = bufReader.idx
     bufReader.Advance 1
@@ -36,7 +33,7 @@ let readString (br: BufReader) (bytes: inref<Bytes>) len =
     |> Value.RawString
 
 let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
-    match asFormat <| readByte br &bytes with
+    match Cast.asFormat <| readByte br &bytes with
     | Format.Nil -> Value.Nil
     | Format.False -> Value.Boolean false
     | Format.True -> Value.Boolean true
@@ -115,9 +112,12 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
         |> Value.RawBinary
     | Format.Bin32 ->
         let len =
-            BinaryPrimitives.ReadUInt32BigEndian
-                (readBytes br &bytes 4)
-            |> int
+            let u32 =
+                BinaryPrimitives.ReadUInt32BigEndian
+                    (readBytes br &bytes 4)
+            if u32 = UInt32.MaxValue then raise <| OverflowException()
+
+            int u32
 
         (readBytes br &bytes len).ToArray()
         |> Value.RawBinary
@@ -150,7 +150,7 @@ let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
 
         readMapValues br &bytes (Dictionary()) len
     | format ->
-        match asValue format with
+        match Cast.asValue format with
         | byt when
             format >= Format.PositiveFixInt &&
             byt <= 0x7fuy ->
