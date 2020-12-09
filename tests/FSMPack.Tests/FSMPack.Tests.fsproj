@@ -10,7 +10,6 @@
         <Compile Include="Utility.fs" />
         <Compile Include="BufWriter.fs" />
         <Compile Include="Integer.fs" />
-        <Compile Include="Sample.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
 
