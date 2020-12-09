@@ -5,10 +5,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Utility/Byte.fs" />
-        <Compile Include="MessagePack/Spec.fs" />
-        <Compile Include="MessagePack/ReadValue.fs" />
-        <Compile Include="MessagePack/WriteValue.fs" />
+        <Compile Include="Utility.fs" />
+        <Compile Include="Spec.fs" />
+        <Compile Include="Read.fs" />
+        <Compile Include="WritePrimitive.fs" />
+        <Compile Include="Write.fs" />
     </ItemGroup>
 
     <ItemGroup>

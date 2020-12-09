@@ -1,11 +1,11 @@
-module FSMPack.WriteValue
+module FSMPack.Write
 
 open System
 open System.Buffers
-open System.Buffers.Binary
 open System.Runtime
 
 open FSMPack.Spec
+open FSMPack.WritePrimitive
 
 type BufWriter =
     {
@@ -14,13 +14,13 @@ type BufWriter =
         initialSize : int
     }
     member private x.SetSize size =
-        Array.Resize(ref x.buffer, size)
+        Array.Resize(&x.buffer, size)
 
     member private x.Resize sizeHint =
             // TODO linked list of arrays rather than resizing
         if x.buffer.Length = 0 then
-            x.SetSize x.initialSize
-        else if sizeHint < x.buffer.Length then
+            x.SetSize (max (max x.initialSize 2) sizeHint)
+        else if sizeHint > x.buffer.Length then
             x.SetSize (x.buffer.Length + sizeHint)
         else
             x.SetSize (x.buffer.Length * 2)
@@ -33,6 +33,10 @@ type BufWriter =
         x.CheckResize sizeHint
         x.buffer.AsSpan(x.idx)
 
+    member x.GetWritten () =
+        if x.idx = 0 then Array.empty
+        else x.buffer.[0..x.idx-1]
+
     interface IBufferWriter<byte> with
         member x.Advance count =
             x.idx <- x.idx + count
@@ -41,6 +45,7 @@ type BufWriter =
         member x.GetMemory sizeHint =
             x.CheckResize sizeHint
             x.buffer.AsMemory(x.idx)
+
 
 let writeByte (bw: BufWriter) (byt: byte) =
     bw.Write (ReadOnlySpan [|byt|])
@@ -60,33 +65,30 @@ let WriteSizeIntElemsError = "Write value was expected to be int size elements o
 let writeInteger (bw: BufWriter) i =
     if i >= 0 then
         if i < 128 then
-            Cast.asValue Format.PositiveFixInt &&& byte i 
+            Cast.asValue Format.PositiveFixInt ||| byte i 
             |> writeByte bw
         else if i <= 32767 then
             writeByte bw (Cast.asValue Format.Int16)
-            BinaryPrimitives.WriteInt16BigEndian
-                (bw.GetSpan 2, int16 i)
+            writeInt16 bw i
+
         else if i <= 2147483647 then
             writeByte bw (Cast.asValue Format.Int32)
-            BinaryPrimitives.WriteInt32BigEndian
-                (bw.GetSpan 4, i)
+            writeInt32 bw i
         else
             failwith WriteSizeIntError
     else
         if i > -32 then
-            Cast.asValue Format.NegativeFixInt &&& byte i 
+            Cast.asValue Format.NegativeFixInt ||| byte (-i)
             |> writeByte bw
         else if i >= -128 then
             writeByte bw (Cast.asValue Format.Int8)
             writeByte bw (byte (sbyte i))
         else if i >= -32768 then
             writeByte bw (Cast.asValue Format.Int16)
-            BinaryPrimitives.WriteInt16BigEndian
-                (bw.GetSpan 2, int16 i)
+            writeInt16 bw i
         else if i >= -2147483648 then
             writeByte bw (Cast.asValue Format.Int32)
-            BinaryPrimitives.WriteInt32BigEndian
-                (bw.GetSpan 4, i)
+            writeInt32 bw i
         else
             failwith WriteSizeIntError
 
@@ -96,19 +98,17 @@ let writeUInteger (bw: BufWriter) (ui: uint32) =
         writeByte bw (byte ui)
     else if ui <= 32767u then
         writeByte bw (Cast.asValue Format.UInt16)
-        BinaryPrimitives.WriteUInt16BigEndian
-            (bw.GetSpan 2, uint16 ui)
+        writeUInt16 bw ui
     else if ui <= 2147483647u then
         writeByte bw (Cast.asValue Format.UInt32)
-        BinaryPrimitives.WriteUInt32BigEndian
-            (bw.GetSpan 4, ui)
+        writeUInt32 bw ui
     else
         failwith WriteSizeIntError
 
 let writeString (bw: BufWriter) (s: string) =
     if s.Length <= 31 then
         let header =
-            Cast.asValue Format.FixStr &&& byte s.Length
+            Cast.asValue Format.FixStr ||| byte s.Length
 
         writeByte bw header
     else if s.Length <= 255 then
@@ -116,12 +116,10 @@ let writeString (bw: BufWriter) (s: string) =
         writeByte bw (byte s.Length)
     else if s.Length <= 32767 then
         writeByte bw (Cast.asValue Format.Str16)
-        BinaryPrimitives.WriteUInt16BigEndian
-            (bw.GetSpan 2, uint16 s.Length)
+        writeUInt16 bw (uint32 s.Length)
     else if s.Length <= 2147483647 then
         writeByte bw (Cast.asValue Format.Str32)
-        BinaryPrimitives.WriteUInt32BigEndian
-            (bw.GetSpan 4, uint32 s.Length)
+        writeUInt32 bw (uint32 s.Length)
     else
         failwith WriteSizeIntElemsError
 
@@ -142,14 +140,12 @@ let rec writeValue (bw: BufWriter) mpv =
         writeInteger bw x
     | Integer64 x ->
         writeByte bw (Cast.asValue Format.Int64)
-        BinaryPrimitives.WriteInt64BigEndian
-            (bw.GetSpan 8, x)
+        writeInt64 bw x
     | UInteger x ->
         writeUInteger bw x
     | UInteger64 x ->
         writeByte bw (Cast.asValue Format.UInt64)
-        BinaryPrimitives.WriteUInt64BigEndian
-            (bw.GetSpan 8, x)
+        writeUInt64 bw x
     | RawString x ->
         writeString bw x
     | RawBinary x ->
@@ -157,29 +153,26 @@ let rec writeValue (bw: BufWriter) mpv =
             writeByte bw (Cast.asValue Format.Bin8)
         else if x.Length <= 32767 then
             writeByte bw (Cast.asValue Format.Bin16)
-            BinaryPrimitives.WriteUInt16BigEndian
-                (bw.GetSpan 2, uint16 x.Length)
+            writeUInt16 bw (uint32 x.Length)
         else if x.Length <= 2147483647 then
             writeByte bw (Cast.asValue Format.Bin32)
-            BinaryPrimitives.WriteUInt32BigEndian
-                (bw.GetSpan 4, uint32 x.Length)
+            writeUInt32 bw (uint32 x.Length)
         else
             failwith WriteSizeIntElemsError
 
         writeBytes bw x
     | Array x ->
         let len = x.Length
+
         if len <= 15 then
-            let header = Cast.asValue Format.FixArray &&& byte len
+            let header = Cast.asValue Format.FixArray ||| byte len
             writeByte bw header
         else if len <= 32767 then
             writeByte bw (Cast.asValue Format.Array16)
-            BinaryPrimitives.WriteUInt16BigEndian
-                (bw.GetSpan 2, uint16 len)
+            writeUInt16 bw (uint32 len)
         else if len <= 2147483647 then
             writeByte bw (Cast.asValue Format.Array32)
-            BinaryPrimitives.WriteUInt32BigEndian
-                (bw.GetSpan 4, uint32 len)
+            writeUInt32 bw (uint32 len)
         else
             failwith WriteSizeIntElemsError
 
@@ -191,16 +184,14 @@ let rec writeValue (bw: BufWriter) mpv =
         let len = x.Count
 
         if len <= 15 then
-            let header = Cast.asValue Format.FixMap &&& byte len
+            let header = Cast.asValue Format.FixMap ||| byte len
             writeByte bw header
         else if len <= 32767 then
             writeByte bw (Cast.asValue Format.Map16)
-            BinaryPrimitives.WriteUInt16BigEndian
-                (bw.GetSpan 2, uint16 len)
+            writeUInt16 bw (uint32 len)
         else if len <= 2147483647 then
             writeByte bw (Cast.asValue Format.Map32)
-            BinaryPrimitives.WriteUInt32BigEndian
-                (bw.GetSpan 4, uint32 len)
+            writeUInt32 bw (uint32 len)
         else
             failwith WriteSizeIntElemsError
 

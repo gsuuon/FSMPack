@@ -1,4 +1,4 @@
-module FSMPack.ReadValue
+module FSMPack.Read
 
 open Microsoft.FSharp.Core
 
@@ -24,6 +24,12 @@ let readByte (bufReader: BufReader) (bytes: inref<Bytes>) =
 let readBytes (bufReader: BufReader) (bytes: inref<Bytes>) count =
     let idx = bufReader.idx
     bufReader.Advance count
+
+    if bytes.Length - idx < count then
+        failwith
+            ("Expected more bytes to read, wanted " + string count
+            + " but had " + string (bytes.Length - idx) )
+
     bytes.Slice(idx, count)
 
 let readString (br: BufReader) (bytes: inref<Bytes>) len =
@@ -32,7 +38,7 @@ let readString (br: BufReader) (bytes: inref<Bytes>) len =
     |> Text.Encoding.UTF8.GetString
     |> Value.RawString
 
-let rec readNextValue (br: BufReader) (bytes: inref<Bytes>) =
+let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
     match Cast.asFormat <| readByte br &bytes with
     | Format.Nil -> Value.Nil
     | Format.False -> Value.Boolean false
@@ -227,7 +233,7 @@ and readArrayValues
     let mutable curCount = count
 
     while count <> 0 do
-        values.Push <| readNextValue br &bytes
+        values.Push <| readValue br &bytes
         curCount <- curCount - 1
 
     Value.Array <| values.ToArray()
@@ -240,8 +246,8 @@ and readMapValues
     let mutable curCount = count
 
     while count <> 0 do
-        let key = readNextValue br &bytes
-        let value = readNextValue br &bytes
+        let key = readValue br &bytes
+        let value = readValue br &bytes
         values.[key] <- value
         curCount <- curCount - 1
 
