@@ -67,15 +67,15 @@ let writeInteger (bw: BufWriter) i =
         if i < 128 then
             Cast.asValue Format.PositiveFixInt ||| byte i 
             |> writeByte bw
+        else if i <= 127 then
+            writeByte bw (Cast.asValue Format.Int8)
+            writeByte bw (byte i)
         else if i <= 32767 then
             writeByte bw (Cast.asValue Format.Int16)
             writeInt16 bw i
-
-        else if i <= 2147483647 then
+        else
             writeByte bw (Cast.asValue Format.Int32)
             writeInt32 bw i
-        else
-            failwith WriteSizeIntError
     else
         if i > -32 then
             Cast.asValue Format.NegativeFixInt ||| byte (-i)
@@ -86,11 +86,9 @@ let writeInteger (bw: BufWriter) i =
         else if i >= -32768 then
             writeByte bw (Cast.asValue Format.Int16)
             writeInt16 bw i
-        else if i >= -2147483648 then
+        else
             writeByte bw (Cast.asValue Format.Int32)
             writeInt32 bw i
-        else
-            failwith WriteSizeIntError
 
 let writeUInteger (bw: BufWriter) (ui: uint32) =
     if ui <= 255u then
@@ -99,11 +97,9 @@ let writeUInteger (bw: BufWriter) (ui: uint32) =
     else if ui <= 32767u then
         writeByte bw (Cast.asValue Format.UInt16)
         writeUInt16 bw ui
-    else if ui <= 2147483647u then
+    else
         writeByte bw (Cast.asValue Format.UInt32)
         writeUInt32 bw ui
-    else
-        failwith WriteSizeIntError
 
 let writeString (bw: BufWriter) (s: string) =
     if s.Length <= 31 then

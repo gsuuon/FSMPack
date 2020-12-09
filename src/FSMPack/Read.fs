@@ -45,15 +45,15 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
     | Format.True -> Value.Boolean true
     | Format.UInt8 ->
         readByte br &bytes
-        |> int
-        |> Value.Integer
+        |> uint32
+        |> Value.UInteger
     | Format.UInt16 ->
         BinaryPrimitives.ReadUInt16BigEndian
             // Can't pipe into byref function
             // https://github.com/dotnet/fsharp/issues/5286#issuecomment-402249997
             (readBytes br &bytes 2)
-        |> int
-        |> Value.Integer
+        |> uint32
+        |> Value.UInteger
     | Format.UInt32 ->
         BinaryPrimitives.ReadUInt32BigEndian
             (readBytes br &bytes 4)
