@@ -88,8 +88,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
             Array.Reverse floatBytes
 
         BitConverter.ToSingle (floatBytes, 0)
-        |> float
-        |> Value.Float
+        |> Value.FloatSingle
     | Format.Float64 ->
         let floatBytes = (readBytes br &bytes 8).ToArray()
 
@@ -97,7 +96,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
             Array.Reverse floatBytes
 
         BitConverter.ToDouble (floatBytes, 0)
-        |> Value.Float
+        |> Value.FloatDouble
     | Format.Str8 ->
         let len =
             readByte br &bytes

@@ -49,7 +49,8 @@ type Value =
     | Integer64 of i64: int64
     | UInteger of ui: uint32
     | UInteger64 of ui64: uint64
-    | Float of f: float
+    | FloatSingle of fs: single
+    | FloatDouble of fd: double
     | RawString of rs: string
     | RawBinary of rb: byte[]
     | Array of arr: Value array

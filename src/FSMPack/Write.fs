@@ -121,6 +121,9 @@ let writeString (bw: BufWriter) (s: string) =
 
     writeBytes bw (System.Text.Encoding.UTF8.GetBytes s)
 
+let singleMax = float Single.MaxValue
+let singleMin = float Single.MinValue
+
 let rec writeValue (bw: BufWriter) mpv =
     match mpv with
     | Nil ->
@@ -137,6 +140,25 @@ let rec writeValue (bw: BufWriter) mpv =
     | Integer64 x ->
         writeByte bw (Cast.asValue Format.Int64)
         writeInt64 bw x
+    | FloatSingle x ->
+        writeByte bw (Cast.asValue Format.Float32)
+
+        let bytes = BitConverter.GetBytes x
+
+        if BitConverter.IsLittleEndian then
+            Array.Reverse bytes
+
+        writeBytes bw bytes
+    | FloatDouble x ->
+        writeByte bw (Cast.asValue Format.Float64)
+
+        let bytes = BitConverter.GetBytes x
+
+        if BitConverter.IsLittleEndian then
+            Array.Reverse bytes
+
+        writeBytes bw bytes
+        
     | UInteger x ->
         writeUInteger bw x
     | UInteger64 x ->
