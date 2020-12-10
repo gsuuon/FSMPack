@@ -27,9 +27,14 @@ let rec valueEquals actual expected =
     | FloatDouble a, FloatDouble b -> a = b
     | RawString a, RawString b -> a = b
     | Binary a, Binary b -> a = b
-    | ArrayCollection a, ArrayCollection b -> a = b
+    | ArrayCollection a, ArrayCollection b ->
+        Array.zip a b
+        |> Array.forall
+            (fun (x, y) -> valueEquals x y)
+
     | Extension (ta, da), Extension (tb, db) ->
         ta = tb && da = db
+
     | MapCollection a, MapCollection b ->
         let ca = Dictionary a
         let cb = Dictionary b
@@ -100,3 +105,24 @@ let repeatStr init incr size =
         cur <- cur + 1
 
     x
+
+/// 0 - 12 basic values
+let generateValue =
+    function
+    | 0 -> Nil
+    | 1 -> Boolean false
+    | 2 -> Boolean true
+    | 3 -> Integer 1
+    | 4 -> Integer64 1L
+    | 5 -> UInteger 1u
+    | 6 -> UInteger64 1UL
+    | 7 -> FloatSingle 1.1f
+    | 8 -> FloatDouble 1.1
+    | 9 -> RawString "one"
+    | 10 -> Binary [|1uy|]
+    | 11 -> ArrayCollection [| Nil |]
+    | 12 -> MapCollection <| dict [ Boolean false, Nil ]
+    | x -> Extension (x, [||])
+
+let generateRandomValue (seed: System.Random) =
+    generateValue <| seed.Next(13)
