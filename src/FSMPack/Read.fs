@@ -138,6 +138,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
                 BinaryPrimitives.ReadUInt32BigEndian
                     (readBytes br &bytes 4)
             if u32 = UInt32.MaxValue then raise <| OverflowException()
+            // TODO make readBytes accept uint32 & remove this exception
 
             int u32
 

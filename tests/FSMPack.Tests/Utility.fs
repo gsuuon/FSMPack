@@ -55,3 +55,13 @@ let roundtrip v =
 
 let byteToString (byt: byte) =
     Convert.ToString(byt, 2).PadLeft(8, '0')
+
+let repeatStr init incr size =
+    let mutable cur = 0
+    let mutable x : string = init
+
+    while cur < size do
+        x <- x + incr
+        cur <- cur + 1
+
+    x

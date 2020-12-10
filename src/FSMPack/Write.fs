@@ -167,14 +167,17 @@ let rec writeValue (bw: BufWriter) mpv =
     | RawString x ->
         writeString bw x
     | RawBinary x ->
-        if x.Length <= 255 then
+        let len = x.Length
+
+        if len <= 255 then
             writeByte bw (Cast.asValue Format.Bin8)
-        else if x.Length <= 32767 then
+            writeByte bw (byte len)
+        else if len <= 32767 then
             writeByte bw (Cast.asValue Format.Bin16)
-            writeUInt16 bw (uint32 x.Length)
-        else if x.Length <= 2147483647 then
+            writeUInt16 bw (uint32 len)
+        else if len <= 2147483647 then
             writeByte bw (Cast.asValue Format.Bin32)
-            writeUInt32 bw (uint32 x.Length)
+            writeUInt32 bw (uint32 len)
         else
             failwith WriteSizeIntElemsError
 
