@@ -56,7 +56,7 @@ let expectBytesRead bytes expected =
     |> expectValueEquals actual expected 
 
 let expectValueWrites value expected =
-    let bw = newBufWriter 0
+    let bw = BufWriter.Create 0
 
     let actual =
         writeValue bw value
@@ -68,7 +68,7 @@ let expectValueWrites value expected =
 let roundtrip v =
     let actual =
         try
-            let buf = newBufWriter 0
+            let buf = BufWriter.Create 0
             writeValue buf v
 
             let readBytes = ReadOnlySpan (buf.GetWritten())

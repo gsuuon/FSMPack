@@ -13,6 +13,13 @@ type BufWriter =
         mutable buffer : byte[] // necessary for GetSpan/GetMemory
         initialSize : int
     }
+    static member Create (?size) =
+        {
+            idx = 0
+            buffer = [||]
+            initialSize = defaultArg size 0
+        }
+
     member private x.SetSize size =
         Array.Resize(&x.buffer, size)
 
@@ -223,3 +230,8 @@ let rec writeValue (bw: BufWriter) mpv =
         let msg = "Tried to write unsupported value: " + x.ToString()
 
         failwith msg
+
+let writeValueToBytes mpv =
+    let bw = BufWriter.Create()
+    writeValue bw mpv
+    bw.GetWritten()

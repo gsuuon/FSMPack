@@ -150,14 +150,14 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
                 (readBytes br &bytes 2)
             |> int
 
-        readArrayValues br &bytes (Stack()) len
+        readArrayValues br &bytes (Queue()) len
     | Format.Array32 ->
         let len =
             BinaryPrimitives.ReadUInt32BigEndian
                 (readBytes br &bytes 4)
             |> int
 
-        readArrayValues br &bytes (Stack()) len
+        readArrayValues br &bytes (Queue()) len
     | Format.Map16 ->
         let len =
             BinaryPrimitives.ReadUInt16BigEndian
@@ -200,7 +200,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
                 maskByte 0b11110000uy byt
                 |> int
 
-            readArrayValues br &bytes (Stack()) len
+            readArrayValues br &bytes (Queue()) len
 
         | byt when
             format >= Format.FixStr &&
@@ -227,13 +227,13 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
 and readArrayValues
     (br: BufReader)
     (bytes: inref<Bytes>)
-    (values: Stack<Value>)
+    (values: Queue<Value>)
     count
     =
     let mutable curCount = count
 
     while curCount <> 0 do
-        values.Push <| readValue br &bytes
+        values.Enqueue <| readValue br &bytes
         curCount <- curCount - 1
 
     Value.ArrayCollection <| values.ToArray()
