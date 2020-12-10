@@ -52,10 +52,10 @@ type Value =
     | FloatSingle of fs: single
     | FloatDouble of fd: double
     | RawString of rs: string
-    | RawBinary of rb: byte[]
-    | Array of arr: Value array
-    | Map of map: Dictionary<Value, Value>
-    | Extension of ty: int * bin: byte[]
+    | Binary of bin: byte[]
+    | ArrayCollection of arr: Value array
+    | MapCollection of map: IDictionary<Value, Value>
+    | Extension of ty: int * data: byte[]
 
 module Cast =
     let asFormat (byt: byte) = LanguagePrimitives.EnumOfValue<byte, Format> byt

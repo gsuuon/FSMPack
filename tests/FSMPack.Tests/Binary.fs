@@ -10,14 +10,14 @@ open FSMPack.Tests.Utility
 let tests =
     testList "Binary" [
         testCase "roundtrip tiny" <| fun _ ->
-            roundtrip (RawBinary [||])
-            roundtrip (RawBinary [|0uy|])
-            roundtrip (RawBinary [|0uy..byte SByte.MaxValue|])
+            roundtrip (Binary [||])
+            roundtrip (Binary [|0uy|])
+            roundtrip (Binary [|0uy..byte SByte.MaxValue|])
 
         testCase "roundtrip medium" <| fun _ ->
             [|0..(pown 2 16) - 2|]
             |> Array.map (fun x -> byte (x % int Byte.MaxValue) )
-            |> RawBinary
+            |> Binary
             |> roundtrip
 
         // TODO stream for 2 ^ 32 - 1 sized binary

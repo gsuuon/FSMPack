@@ -13,6 +13,8 @@
         <Compile Include="Integer.fs" />
         <Compile Include="String.fs" />
         <Compile Include="Float.fs" />
+        <Compile Include="Map.fs" />
+        <Compile Include="Array.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
 

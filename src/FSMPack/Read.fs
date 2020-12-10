@@ -123,7 +123,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
             |> int
 
         (readBytes br &bytes len).ToArray()
-        |> Value.RawBinary
+        |> Value.Binary
     | Format.Bin16 ->
         let len =
             BinaryPrimitives.ReadUInt16BigEndian
@@ -131,7 +131,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
             |> int
 
         (readBytes br &bytes len).ToArray()
-        |> Value.RawBinary
+        |> Value.Binary
     | Format.Bin32 ->
         let len =
             let u32 =
@@ -143,7 +143,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
             int u32
 
         (readBytes br &bytes len).ToArray()
-        |> Value.RawBinary
+        |> Value.Binary
     | Format.Array16 ->
         let len =
             BinaryPrimitives.ReadUInt16BigEndian
@@ -232,11 +232,11 @@ and readArrayValues
     =
     let mutable curCount = count
 
-    while count <> 0 do
+    while curCount <> 0 do
         values.Push <| readValue br &bytes
         curCount <- curCount - 1
 
-    Value.Array <| values.ToArray()
+    Value.ArrayCollection <| values.ToArray()
 and readMapValues
     (br: BufReader)
     (bytes: inref<Bytes>)
@@ -245,10 +245,28 @@ and readMapValues
     =
     let mutable curCount = count
 
-    while count <> 0 do
-        let key = readValue br &bytes
-        let value = readValue br &bytes
+    while curCount <> 0 do
+        let key =
+            try
+                readValue br &bytes
+            with
+            | :? System.IndexOutOfRangeException ->
+                failwith
+                    ("Failed to read map key of item "
+                        + string values.Count
+                        + ". Already have:\n"
+                        + values.ToString())
+
+        let value =
+            try
+                readValue br &bytes
+            with
+            | :? System.IndexOutOfRangeException ->
+                failwith
+                    ("Failed to read map value of item "
+                        + string values.Count)
+
         values.[key] <- value
         curCount <- curCount - 1
 
-    Value.Map values
+    Value.MapCollection values

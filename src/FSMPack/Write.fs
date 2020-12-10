@@ -166,7 +166,7 @@ let rec writeValue (bw: BufWriter) mpv =
         writeUInt64 bw x
     | RawString x ->
         writeString bw x
-    | RawBinary x ->
+    | Binary x ->
         let len = x.Length
 
         if len <= 255 then
@@ -182,7 +182,7 @@ let rec writeValue (bw: BufWriter) mpv =
             failwith WriteSizeIntElemsError
 
         writeBytes bw x
-    | Array x ->
+    | ArrayCollection x ->
         let len = x.Length
 
         if len <= 15 then
@@ -201,7 +201,7 @@ let rec writeValue (bw: BufWriter) mpv =
         while i < len do
             writeValue bw x.[i]
             i <- i + 1
-    | Map x ->
+    | MapCollection x ->
         let len = x.Count
 
         if len <= 15 then
