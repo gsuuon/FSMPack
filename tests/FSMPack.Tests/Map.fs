@@ -26,7 +26,7 @@ let generateValue =
 let generateRandomValue (seed: System.Random) =
     generateValue <| seed.Next(13)
 
-[<FTests>]
+[<Tests>]
 let tests =
     let tinyMap =
         (dict [ Integer 0, Boolean false ])
