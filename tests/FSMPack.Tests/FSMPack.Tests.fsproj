@@ -15,6 +15,7 @@
         <Compile Include="Float.fs" />
         <Compile Include="Map.fs" />
         <Compile Include="Array.fs" />
+        <Compile Include="Types/Record.fs" />
         <Compile Include="Format.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
