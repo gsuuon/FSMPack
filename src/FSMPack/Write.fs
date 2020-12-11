@@ -141,6 +141,19 @@ let writeMapFormat (bw: BufWriter) count =
     else
         failwith WriteSizeIntElemsError
 
+let writeArrayFormat (bw: BufWriter) len =
+    if len <= 15 then
+        let header = Cast.asValue Format.FixArray ||| byte len
+        writeByte bw header
+    else if len <= 32767 then
+        writeByte bw (Cast.asValue Format.Array16)
+        writeUInt16 bw (uint32 len)
+    else if len <= 2147483647 then
+        writeByte bw (Cast.asValue Format.Array32)
+        writeUInt32 bw (uint32 len)
+    else
+        failwith WriteSizeIntElemsError
+
 let singleMax = float Single.MaxValue
 let singleMin = float Single.MinValue
 
@@ -205,26 +218,14 @@ let rec writeValue (bw: BufWriter) mpv =
     | ArrayCollection x ->
         let len = x.Length
 
-        if len <= 15 then
-            let header = Cast.asValue Format.FixArray ||| byte len
-            writeByte bw header
-        else if len <= 32767 then
-            writeByte bw (Cast.asValue Format.Array16)
-            writeUInt16 bw (uint32 len)
-        else if len <= 2147483647 then
-            writeByte bw (Cast.asValue Format.Array32)
-            writeUInt32 bw (uint32 len)
-        else
-            failwith WriteSizeIntElemsError
+        writeArrayFormat bw len
 
-        let mutable i = 0
-        while i < len do
-            writeValue bw x.[i]
-            i <- i + 1
+        for v in x do
+            writeValue bw v
     | MapCollection x ->
         writeMapFormat bw x.Count
 
-        for KeyValue(key, value) in x do
+        for KeyValue(key, value) in x do // TODO-perf enumerator alloc
             writeValue bw key
             writeValue bw value
     | x ->
