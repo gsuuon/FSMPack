@@ -10,6 +10,7 @@
         <Compile Include="Read.fs" />
         <Compile Include="WritePrimitive.fs" />
         <Compile Include="Write.fs" />
+        <Compile Include="Format.fs" />
     </ItemGroup>
 
     <ItemGroup>
