@@ -7,6 +7,7 @@ open Expecto
 open FSMPack.Spec
 open FSMPack.Read
 open FSMPack.Write
+open FSMPack.Format
 
 let rec valueEquals actual expected =
     match actual, expected with
@@ -122,3 +123,13 @@ let generateRandomSimpleValue (seed: System.Random) =
 
 let generateRandomValue (seed: System.Random) =
     generateValue <| seed.Next(13)
+
+let roundtripFormat (f: Format<'T>) v message =
+    let bw = BufWriter.Create 0
+
+    f.Write bw v
+
+    let written = bw.GetWritten()
+    let read = f.Read (BufReader.Create(), ReadOnlySpan(written))
+
+    Expect.equal read v message
