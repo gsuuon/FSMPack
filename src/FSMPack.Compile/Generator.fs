@@ -56,19 +56,26 @@ type Format{typ}() =
 {__}{__}member _.Write bw (v: {typ}) =
 {__}{__}{__}writeMapFormat bw {fields.Length}
 { [ for f in fields do
-        yield $"writeString bw {f.name}"
+        yield $"writeValue bw (RawString \"{f.name}\")"
         yield writeValueString f typ ]
     |> List.map (indentLine 3)
     |> String.concat "\n" }
 
 {__}{__}member _.Read (br, bytes) =
-{__}{__}{__}let size = {fields.Length}
+{__}{__}{__}let count = {fields.Length}
+{__}{__}{__}let expectedCount = readMapFormatCount br &bytes
+
+{__}{__}{__}if count <> expectedCount then
+{__}{__}{__}{__}failwith
+{__}{__}{__}{__}{__}("Map has wrong count, expected " + string count
+{__}{__}{__}{__}{__}{__}+ " got " + string expectedCount)
+
 {__}{__}{__}let mutable items = 0
 { [ for f in fields do
         yield $"let mutable {f.name} = Unchecked.defaultof<{f.typ}>" ]
     |> List.map (indentLine 3)
     |> String.concat "\n" }
-{__}{__}{__}while items < size do
+{__}{__}{__}while items < count do
 {__}{__}{__}{__}match readValue br &bytes with
 {__}{__}{__}{__}| RawString key ->
 {__}{__}{__}{__}{__}match key with

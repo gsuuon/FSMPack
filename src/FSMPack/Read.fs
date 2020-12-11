@@ -40,6 +40,27 @@ let readString (br: BufReader) (bytes: inref<Bytes>) len =
     |> Text.Encoding.UTF8.GetString
     |> Value.RawString
 
+let readMapFormatCount (br: BufReader) (bytes: inref<Bytes>) =
+    match Cast.asFormat <| readByte br &bytes with
+    | Format.Map16 ->
+        BinaryPrimitives.ReadUInt16BigEndian
+            (readBytes br &bytes 2)
+        |> int
+    | Format.Map32 ->
+        BinaryPrimitives.ReadUInt32BigEndian
+            (readBytes br &bytes 4)
+        |> int
+    | format ->
+        match Cast.asValue format with
+        | byt when
+            format > Format.FixMap &&
+            byt <= 0x8fuy ->
+
+            maskByte 0b11110000uy byt
+            |> int
+        | _ ->
+            failwith "Expected a map format header"
+
 let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
     match Cast.asFormat <| readByte br &bytes with
     | Format.Nil -> Value.Nil

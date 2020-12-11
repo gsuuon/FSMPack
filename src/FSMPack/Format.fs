@@ -29,7 +29,8 @@ type Cache<'T>() =
         
     static member Retrieve () =
         match format with
-        | Some f -> f
+        | Some f ->
+            f
         | None ->
             failwith ("missing Format for " + string typeof<'T>)
 
@@ -38,15 +39,22 @@ type FormatMyInnerType() =
     interface Format<MyInnerType> with
         member _.Write bw (v: MyInnerType) =
             writeMapFormat bw 1
-            writeString bw "C"
+            writeValue bw (RawString "C")
             writeValue bw (RawString v.C)
 
         member _.Read (br, bytes) =
-            let size = 1
+            let count = 1
+            let expectedCount = readMapFormatCount br &bytes
+
+            if count <> expectedCount then
+                failwith
+                    ("Map has wrong count, expected " + string count
+                        + " got " + string expectedCount)
+
             let mutable items = 0
             let mutable C = Unchecked.defaultof<string>
 
-            while items < size do
+            while items < count do
                 match readValue br &bytes with
                 | RawString key ->
                     match key with
@@ -65,22 +73,29 @@ type FormatMyInnerType() =
 type FormatMyTestType() =
     interface Format<MyTestType> with
         member _.Write bw (v: MyTestType) =
-            writeMapFormat bw 2
-            writeString bw "A"
+            writeMapFormat bw 3
+            writeValue bw (RawString "A")
             writeValue bw (Integer v.A)
-            writeString bw "B"
+            writeValue bw (RawString "B")
             writeValue bw (FloatDouble v.B)
-            writeString bw "inner"
+            writeValue bw (RawString "inner")
             Cache<MyInnerType>.Retrieve().Write bw v.inner
             
         member _.Read (br, bytes) =
-            let size = 2
+            let count = 3
+            let expectedCount = readMapFormatCount br &bytes
+
+            if count <> expectedCount then
+                failwith
+                    ("Map has wrong count, expected " + string count
+                        + " got " + string expectedCount)
+
             let mutable items = 0
             let mutable A = Unchecked.defaultof<int>
             let mutable B = Unchecked.defaultof<float>
             let mutable inner = Unchecked.defaultof<MyInnerType>
 
-            while items < size do
+            while items < count do
                 match readValue br &bytes with
                 | RawString key ->
                     match key with

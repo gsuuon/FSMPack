@@ -8,6 +8,3 @@ let main argv =
         [
             CLIArguments.Summary
         ] argv
-
-    (* Tests.runTestsWithCLIArgs [] argv *)
-    (*     FSMPack.Tests.BufWriter.contractTests *)

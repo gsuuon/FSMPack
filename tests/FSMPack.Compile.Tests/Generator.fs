@@ -17,7 +17,7 @@ let roundtripFormat (f: Format<'T>) v message =
 
     Expect.equal read v message
 
-[<FTests>]
+[<Tests>]
 let tests =
     let formatInnerType = FormatMyInnerType() :> Format<MyInnerType>
     let formatTestType = FormatMyTestType() :> Format<MyTestType>
@@ -32,7 +32,7 @@ let tests =
             }
             
             "Simple record can roundtrip"
-            |> roundtripFormat formatInnerType testRecord
+            |> roundtripFormat (Cache<MyInnerType>.Retrieve()) testRecord
 
         testCase "Nested record can roundtrip" <| fun _ ->
             let testRecord = {
@@ -44,7 +44,7 @@ let tests =
             }
 
             "Nested record can roundtrip"
-            |> roundtripFormat formatTestType testRecord
+            |> roundtripFormat (Cache<MyTestType>.Retrieve())  testRecord
     ]
 
     (* testList "Generator" [ *)
