@@ -13,6 +13,8 @@ type BufReader =
     {
         mutable idx : int
     }
+    static member Create () =
+        { idx = 0 }
     member x.Advance count =
         x.idx <- x.idx + count
 

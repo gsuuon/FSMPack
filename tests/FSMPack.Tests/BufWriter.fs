@@ -20,14 +20,14 @@ let contractTests =
 
     testList "BufWriter.IBufferWriter contract" [
         testCase "Can produce a span" <| fun _ ->
-            let bw = newBufWriter 1
+            let bw = BufWriter.Create 1
             
             [ 0 .. 5 ]
             |> List.iter
                 (getSpanAndCheckGrowth bw)
 
         testCase "Can grow span" <| fun _ ->
-            let bw = newBufWriter 1
+            let bw = BufWriter.Create 1
 
             [ 10 .. 10 .. 100 ]
             |> List.iter
@@ -44,7 +44,7 @@ let contractTests =
 let writeTests =
     testList "BufWriter" [
         testCase "Can write a byte" <| fun _ ->
-            let bw = newBufWriter 0
+            let bw = BufWriter.Create 0
             bw.Write (ReadOnlySpan [|0uy|])
             let bytes = bw.GetWritten()
 
@@ -52,7 +52,7 @@ let writeTests =
             |> Expect.equal bytes [|0uy|]
 
         testCase "Can write bytes" <| fun _ ->
-            let bw = newBufWriter 0
+            let bw = BufWriter.Create 0
 
             let bytesToWrite = ReadOnlySpan [|0uy..100uy|]
 
@@ -64,7 +64,7 @@ let writeTests =
             |> Expect.equal bytes [|0uy..100uy|]
 
         testCase "Can write multiple times" <| fun _ ->
-            let bw = newBufWriter 0
+            let bw = BufWriter.Create 0
 
             bw.Write (ReadOnlySpan [|0uy..4uy|])
 

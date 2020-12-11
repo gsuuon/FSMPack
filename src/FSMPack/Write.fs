@@ -128,6 +128,19 @@ let writeString (bw: BufWriter) (s: string) =
 
     writeBytes bw (System.Text.Encoding.UTF8.GetBytes s)
 
+let writeMapFormat (bw: BufWriter) count =
+    if count <= 15 then
+        let header = Cast.asValue Format.FixMap ||| byte count
+        writeByte bw header
+    else if count <= 32767 then
+        writeByte bw (Cast.asValue Format.Map16)
+        writeUInt16 bw (uint32 count)
+    else if count <= 2147483647 then
+        writeByte bw (Cast.asValue Format.Map32)
+        writeUInt32 bw (uint32 count)
+    else
+        failwith WriteSizeIntElemsError
+
 let singleMax = float Single.MaxValue
 let singleMin = float Single.MinValue
 
@@ -209,19 +222,7 @@ let rec writeValue (bw: BufWriter) mpv =
             writeValue bw x.[i]
             i <- i + 1
     | MapCollection x ->
-        let len = x.Count
-
-        if len <= 15 then
-            let header = Cast.asValue Format.FixMap ||| byte len
-            writeByte bw header
-        else if len <= 32767 then
-            writeByte bw (Cast.asValue Format.Map16)
-            writeUInt16 bw (uint32 len)
-        else if len <= 2147483647 then
-            writeByte bw (Cast.asValue Format.Map32)
-            writeUInt32 bw (uint32 len)
-        else
-            failwith WriteSizeIntElemsError
+        writeMapFormat bw x.Count
 
         for KeyValue(key, value) in x do
             writeValue bw key

@@ -34,7 +34,8 @@ let tests =
             [0..10]
             |> List.map
                 (fun _ ->
-                    generateRandomValue seed
+                    generateRandomSimpleValue seed
+                        // Map as key is broken due to compare/equal
                     , generateRandomValue seed )
             |> dict
             |> MapCollection

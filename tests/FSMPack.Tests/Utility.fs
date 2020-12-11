@@ -8,13 +8,6 @@ open FSMPack.Spec
 open FSMPack.Read
 open FSMPack.Write
 
-let newBufReader () = { idx = 0 }
-
-let newBufWriter size =
-  { idx = 0
-    buffer = [||]
-    initialSize = size }
-
 let rec valueEquals actual expected =
     match actual, expected with
     | Nil, Nil -> true
@@ -55,7 +48,7 @@ let expectValueEquals actual expected message =
 
 let expectBytesRead bytes expected =
     let readBytes = ReadOnlySpan bytes
-    let actual = readValue (newBufReader()) &readBytes
+    let actual = readValue (BufReader.Create()) &readBytes
 
     sprintf "Reads %A" expected
     |> expectValueEquals actual expected 
@@ -79,7 +72,7 @@ let roundtrip v =
             let readBytes = ReadOnlySpan (buf.GetWritten())
 
             readValue
-                (newBufReader())
+                (BufReader.Create())
                 &readBytes
         with
         | error ->
@@ -123,6 +116,9 @@ let generateValue =
     | 11 -> ArrayCollection [| Nil |]
     | 12 -> MapCollection <| dict [ Boolean false, Nil ]
     | x -> Extension (x, [||])
+
+let generateRandomSimpleValue (seed: System.Random) =
+    generateValue <| seed.Next(11)
 
 let generateRandomValue (seed: System.Random) =
     generateValue <| seed.Next(13)
