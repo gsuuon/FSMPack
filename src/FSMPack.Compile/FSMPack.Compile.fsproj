@@ -9,6 +9,7 @@
     <Compile Include="TypeInfo.fs" />
     <Compile Include="Generator\Common.fs" />
     <Compile Include="Generator\Record.fs" />
+    <Compile Include="Generator\DU.fs" />
     <Compile Include="Generator.fs" />
   </ItemGroup>
 
