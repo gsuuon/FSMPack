@@ -61,6 +61,28 @@ let readMapFormatCount (br: BufReader) (bytes: inref<Bytes>) =
         | _ ->
             failwith "Expected a map format header"
 
+let readArrayFormatCount (br: BufReader) (bytes: inref<Bytes>) =
+    match Cast.asFormat <| readByte br &bytes with
+    | Format.Array16 ->
+        BinaryPrimitives.ReadUInt16BigEndian
+            (readBytes br &bytes 2)
+        |> int
+    | Format.Array32 ->
+        BinaryPrimitives.ReadUInt32BigEndian
+            (readBytes br &bytes 4)
+        |> int
+    | format ->
+        match Cast.asValue format with
+        | byt when
+            format > Format.FixArray &&
+            byt <= 0x9fuy ->
+
+            maskByte 0b11110000uy byt
+            |> int
+        | _ ->
+            failwith "Expected an array format header"
+    
+
 let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
     match Cast.asFormat <| readByte br &bytes with
     | Format.Nil -> Value.Nil
