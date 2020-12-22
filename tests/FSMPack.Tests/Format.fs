@@ -72,4 +72,9 @@ let duTests =
                 (Cache<MyDU>.Retrieve())
                 (MyDU.D (MyInnerDU.B 1))
 
+        testCase "can roundtrip multi-field" <| fun _ ->
+            "Multiple field DU case"
+            |> roundtripFormat
+                (Cache<MyDU>.Retrieve())
+                (MyDU.C ("hi", 2.0))
     ]
