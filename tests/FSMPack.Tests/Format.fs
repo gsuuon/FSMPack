@@ -79,7 +79,7 @@ let duTests =
                 (MyDU.C ("hi", 2.0))
     ]
     
-[<FTests>]
+[<Tests>]
 let genericTests =
     Cache<MyGenericRecord<_>>.StoreGeneric
         typedefof<FormatMyGenericRecord<_>>
