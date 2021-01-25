@@ -16,6 +16,10 @@ type MyTestType = {
     inner : MyInnerType
 }
 
+type MyGenericRecord<'T> = {
+    foo : 'T
+}
+
 #nowarn "0025" // incomplete pattern matches
 type FormatMyInnerType() =
     interface Format<MyInnerType> with
@@ -103,3 +107,31 @@ type FormatMyTestType() =
                 inner = inner
             }
 
+type FormatMyGenericRecord<'T>() =
+    interface Format<MyGenericRecord<'T>> with
+        member _.Write bw (v: MyGenericRecord<'T>) =
+            writeMapFormat bw 1
+            writeValue bw (RawString "foo")
+            Cache<'T>.Retrieve().Write bw v.foo
+
+        member _.Read (br, bytes) =
+            let count = 1
+            let expectedCount = readMapFormatCount br &bytes
+
+            let mutable items = 0
+            let mutable foo = Unchecked.defaultof<'T>
+
+            while items < count do
+                match readValue br &bytes with
+                | RawString key ->
+                    match key with
+                    | "foo" ->
+                        foo <- Cache<'T>.Retrieve().Read (br, bytes)
+                    | _ -> failwith "Unknown key"
+                | _ -> failwith "Unexpected key type"
+
+                items <- items + 1
+
+            {
+                foo = foo
+            }
