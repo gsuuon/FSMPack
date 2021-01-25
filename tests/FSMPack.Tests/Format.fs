@@ -78,13 +78,14 @@ let duTests =
                 (Cache<MyDU>.Retrieve())
                 (MyDU.C ("hi", 2.0))
     ]
-
+    
 [<FTests>]
 let genericTests =
-    let genericFormatterTyp : Format<MyGenericRecord<obj>> =
-        FormatMyGenericRecord<_>() :> Format<MyGenericRecord<obj>>
+    Cache<MyGenericRecord<_>>.StoreGeneric
+        typedefof<FormatMyGenericRecord<_>>
 
-    GenericCache<MyGenericRecord<_>>.StoreGeneric genericFormatterTyp
+    Cache<MyInnerType>.Store 
+        (FormatMyInnerType() :> Format<MyInnerType>)
 
     Cache<string>.Store
       { new Format<string> with
@@ -104,20 +105,20 @@ let genericTests =
 
 
     testList "Generic formatter" [
-        testCase "Retrieve" <| fun _ ->
-            "Specialized retrieve gets generic formatter"
-            |> Expect.equal 
-                (GenericCache<MyGenericRecord<string>>.Retrieve ())
-                (genericFormatterTyp :?> Format<MyGenericRecord<string>>)
-
-        testCase "Roundtrip generic record" <| fun _ ->
+        testCase "Roundtrip generic record of value type" <| fun _ ->
             "Simple generic record of string"
             |> roundtripFormat
-                (GenericCache<MyGenericRecord<string>>.Retrieve())
+                (Cache<MyGenericRecord<string>>.Retrieve())
                 { foo = "Hi" }
 
             "Simple generic record of float"
             |> roundtripFormat
-                (GenericCache<MyGenericRecord<float>>.Retrieve())
+                (Cache<MyGenericRecord<float>>.Retrieve())
                 { foo = 12.3 }
+
+        testCase "Roundtrip generic record of reference type" <| fun _ ->
+            "Simple generic record of record"
+            |> roundtripFormat
+                (Cache<MyGenericRecord<MyInnerType>>.Retrieve())
+                { foo = { C = "Hi" } }
     ]
