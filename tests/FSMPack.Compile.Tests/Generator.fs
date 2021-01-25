@@ -6,6 +6,7 @@ open Expecto
 open FSMPack.Format
 open FSMPack.Write
 open FSMPack.Read
+open FSMPack.Compile
 
 [<Tests>]
 let tests =

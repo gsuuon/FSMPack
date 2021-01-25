@@ -1,4 +1,4 @@
-module FSMPack.Compile.Generator
+module FSMPack.Compile.Generate
 /// Generates code as strings for a type
 
 open System
