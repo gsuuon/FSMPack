@@ -20,6 +20,11 @@ type MyGenericRecord<'T> = {
     foo : 'T
 }
 
+type MyMultipleGenericRecord<'T1, 'T2> = {
+    A : 'T1
+    B : 'T2
+}
+
 #nowarn "0025" // incomplete pattern matches
 type FormatMyInnerType() =
     interface Format<MyInnerType> with
@@ -134,4 +139,39 @@ type FormatMyGenericRecord<'T>() =
 
             {
                 foo = foo
+            }
+
+type FormatMyMultipleGenericRecord<'T1, 'T2>() =
+    interface Format<MyMultipleGenericRecord<'T1, 'T2>> with
+        member _.Write bw (v: MyMultipleGenericRecord<'T1, 'T2>) =
+            writeMapFormat bw 1
+            writeValue bw (RawString "A")
+            Cache<'T1>.Retrieve().Write bw v.A
+            writeValue bw (RawString "B")
+            Cache<'T2>.Retrieve().Write bw v.B
+
+        member _.Read (br, bytes) =
+            let count = 1
+            let expectedCount = readMapFormatCount br &bytes
+
+            let mutable items = 0
+            let mutable A = Unchecked.defaultof<'T1>
+            let mutable B = Unchecked.defaultof<'T2>
+
+            while items < count do
+                match readValue br &bytes with
+                | RawString key ->
+                    match key with
+                    | "A" ->
+                        A <- Cache<'T1>.Retrieve().Read (br, bytes)
+                    | "B" ->
+                        B <- Cache<'T2>.Retrieve().Read (br, bytes)
+                    | _ -> failwith "Unknown key"
+                | _ -> failwith "Unexpected key type"
+
+                items <- items + 1
+
+            {
+                A = A
+                B = B
             }
