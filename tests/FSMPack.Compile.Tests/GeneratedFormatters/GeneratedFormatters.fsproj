@@ -6,11 +6,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../../../src/FSMPack/FSMPack.fsproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Compile Include="../../FSMPack.Tests/Types/DU.fs" />
-        <Compile Include="../../FSMPack.Tests/Types/Record.fs" />
+        <ProjectReference Include="../../FSMPack.Tests/Types/Types.fsproj" />
     </ItemGroup>
 
     <ItemGroup>
