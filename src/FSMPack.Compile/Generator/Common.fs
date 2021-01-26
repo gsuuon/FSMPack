@@ -22,3 +22,17 @@ let msgpackTypes = dict [
         // TODO Extension
 ]
 
+let deriveTypeName (typ: Type) = 
+    let typeSimpleName = (typ.Name.Split '`').[0]
+
+    let genArgs = typ.GetGenericArguments()
+
+    if genArgs.Length > 0 then
+        let genArgsForTypeName =
+            genArgs
+            |> Array.map (fun arg -> "'" + arg.Name)
+            |> String.concat ","
+
+        $"{typeSimpleName}<{genArgsForTypeName}>"
+    else
+        typeSimpleName

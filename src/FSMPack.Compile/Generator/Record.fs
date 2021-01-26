@@ -32,23 +32,9 @@ let getFields (typ: Type) = [
 
 let generateFormatRecord (typ: Type) =
     let fields = getFields typ
-    let typName =
-        let typeSimpleName = (typ.Name.Split '`').[0]
+    let typName = deriveTypeName typ
 
-        let genArgs = typ.GetGenericArguments()
-
-        if genArgs.Length > 0 then
-            let genArgsForTypeName =
-                genArgs
-                |> Array.map (fun arg -> "'" + arg.Name)
-                |> String.concat ","
-
-            $"{typeSimpleName}<{genArgsForTypeName}>"
-        else
-            typeSimpleName
-
-    $"""
-type Format{typName}() =
+    $"""type Format{typName}() =
 {__}interface Format<{typName}> with
 {__}{__}member _.Write bw (v: {typName}) =
 {__}{__}{__}writeMapFormat bw {fields.Length}
