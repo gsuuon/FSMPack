@@ -7,15 +7,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="CompileHosted.fs" />
-        <Compile Include="Generator.fs" />
-        <Compile Include="Main.fs" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="../../src/FSMPack.Compile/FSMPack.Compile.fsproj" />
         <ProjectReference Include="../../src/FSMPack/FSMPack.fsproj" />
         <ProjectReference Include="../FSMPack.Tests/FSMPack.Tests.fsproj" />
+        <ProjectReference Include="../FSMPack.Tests/Types/Types.fsproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -27,6 +22,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.Memory" Version="4.5.4" />
+        <PackageReference Include="System.Memory" Version="4.5.4" />
     </ItemGroup>
+
+    <ItemGroup>
+        <Compile Include="CompileHelper.fs" />
+        <Compile Include="CompileHosted.fs" />
+        <Compile Include="Generator.fs" />
+        <Compile Include="Main.fs" />
+    </ItemGroup>
+
 </Project>
