@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Types/DU.fs" />
+        <Compile Include="Types/Record.fs" />
+        <Compile Include="Utility.fs" />
+        <Compile Include="FormatTests.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../../src/FSMPack/FSMPack.fsproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Expecto" Version="9.*" />
+        <PackageReference Update="FSharp.Core" Version="4.7.2" />
+    </ItemGroup>
+
+</Project>

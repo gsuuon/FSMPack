@@ -9,8 +9,7 @@
     <ItemGroup>
         <ProjectReference Include="../../src/FSMPack.Compile/FSMPack.Compile.fsproj" />
         <ProjectReference Include="../../src/FSMPack/FSMPack.fsproj" />
-        <ProjectReference Include="../FSMPack.Tests/FSMPack.Tests.fsproj" />
-        <ProjectReference Include="../FSMPack.Tests/Types/Types.fsproj" />
+        <ProjectReference Include="../TestCommon/TestCommon.fsproj" />
     </ItemGroup>
 
     <ItemGroup>

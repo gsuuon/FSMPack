@@ -18,6 +18,7 @@ open FSMPack.Tests.Types
 open FSMPack.Tests.Types.Record
 open FSMPack.Tests.Types.DU
 open FSMPack.Tests.CompileHelper
+open FSMPack.Tests.FormatTests
 
 let directory = "GeneratedFormatters"
 let moduleName = "FSMPack.GeneratedFormatters+"
@@ -120,58 +121,19 @@ let tests =
             getTypeFromAssembly asm (moduleName + "FormatMyGenericRecord`1")
             |> cacheGenFormatterTypeWithReflection<MyGenericRecord<_>>
             
-            // TODO reuse tests from Format
-            
+            setupBasicFormatters()
+
             "Simple record can roundtrip"
-            |> roundtripFormat
-                (Cache<MyInnerType>.Retrieve())
+            |> roundtripFormat (Cache<MyInnerType>.Retrieve())
                 {
                     C = "hi"
                 }
-            
-            "Nested record can roundtrip"
-            |> roundtripFormat
-                (Cache<MyTestType>.Retrieve())
-                {
-                    A = 5
-                    B = 1.23
-                    inner = {
-                        C = "hello"
-                    }
-                }
 
-            "Single case du"
-            |> roundtripFormat
-                (Cache<MyInnerDU>.Retrieve())
-                MyInnerDU.A
-            
-            "Simple du case"
-            |> roundtripFormat
-                (Cache<MyInnerDU>.Retrieve())
-                (MyInnerDU.B 1)
-
-            "Nested single case DU"
-            |> roundtripFormat
-                (Cache<MyDU>.Retrieve())
-                (MyDU.D MyInnerDU.A)
-
-            "Nested simple DU"
-            |> roundtripFormat
-                (Cache<MyDU>.Retrieve())
-                (MyDU.D (MyInnerDU.B 1))
-
-            "Simple generic record of string"
-            |> roundtripFormat
-                (Cache<MyGenericRecord<string>>.Retrieve())
-                { foo = "Hi" }
-
-            "Simple generic record of float"
-            |> roundtripFormat
-                (Cache<MyGenericRecord<float>>.Retrieve())
-                { foo = 12.3 }
-
-            "Simple generic record of record"
-            |> roundtripFormat
-                (Cache<MyGenericRecord<MyInnerType>>.Retrieve())
-                { foo = { C = "Hi" } }
+            roundtripSimpleRecord()
+            roundtripNestedRecord()
+            roundtripSimpleDU()
+            roundtripNestedDU()
+            roundtripMultiFieldDU()
+            roundtripGenericOfValue()
+            roundtripGenericOfReference()
     ]
