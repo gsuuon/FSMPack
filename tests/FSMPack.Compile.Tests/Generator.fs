@@ -102,14 +102,14 @@ let tests =
                     C = "hi"
                 }
             
-            (* "Nested record can roundtrip" *)
-            (* |> roundtripFormat *)
-            (*     (Cache<MyTestType>.Retrieve()) *)
-            (*     { *)
-            (*         A = 5 *)
-            (*         B = 1.23 *)
-            (*         inner = { *)
-            (*             C = "hello" *)
-            (*         } *)
-            (*     } *)
+            "Nested record can roundtrip"
+            |> roundtripFormat
+                (Cache<MyTestType>.Retrieve())
+                {
+                    A = 5
+                    B = 1.23
+                    inner = {
+                        C = "hello"
+                    }
+                }
     ]

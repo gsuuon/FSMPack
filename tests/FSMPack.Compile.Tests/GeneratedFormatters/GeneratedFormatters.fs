@@ -75,11 +75,9 @@ type FormatMyTestType() =
                     | "A" ->
                         let (Integer x) = readValue br &bytes
                         A <- x
-                    | _ -> failwith "Unknown key"
                     | "B" ->
                         let (FloatDouble x) = readValue br &bytes
                         B <- x
-                    | _ -> failwith "Unknown key"
                     | "inner" ->
                         inner <- Cache<MyInnerType>.Retrieve().Read(br, bytes)
                     | _ -> failwith "Unknown key"

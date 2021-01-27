@@ -71,8 +71,7 @@ let generateFormatRecord (typ: Type) =
             yield $"{__}{f.name} <- x"
         | false, _ ->
             yield $"{__}{f.name} <- Cache<{f.typName}>.Retrieve().Read(br, bytes)"
-        yield "| _ -> failwith \"Unknown key\""
-    ]
+    ] @ [ "| _ -> failwith \"Unknown key\"" ]
     |> List.map (indentLine 5)
     |> String.concat "\n" }
 {__}{__}{__}{__}items <- items + 1
