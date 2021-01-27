@@ -28,6 +28,9 @@ let destructFields case =
     else
         ""
 
+let canonTypeName (fullName: string) =
+    fullName.Replace ("+", ".")
+
 let generateFormatDU (typ: Type) =
     let cases = getCases typ
 
@@ -48,7 +51,7 @@ type Format{typ.Name}() =
                     | true, mpType ->
                         $"{__}writeValue bw ({mpType} x{idx})"
                     | false, _ ->
-                        $"{__}Cache<{f.PropertyType}>.Retrieve().Write bw x{idx}")
+                        $"{__}Cache<{canonTypeName f.PropertyType.FullName}>.Retrieve().Write bw x{idx}")
         ]
         |> List.map (indentLine 3)
         |> String.concat "\n" }
@@ -59,15 +62,15 @@ type Format{typ.Name}() =
 {__}{__}{__}match readValue br &bytes with
 { [ for c in cases do
         yield $"| Integer {c.tag} ->"
-        yield! [
-            for f in c.fieldInfos do
-                yield 
-                    match msgpackTypes.TryGetValue f.PropertyType with
-                    | true, mpType ->
-                        $"{__}let ({mpType} x) = readValue br & bytes"
-                    | false, _ ->
-                        $"{__}let x = Cache<{f.PropertyType}>.Retrieve().Read(br, btyes)"
-        ]
+        yield! 
+            c.fieldInfos
+            |> Array.mapi (fun idx f ->
+                match msgpackTypes.TryGetValue f.PropertyType with
+                | true, mpType ->
+                    $"{__}let ({mpType} x{idx}) = readValue br &bytes"
+                | false, _ ->
+                    $"{__}let x{idx} = Cache<{canonTypeName f.PropertyType.FullName}>.Retrieve().Read(br, bytes)"
+            )
         yield $"{__}{c.name}{destructFields c}"
     ]
     |> List.map (indentLine 3)

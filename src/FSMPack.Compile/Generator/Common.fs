@@ -36,3 +36,17 @@ let deriveTypeName (typ: Type) =
         $"{typeSimpleName}<{genArgsForTypeName}>"
     else
         typeSimpleName
+
+let header =
+    """module FSMPack.GeneratedFormatters
+
+open System
+
+open FSMPack.Format
+open FSMPack.Spec
+open FSMPack.Read
+open FSMPack.Write
+
+#nowarn "0025"
+
+"""

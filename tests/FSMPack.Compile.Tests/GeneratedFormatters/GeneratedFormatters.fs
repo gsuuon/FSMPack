@@ -7,9 +7,11 @@ open FSMPack.Spec
 open FSMPack.Read
 open FSMPack.Write
 
-open FSMPack.Tests.Types.Record
-
 #nowarn "0025"
+
+
+open FSMPack.Tests.Types.Record
+open FSMPack.Tests.Types.DU
 
 type FormatMyInnerType() =
     interface Format<MyInnerType> with
@@ -42,7 +44,6 @@ type FormatMyInnerType() =
             {
                 C = C
             }
-
 
 type FormatMyTestType() =
     interface Format<MyTestType> with
@@ -88,3 +89,62 @@ type FormatMyTestType() =
                 B = B
                 inner = inner
             }
+
+
+type FormatMyInnerDU() =
+    interface Format<MyInnerDU> with
+        member _.Write bw (v: MyInnerDU) =
+            match v with
+            | A ->
+                writeArrayFormat bw 1
+                writeValue bw (Integer 0)
+            | B (x0) ->
+                writeArrayFormat bw 2
+                writeValue bw (Integer 1)
+                writeValue bw (Integer x0)
+
+        member _.Read (br, bytes) =
+            let count = readArrayFormatCount br &bytes
+
+            match readValue br &bytes with
+            | Integer 0 ->
+                A
+            | Integer 1 ->
+                let (Integer x0) = readValue br &bytes
+                B (x0)
+            | _ ->
+                failwith "Unexpected DU case tag"
+
+
+type FormatMyDU() =
+    interface Format<MyDU> with
+        member _.Write bw (v: MyDU) =
+            match v with
+            | C (x0, x1) ->
+                writeArrayFormat bw 3
+                writeValue bw (Integer 0)
+                writeValue bw (RawString x0)
+                writeValue bw (FloatDouble x1)
+            | D (x0) ->
+                writeArrayFormat bw 2
+                writeValue bw (Integer 1)
+                Cache<FSMPack.Tests.Types.DU.MyInnerDU>.Retrieve().Write bw x0
+            | E ->
+                writeArrayFormat bw 1
+                writeValue bw (Integer 2)
+
+        member _.Read (br, bytes) =
+            let count = readArrayFormatCount br &bytes
+
+            match readValue br &bytes with
+            | Integer 0 ->
+                let (RawString x0) = readValue br &bytes
+                let (FloatDouble x1) = readValue br &bytes
+                C (x0, x1)
+            | Integer 1 ->
+                let x0 = Cache<FSMPack.Tests.Types.DU.MyInnerDU>.Retrieve().Read(br, bytes)
+                D (x0)
+            | Integer 2 ->
+                E
+            | _ ->
+                failwith "Unexpected DU case tag"

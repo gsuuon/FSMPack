@@ -16,6 +16,7 @@ open FSMPack.Compile
 open FSMPack.Tests.Utility
 open FSMPack.Tests.Types
 open FSMPack.Tests.Types.Record
+open FSMPack.Tests.Types.DU
 open FSMPack.Tests.CompileHelper
 
 let directory = "GeneratedFormatters"
@@ -48,7 +49,11 @@ let createFormatterFromAsm asm typeName =
     getTypeFromAssembly asm (moduleName + typeName)
     |> Activator.CreateInstance
 
+let prependText text body =
+    text + "\n" + body
+
 // NOTE need to dotnet publish `FSMPack.Tests/Types` project
+// TODO add item to start publish process
 [<Tests>]
 let tests =
     let outAsmName = "outasmtest.dll"
@@ -60,9 +65,14 @@ let tests =
             [
                 typeof<MyInnerType>
                 typeof<MyTestType>
+                typeof<MyInnerDU>
+                typeof<MyDU>
             ]
             |> List.map Generate.generateFormat
-            |> Generate.addFormattersFileHeader
+            |> String.concat "\n"
+            |> prependText "open FSMPack.Tests.Types.DU\n"
+            |> prependText "open FSMPack.Tests.Types.Record"
+            |> prependText Generator.Common.header
             |> writeFormatters
 
             "Formatters written"
@@ -95,6 +105,14 @@ let tests =
             createFormatterFromAsm asm "FormatMyTestType"
             |> cacheFormatterWithReflection<MyTestType>
             
+            createFormatterFromAsm asm "FormatMyInnerDU"
+            |> cacheFormatterWithReflection<MyInnerDU>
+
+            createFormatterFromAsm asm "FormatMyDU"
+            |> cacheFormatterWithReflection<MyDU>
+            
+            // TODO reuse tests from Format
+            
             "Simple record can roundtrip"
             |> roundtripFormat
                 (Cache<MyInnerType>.Retrieve())
@@ -112,4 +130,25 @@ let tests =
                         C = "hello"
                     }
                 }
+
+            "Single case du"
+            |> roundtripFormat
+                (Cache<MyInnerDU>.Retrieve())
+                MyInnerDU.A
+            
+            "Simple du case"
+            |> roundtripFormat
+                (Cache<MyInnerDU>.Retrieve())
+                (MyInnerDU.B 1)
+
+            "Nested single case DU"
+            |> roundtripFormat
+                (Cache<MyDU>.Retrieve())
+                (MyDU.D MyInnerDU.A)
+
+            "Nested simple DU"
+            |> roundtripFormat
+                (Cache<MyDU>.Retrieve())
+                (MyDU.D (MyInnerDU.B 1))
+
     ]
