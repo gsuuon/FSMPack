@@ -20,15 +20,21 @@ open FSMPack.Tests.Types.DU
 open FSMPack.Tests.CompileHelper
 
 let directory = "GeneratedFormatters"
+let moduleName = "FSMPack.GeneratedFormatters+"
+    // FIXME move this to a more appropriate place
+
 let formattersOutPath =
     Path.Join (directory, "GeneratedFormatters.fs")
 
 let writeFormatters formattersText =
     File.WriteAllText (formattersOutPath, formattersText)
 
+let cacheGenFormatterTypeWithReflection<'T> formatterTyp = 
+    let mi = (typeof<Cache<'T>>).GetMethod "StoreGeneric"
+    ignore <| mi.Invoke (null, [| formatterTyp |])
+
 let cacheFormatterWithReflection<'T> formatterObj = 
     let mi = (typeof<Cache<'T>>).GetMethod "Store"
-
     ignore <| mi.Invoke (null, [| formatterObj |])
 
 let getTypeFromAssembly (asm: Assembly) typeName =
@@ -44,7 +50,6 @@ let getTypeFromAssembly (asm: Assembly) typeName =
     formatterTyp
 
 let createFormatterFromAsm asm typeName =
-    let moduleName = "FSMPack.GeneratedFormatters+"
 
     getTypeFromAssembly asm (moduleName + typeName)
     |> Activator.CreateInstance
@@ -67,6 +72,7 @@ let tests =
                 typeof<MyTestType>
                 typeof<MyInnerDU>
                 typeof<MyDU>
+                typedefof<MyGenericRecord<_>>
             ]
             |> List.map Generate.generateFormat
             |> String.concat "\n"
@@ -111,6 +117,9 @@ let tests =
             createFormatterFromAsm asm "FormatMyDU"
             |> cacheFormatterWithReflection<MyDU>
             
+            getTypeFromAssembly asm (moduleName + "FormatMyGenericRecord`1")
+            |> cacheGenFormatterTypeWithReflection<MyGenericRecord<_>>
+            
             // TODO reuse tests from Format
             
             "Simple record can roundtrip"
@@ -151,4 +160,18 @@ let tests =
                 (Cache<MyDU>.Retrieve())
                 (MyDU.D (MyInnerDU.B 1))
 
+            "Simple generic record of string"
+            |> roundtripFormat
+                (Cache<MyGenericRecord<string>>.Retrieve())
+                { foo = "Hi" }
+
+            "Simple generic record of float"
+            |> roundtripFormat
+                (Cache<MyGenericRecord<float>>.Retrieve())
+                { foo = 12.3 }
+
+            "Simple generic record of record"
+            |> roundtripFormat
+                (Cache<MyGenericRecord<MyInnerType>>.Retrieve())
+                { foo = { C = "Hi" } }
     ]

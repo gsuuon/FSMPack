@@ -37,8 +37,7 @@ let deriveTypeName (typ: Type) =
     else
         typeSimpleName
 
-let header =
-    """module FSMPack.GeneratedFormatters
+let header = """module FSMPack.GeneratedFormatters
 
 open System
 

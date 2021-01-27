@@ -90,7 +90,6 @@ type FormatMyTestType() =
                 inner = inner
             }
 
-
 type FormatMyInnerDU() =
     interface Format<MyInnerDU> with
         member _.Write bw (v: MyInnerDU) =
@@ -114,7 +113,6 @@ type FormatMyInnerDU() =
                 B (x0)
             | _ ->
                 failwith "Unexpected DU case tag"
-
 
 type FormatMyDU() =
     interface Format<MyDU> with
@@ -148,3 +146,34 @@ type FormatMyDU() =
                 E
             | _ ->
                 failwith "Unexpected DU case tag"
+
+type FormatMyGenericRecord<'T>() =
+    interface Format<MyGenericRecord<'T>> with
+        member _.Write bw (v: MyGenericRecord<'T>) =
+            writeMapFormat bw 1
+            writeValue bw (RawString "foo")
+            Cache<'T>.Retrieve().Write bw v.foo
+
+        member _.Read (br, bytes) =
+            let count = 1
+            let expectedCount = readMapFormatCount br &bytes
+
+            if count <> expectedCount then
+                failwith
+                    ("Map has wrong count, expected " + string count
+                        + " got " + string expectedCount)
+
+            let mutable items = 0
+            let mutable foo = Unchecked.defaultof<'T>
+            while items < count do
+                match readValue br &bytes with
+                | RawString key ->
+                    match key with
+                    | "foo" ->
+                        foo <- Cache<'T>.Retrieve().Read(br, bytes)
+                    | _ -> failwith "Unknown key"
+                items <- items + 1
+
+            {
+                foo = foo
+            }

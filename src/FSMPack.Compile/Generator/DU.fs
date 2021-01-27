@@ -33,11 +33,11 @@ let canonTypeName (fullName: string) =
 
 let generateFormatDU (typ: Type) =
     let cases = getCases typ
+    let typName = deriveTypeName typ
 
-    $"""
-type Format{typ.Name}() =
-{__}interface Format<{typ.Name}> with
-{__}{__}member _.Write bw (v: {typ.Name}) =
+    $"""type Format{typName}() =
+{__}interface Format<{typName}> with
+{__}{__}member _.Write bw (v: {typName}) =
 {__}{__}{__}match v with
 { [ for c in cases do
         yield $"| {c.name}{destructFields c} ->"

@@ -103,7 +103,6 @@ let genericTests =
             let (FloatDouble x) = readValue br &bytes
             x } 
 
-
     testList "Generic formatter" [
         testCase "Roundtrip generic record of value type" <| fun _ ->
             "Simple generic record of string"
