@@ -74,8 +74,8 @@ let prependText text body =
 let tests =
     let outAsmName = "outasmtest.dll"
 
-    testSequenced <| testList "Generator produces code matching format" [
-        testCase "Formatters produce text" <| fun _ ->
+    testSequenced <| testList "Generator" [
+        testCase "produces formatter text file" <| fun _ ->
             File.Delete formattersOutPath
 
             [
@@ -95,7 +95,7 @@ let tests =
             "Formatters written"
             |> Expect.isTrue (File.Exists formattersOutPath)
 
-        testCase "fsc compiles generated formatter" <| fun _ ->
+        testCase "fsc compiles text" <| fun _ ->
             File.Delete outAsmName
 
             let compilerArgs =
@@ -113,7 +113,7 @@ let tests =
             "Dll written"
             |> Expect.isTrue (File.Exists outAsmName)
 
-        testCase "Compiled formatter can roundtrip" <| fun _ ->
+        testCase "Compiled formatters can be cached" <| fun _ ->
             let asm = Assembly.LoadFrom outAsmName
 
             createFormatterFromAsm asm "FormatMyInnerType"
@@ -130,20 +130,11 @@ let tests =
             
             getTypeFromAssembly asm (moduleName + "FormatMyGenericRecord`1")
             |> cacheGenFormatterTypeWithReflection<MyGenericRecord<_>>
-            
-            setupBasicFormatters()
 
-            "Simple record can roundtrip"
-            |> roundtripFormat (Cache<MyInnerType>.Retrieve())
-                {
-                    C = "hi"
-                }
-
-            roundtripSimpleRecord()
-            roundtripNestedRecord()
-            roundtripSimpleDU()
-            roundtripNestedDU()
-            roundtripMultiFieldDU()
-            roundtripGenericOfValue()
-            roundtripGenericOfReference()
+        testList "Roundtrip" [
+            testCase "Setup basic formatters" setupBasicFormatters
+            TestCases.records
+            TestCases.DUs
+            TestCases.generics
+        ]
     ]

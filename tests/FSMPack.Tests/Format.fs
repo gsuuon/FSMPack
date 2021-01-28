@@ -21,10 +21,7 @@ let recordTests =
     Cache<MyInnerType>.Store formatInnerType
     Cache<MyTestType>.Store formatTestType
 
-    testList "Format.Record" [
-        testCase "can roundtrip" roundtripSimpleRecord
-        testCase "can roundtrip nested" roundtripNestedRecord
-    ]
+    TestCases.records
 
 [<Tests>]
 let duTests =
@@ -34,11 +31,7 @@ let duTests =
     Cache<MyInnerDU>.Store formatInnerDU
     Cache<MyDU>.Store formatDU
 
-    testList "Format.DU" [
-        testCase "can roundtrip" roundtripSimpleDU
-        testCase "can roundtrip nested" roundtripNestedDU
-        testCase "can roundtrip multi-field" roundtripMultiFieldDU
-    ]
+    TestCases.DUs
     
 [<Tests>]
 let genericTests =
@@ -50,7 +43,4 @@ let genericTests =
 
     setupBasicFormatters()
 
-    testList "Generic formatter" [
-        testCase "Roundtrip generic record of value type" roundtripGenericOfValue
-        testCase "Roundtrip generic record of reference type" roundtripGenericOfReference
-    ]
+    TestCases.generics

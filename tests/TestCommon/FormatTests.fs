@@ -1,5 +1,7 @@
 module FSMPack.Tests.FormatTests
 
+open Expecto
+
 open FSMPack.Format
 
 open FSMPack.Tests.Utility
@@ -88,3 +90,23 @@ let setupBasicFormatters () =
         member _.Read (br, bytes) =
             let (FloatDouble x) = readValue br &bytes
             x } 
+
+module TestCases =
+    let records =
+        testList "Format.Record" [
+            testCase "can roundtrip" roundtripSimpleRecord
+            testCase "can roundtrip nested" roundtripNestedRecord
+        ]
+
+    let DUs =
+        testList "Format.DU" [
+            testCase "can roundtrip" roundtripSimpleDU
+            testCase "can roundtrip nested" roundtripNestedDU
+            testCase "can roundtrip multi-field" roundtripMultiFieldDU
+        ]
+
+    let generics =
+        testList "Generic formatter" [
+            testCase "Roundtrip generic record of value type" roundtripGenericOfValue
+            testCase "Roundtrip generic record of reference type" roundtripGenericOfReference
+        ]
