@@ -51,14 +51,24 @@ let getTypeFromAssembly (asm: Assembly) typeName =
     formatterTyp
 
 let createFormatterFromAsm asm typeName =
+    let searchName = moduleName + typeName
 
-    getTypeFromAssembly asm (moduleName + typeName)
-    |> Activator.CreateInstance
+    try
+        getTypeFromAssembly asm searchName
+        |> Activator.CreateInstance
+    with
+    | :? System.MissingMethodException as e -> 
+        let typ = getTypeFromAssembly asm searchName
+        raise
+            <| System.AggregateException ([|
+                e :> System.Exception
+                System.Exception (sprintf "Found type name: %s, searched for: %s" typ.FullName searchName)
+                |])
 
 let prependText text body =
     text + "\n" + body
 
-// NOTE need to dotnet publish `FSMPack.Tests/Types` project
+// NOTE need to dotnet publish `TestCommon` project
 // TODO add item to start publish process
 [<Tests>]
 let tests =

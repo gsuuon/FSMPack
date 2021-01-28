@@ -3,13 +3,13 @@ module FSMPack.Tests.CompileHelper
 let assemblyReferences = [
     "System.Memory"
     "FSMPack"
-    "Types"
+    "TestCommon"
 ]
 
 let additionalIncludes = []
 
 let searchDirs = [
-    "../FSMPack.Tests/Types/bin/Debug/netstandard2.0/publish"
+    "../TestCommon/bin/Debug/netstandard2.0/publish"
 ]
 
 type CompilerArgs = {
