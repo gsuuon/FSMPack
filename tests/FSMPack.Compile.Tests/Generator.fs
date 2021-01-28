@@ -14,11 +14,13 @@ open FSMPack.Read
 open FSMPack.Compile
 
 open FSMPack.Tests.Utility
+open FSMPack.Tests.CompileHelper
+open FSMPack.Tests.FormatTests
+
 open FSMPack.Tests.Types
 open FSMPack.Tests.Types.Record
 open FSMPack.Tests.Types.DU
-open FSMPack.Tests.CompileHelper
-open FSMPack.Tests.FormatTests
+open FSMPack.Tests.Types.Mixed
 
 let directory = "GeneratedFormatters"
 let moduleName = "FSMPack.GeneratedFormatters+"
@@ -50,6 +52,9 @@ let getTypeFromAssembly (asm: Assembly) typeName =
 
     formatterTyp
 
+let getGenericTypeFromAsm asm typeName =
+    getTypeFromAssembly asm (moduleName + typeName)
+
 let createFormatterFromAsm asm typeName =
     let searchName = moduleName + typeName
 
@@ -75,6 +80,10 @@ let tests =
     let outAsmName = "outasmtest.dll"
 
     testSequenced <| testList "Generator" [
+        testCase "can publish TestCommon" <| fun _ ->
+            let p = Process.Start ("dotnet", "publish ../TestCommon/TestCommon.fsproj")
+            p.WaitForExit()
+            
         testCase "produces formatter text file" <| fun _ ->
             File.Delete formattersOutPath
 
@@ -84,11 +93,17 @@ let tests =
                 typeof<MyInnerDU>
                 typeof<MyDU>
                 typedefof<MyGenericRecord<_>>
+
+                typeof<Foo>
+                typeof<Bar>
+                typedefof<Baz<_>>
             ]
             |> List.map Generate.generateFormat
             |> String.concat "\n"
-            |> prependText "open FSMPack.Tests.Types.DU\n"
-            |> prependText "open FSMPack.Tests.Types.Record"
+            |> prependText
+                ( "open FSMPack.Tests.Types.Record\n"
+                + "open FSMPack.Tests.Types.DU\n"
+                + "open FSMPack.Tests.Types.Mixed\n" )
             |> prependText Generator.Common.header
             |> writeFormatters
 
@@ -128,13 +143,44 @@ let tests =
             createFormatterFromAsm asm "FormatMyDU"
             |> cacheFormatterWithReflection<MyDU>
             
-            getTypeFromAssembly asm (moduleName + "FormatMyGenericRecord`1")
+            createFormatterFromAsm asm "FormatFoo"
+            |> cacheFormatterWithReflection<Foo>
+            
+            createFormatterFromAsm asm "FormatBar"
+            |> cacheFormatterWithReflection<Bar>
+            
+            getGenericTypeFromAsm asm "FormatBaz`1"
+            |> cacheGenFormatterTypeWithReflection<Baz<_>>
+
+            getGenericTypeFromAsm asm "FormatMyGenericRecord`1"
             |> cacheGenFormatterTypeWithReflection<MyGenericRecord<_>>
 
         testList "Roundtrip" [
-            testCase "Setup basic formatters" setupBasicFormatters
+            testCase "Setup basic formatters" FSMPack.BasicFormatters.setup
+
             TestCases.records
             TestCases.DUs
             TestCases.generics
+
+            testCase "additional types" <| fun _ ->
+                "Foo roundtrips"
+                |> roundtripFormat (Cache<Foo>.Retrieve()) {
+                    a = 0
+                }
+
+                "Bar roundtrips"
+                |> roundtripFormat (Cache<Bar>.Retrieve()) 
+                    (A { a = 0 })
+
+                "Bar roundtrips"
+                |> roundtripFormat (Cache<Bar>.Retrieve()) 
+                    (B 12.3)
+
+                "Baz roundtrips"
+                |> roundtripFormat (Cache<Baz<int>>.Retrieve()) {
+                    b = "hi"
+                    bar = B 1.1
+                    c = 3
+                }
         ]
     ]

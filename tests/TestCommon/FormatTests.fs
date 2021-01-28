@@ -74,23 +74,6 @@ let roundtripGenericOfReference _ =
         (Cache<MyGenericRecord<MyInnerType>>.Retrieve())
         { foo = { C = "Hi" } }
 
-let setupBasicFormatters () =
-    Cache<string>.Store
-      { new Format<string> with
-        member _.Write bw (v: string) =
-            writeValue bw (RawString v)
-        member _.Read (br, bytes) =
-            let (RawString x) = readValue br &bytes
-            x } 
-
-    Cache<float>.Store
-      { new Format<float> with
-        member _.Write bw (v: float) =
-            writeValue bw (FloatDouble v)
-        member _.Read (br, bytes) =
-            let (FloatDouble x) = readValue br &bytes
-            x } 
-
 module TestCases =
     let records =
         testList "Format.Record" [

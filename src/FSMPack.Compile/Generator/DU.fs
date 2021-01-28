@@ -40,7 +40,7 @@ let generateFormatDU (typ: Type) =
 {__}{__}member _.Write bw (v: {typName}) =
 {__}{__}{__}match v with
 { [ for c in cases do
-        yield $"| {c.name}{destructFields c} ->"
+        yield $"| {typName}.{c.name}{destructFields c} ->"
         yield $"{__}writeArrayFormat bw {c.fieldInfos.Length + 1}"
         yield $"{__}writeValue bw (Integer {c.tag})"
         yield! 
@@ -71,7 +71,7 @@ let generateFormatDU (typ: Type) =
                 | false, _ ->
                     $"{__}let x{idx} = Cache<{canonTypeName f.PropertyType.FullName}>.Retrieve().Read(br, bytes)"
             )
-        yield $"{__}{c.name}{destructFields c}"
+        yield $"{__}{typName}.{c.name}{destructFields c}"
     ]
     |> List.map (indentLine 3)
     |> String.concat "\n" }

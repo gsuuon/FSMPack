@@ -11,6 +11,7 @@
         <Compile Include="WritePrimitive.fs" />
         <Compile Include="Write.fs" />
         <Compile Include="Format.fs" />
+        <Compile Include="BasicFormatters.fs" />
     </ItemGroup>
 
     <ItemGroup>
