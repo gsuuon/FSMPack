@@ -28,18 +28,6 @@ module Helpers =
         text + "\n" + body
 
 let produceFormattersText types =
-    let typePaths = 
-        types
-        |> List.map (fun (typ: Type) ->
-            sprintf "%A: %s %A"
-                typ
-                typ.Namespace
-                typ.DeclaringType
-                )
-        |> String.concat "\n"
-
-    printf "Got type paths:\n%s\n" typePaths
-    
     types
     |> List.map generateFormat
     |> String.concat "\n"
