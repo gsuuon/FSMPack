@@ -1,4 +1,4 @@
-module FSMPack.Tests.Compile.Generator
+module FSMPack.Compile.Tests.Generator
 
 open System
 open System.IO
@@ -12,9 +12,9 @@ open FSMPack.Format
 open FSMPack.Write
 open FSMPack.Read
 open FSMPack.Compile
+open FSMPack.Compile.CompileAssembly
 
 open FSMPack.Tests.Utility
-open FSMPack.Tests.CompileHelper
 open FSMPack.Tests.FormatTests
 
 open FSMPack.Tests.Types
@@ -24,8 +24,18 @@ open FSMPack.Tests.Types.Mixed
 
 let directory = "GeneratedFormatters"
 let moduleName = "FSMPack.GeneratedFormatters+"
-    // FIXME move this to a more appropriate place
 
+let assemblyReferences = [
+    "System.Memory"
+    "FSMPack"
+    "TestCommon"
+]
+
+let additionalIncludes = []
+
+let searchDirs = [
+    "../TestCommon/bin/Debug/netstandard2.0/publish"
+]
 let formattersOutPath =
     Path.Join (directory, "GeneratedFormatters.fs")
 

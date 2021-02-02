@@ -1,4 +1,4 @@
-﻿module FSMPack.Compile.Tests
+﻿module FSMPack.Compile.Tests.Run
 open Expecto
 
 [<EntryPoint>]

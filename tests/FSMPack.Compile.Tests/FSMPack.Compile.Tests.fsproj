@@ -25,9 +25,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="CompileHelper.fs" />
-        <Compile Include="CompileHosted.fs" />
         <Compile Include="Generator.fs" />
+        <Compile Include="CompileHosted.fs" />
         <Compile Include="Main.fs" />
     </ItemGroup>
 

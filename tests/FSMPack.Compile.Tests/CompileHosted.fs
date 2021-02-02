@@ -3,7 +3,8 @@ module FSMPack.Tests.CompileHosted
 open System.IO
 open FSharp.Compiler.SourceCodeServices
 
-open FSMPack.Tests.CompileHelper
+open FSMPack.Compile.CompileAssembly
+open FSMPack.Compile.Tests.Generator
 
 let directory = "GeneratedFormatters"
 
