@@ -22,22 +22,27 @@ open FSMPack.Tests.Types.Record
 open FSMPack.Tests.Types.DU
 open FSMPack.Tests.Types.Mixed
 
-let directory = "GeneratedFormatters"
-let moduleName = "FSMPack.GeneratedFormatters+"
+[<AutoOpen>]
+module Configuration =
+    let generatedModuleName = "FSMPack.GeneratedFormatters+"
+    let generatedOutputDirectory = "GeneratedFormatters"
+    let formattersOutPath =
+        Path.Join (generatedOutputDirectory, "GeneratedFormatters.fs")
 
-let assemblyReferences = [
-    "System.Memory"
-    "FSMPack"
-    "TestCommon"
-]
+    let outAsmName =
+        Path.Join (generatedOutputDirectory, "outasmtest.dll")
 
-let additionalIncludes = []
+    let assemblyReferences = [
+        "System.Memory"
+        "FSMPack"
+        "TestCommon"
+    ]
 
-let searchDirs = [
-    "../TestCommon/bin/Debug/netstandard2.0/publish"
-]
-let formattersOutPath =
-    Path.Join (directory, "GeneratedFormatters.fs")
+    let additionalIncludes = []
+
+    let searchDirs = [
+        "../TestCommon/bin/Debug/netstandard2.0/publish"
+    ]
 
 let writeFormatters formattersText =
     File.WriteAllText (formattersOutPath, formattersText)
@@ -63,10 +68,10 @@ let getTypeFromAssembly (asm: Assembly) typeName =
     formatterTyp
 
 let getGenericTypeFromAsm asm typeName =
-    getTypeFromAssembly asm (moduleName + typeName)
+    getTypeFromAssembly asm (generatedModuleName + typeName)
 
 let createFormatterFromAsm asm typeName =
-    let searchName = moduleName + typeName
+    let searchName = generatedModuleName + typeName
 
     try
         getTypeFromAssembly asm searchName
@@ -84,7 +89,6 @@ let createFormatterFromAsm asm typeName =
 // TODO add item to start publish process
 [<Tests>]
 let tests =
-    let outAsmName = "outasmtest.dll"
 
     testSequenced <| testList "Generator" [
         testCase "can publish TestCommon" <| fun _ ->
@@ -112,19 +116,12 @@ let tests =
             |> Expect.isTrue (File.Exists formattersOutPath)
 
         testCase "fsc compiles text" <| fun _ ->
-            File.Delete outAsmName
-
-            let compilerArgs =
-                buildCompilerArgs {
-                    files = additionalIncludes @ [formattersOutPath] 
-                    references = assemblyReferences
-                    outfile = outAsmName
-                    libDirs = searchDirs
-                }
-
-            let p = Process.Start ("fsc.exe", compilerArgs)
-
-            p.WaitForExit()
+            runCompileProcess {
+                files = additionalIncludes @ [formattersOutPath] 
+                references = assemblyReferences
+                outfile = outAsmName
+                libDirs = searchDirs
+            }
 
             "Dll written"
             |> Expect.isTrue (File.Exists outAsmName)
