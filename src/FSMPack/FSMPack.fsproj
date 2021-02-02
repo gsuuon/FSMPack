@@ -12,6 +12,7 @@
         <Compile Include="Write.fs" />
         <Compile Include="Format.fs" />
         <Compile Include="BasicFormatters.fs" />
+        <Compile Include="Attribute.fs" />
     </ItemGroup>
 
     <ItemGroup>
