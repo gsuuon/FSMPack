@@ -34,7 +34,9 @@ let generateFormatRecord (typ: Type) =
     let fields = getFields typ
     let typName = deriveTypeName typ
 
-    $"""type Format{typName}() =
+    $"""open {getTypeOpenPath typ}
+
+type Format{typName}() =
 {__}interface Format<{typName}> with
 {__}{__}member _.Write bw (v: {typName}) =
 {__}{__}{__}writeMapFormat bw {fields.Length}

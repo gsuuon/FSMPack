@@ -37,6 +37,14 @@ let deriveTypeName (typ: Type) =
     else
         typeSimpleName
 
+let getTypeOpenPath (typ: Type) =
+    let declaringModule = typ.DeclaringType
+
+    if declaringModule = null then
+        typ.Namespace
+    else
+        declaringModule.FullName
+
 let header = """module FSMPack.GeneratedFormatters
 
 open System

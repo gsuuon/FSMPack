@@ -11,8 +11,6 @@ open FSMPack.Write
 
 
 open FSMPack.Tests.Types.Record
-open FSMPack.Tests.Types.DU
-open FSMPack.Tests.Types.Mixed
 
 type FormatMyInnerType() =
     interface Format<MyInnerType> with
@@ -45,6 +43,8 @@ type FormatMyInnerType() =
             {
                 C = C
             }
+
+open FSMPack.Tests.Types.Record
 
 type FormatMyTestType() =
     interface Format<MyTestType> with
@@ -91,6 +91,8 @@ type FormatMyTestType() =
                 inner = inner
             }
 
+open FSMPack.Tests.Types.DU
+
 type FormatMyInnerDU() =
     interface Format<MyInnerDU> with
         member _.Write bw (v: MyInnerDU) =
@@ -114,6 +116,8 @@ type FormatMyInnerDU() =
                 MyInnerDU.B (x0)
             | _ ->
                 failwith "Unexpected DU case tag"
+
+open FSMPack.Tests.Types.DU
 
 type FormatMyDU() =
     interface Format<MyDU> with
@@ -148,6 +152,8 @@ type FormatMyDU() =
             | _ ->
                 failwith "Unexpected DU case tag"
 
+open FSMPack.Tests.Types.Record
+
 type FormatMyGenericRecord<'T>() =
     interface Format<MyGenericRecord<'T>> with
         member _.Write bw (v: MyGenericRecord<'T>) =
@@ -178,6 +184,8 @@ type FormatMyGenericRecord<'T>() =
             {
                 foo = foo
             }
+
+open FSMPack.Tests.Types.Mixed
 
 type FormatFoo() =
     interface Format<Foo> with
@@ -211,6 +219,8 @@ type FormatFoo() =
                 a = a
             }
 
+open FSMPack.Tests.Types.Mixed
+
 type FormatBar() =
     interface Format<Bar> with
         member _.Write bw (v: Bar) =
@@ -236,6 +246,8 @@ type FormatBar() =
                 Bar.B (x0)
             | _ ->
                 failwith "Unexpected DU case tag"
+
+open FSMPack.Tests.Types.Mixed
 
 type FormatBaz<'T>() =
     interface Format<Baz<'T>> with

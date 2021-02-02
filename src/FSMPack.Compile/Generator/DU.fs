@@ -35,7 +35,9 @@ let generateFormatDU (typ: Type) =
     let cases = getCases typ
     let typName = deriveTypeName typ
 
-    $"""type Format{typName}() =
+    $"""open {getTypeOpenPath typ}
+
+type Format{typName}() =
 {__}interface Format<{typName}> with
 {__}{__}member _.Write bw (v: {typName}) =
 {__}{__}{__}match v with

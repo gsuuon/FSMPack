@@ -28,11 +28,19 @@ module Helpers =
         text + "\n" + body
 
 let produceFormattersText types =
+    let typePaths = 
+        types
+        |> List.map (fun (typ: Type) ->
+            sprintf "%A: %s %A"
+                typ
+                typ.Namespace
+                typ.DeclaringType
+                )
+        |> String.concat "\n"
+
+    printf "Got type paths:\n%s\n" typePaths
+    
     types
     |> List.map generateFormat
     |> String.concat "\n"
-    |> prependText
-        ( "open FSMPack.Tests.Types.Record\n"
-        + "open FSMPack.Tests.Types.DU\n"
-        + "open FSMPack.Tests.Types.Mixed\n" )
     |> prependText Generator.Common.header
