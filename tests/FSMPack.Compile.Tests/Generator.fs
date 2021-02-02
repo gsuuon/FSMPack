@@ -80,9 +80,6 @@ let createFormatterFromAsm asm typeName =
                 System.Exception (sprintf "Found type name: %s, searched for: %s" typ.FullName searchName)
                 |])
 
-let prependText text body =
-    text + "\n" + body
-
 // NOTE need to dotnet publish `TestCommon` project
 // TODO add item to start publish process
 [<Tests>]
@@ -108,13 +105,7 @@ let tests =
                 typeof<Bar>
                 typedefof<Baz<_>>
             ]
-            |> List.map GenerateFormat.generateFormat
-            |> String.concat "\n"
-            |> prependText
-                ( "open FSMPack.Tests.Types.Record\n"
-                + "open FSMPack.Tests.Types.DU\n"
-                + "open FSMPack.Tests.Types.Mixed\n" )
-            |> prependText Generator.Common.header
+            |> GenerateFormat.produceFormattersText
             |> writeFormatters
 
             "Formatters written"

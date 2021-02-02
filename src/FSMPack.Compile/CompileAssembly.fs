@@ -1,6 +1,7 @@
 module FSMPack.Compile.CompileAssembly
 
 open System.IO
+open System.Diagnostics
 
 type CompilerArgs = {
     files : string list
@@ -30,5 +31,11 @@ let buildCompilerArgs args =
     |> List.concat
     |> List.toArray
 
-let startCompileProcess args =
+let runCompileProcess args =
     File.Delete args.outfile
+
+    let compilerArgs = buildCompilerArgs args
+
+    let p = Process.Start ("fsc.exe", compilerArgs)
+
+    p.WaitForExit()

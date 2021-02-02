@@ -1,5 +1,4 @@
 module FSMPack.Compile.GenerateFormat
-/// Generates code as strings for a type
 
 open System
 open System.Collections.Generic
@@ -22,3 +21,18 @@ let addFormattersFileHeader (formatters: string list) =
     header +
         (formatters
         |> String.concat "\n\n")
+
+[<AutoOpen>]
+module Helpers =
+    let prependText text body =
+        text + "\n" + body
+
+let produceFormattersText types =
+    types
+    |> List.map generateFormat
+    |> String.concat "\n"
+    |> prependText
+        ( "open FSMPack.Tests.Types.Record\n"
+        + "open FSMPack.Tests.Types.DU\n"
+        + "open FSMPack.Tests.Types.Mixed\n" )
+    |> prependText Generator.Common.header
