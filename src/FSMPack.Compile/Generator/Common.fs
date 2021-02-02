@@ -22,8 +22,11 @@ let msgpackTypes = dict [
         // TODO Extension
 ]
 
+let deriveTypeSimpleName (typ: Type) =
+    (typ.Name.Split '`').[0]
+
 let deriveTypeName (typ: Type) = 
-    let typeSimpleName = (typ.Name.Split '`').[0]
+    let typeSimpleName = deriveTypeSimpleName typ
 
     let genArgs = typ.GetGenericArguments()
 
@@ -36,6 +39,30 @@ let deriveTypeName (typ: Type) =
         $"{typeSimpleName}<{genArgsForTypeName}>"
     else
         typeSimpleName
+
+let deriveGenericDefaultArgs (typ: Type) =
+    let genArgs = typ.GetGenericArguments()
+
+    if genArgs.Length > 0 then
+        "<" +
+            ( genArgs
+                |> Array.map (fun _ -> "_")
+                |> String.concat "," )
+            + ">"
+    else
+        ""
+
+let writeCacheFormatLine (typ: Type) typName =
+    let isGeneric = typ.IsGenericType
+
+    if isGeneric then
+        let simpleName = deriveTypeSimpleName typ
+        let genArgs = deriveGenericDefaultArgs typ
+
+        $"Cache<{simpleName}{genArgs}>.StoreGeneric typedefof<Format{simpleName}{genArgs}>"
+
+    else
+        $"Cache<{typName}>.Store (Format{typName}() :> Format<{typName}>)"
 
 let getTypeOpenPath (typ: Type) =
     let declaringModule = typ.DeclaringType

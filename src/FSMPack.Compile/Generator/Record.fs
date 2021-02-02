@@ -84,5 +84,6 @@ type Format{typName}() =
     |> List.map (indentLine 4)
     |> String.concat "\n" }
 {__}{__}{__}}}
-"""
 
+{writeCacheFormatLine typ typName}
+"""

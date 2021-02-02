@@ -79,4 +79,6 @@ type Format{typName}() =
     |> String.concat "\n" }
 {__}{__}{__}| _ ->
 {__}{__}{__}{__}failwith "Unexpected DU case tag"
+
+{writeCacheFormatLine typ typName}
 """

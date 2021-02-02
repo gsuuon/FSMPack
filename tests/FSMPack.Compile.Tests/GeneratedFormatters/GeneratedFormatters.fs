@@ -44,6 +44,8 @@ type FormatMyInnerType() =
                 C = C
             }
 
+Cache<MyInnerType>.Store (FormatMyInnerType() :> Format<MyInnerType>)
+
 open FSMPack.Tests.Types.Record
 
 type FormatMyTestType() =
@@ -91,6 +93,8 @@ type FormatMyTestType() =
                 inner = inner
             }
 
+Cache<MyTestType>.Store (FormatMyTestType() :> Format<MyTestType>)
+
 open FSMPack.Tests.Types.DU
 
 type FormatMyInnerDU() =
@@ -116,6 +120,8 @@ type FormatMyInnerDU() =
                 MyInnerDU.B (x0)
             | _ ->
                 failwith "Unexpected DU case tag"
+
+Cache<MyInnerDU>.Store (FormatMyInnerDU() :> Format<MyInnerDU>)
 
 open FSMPack.Tests.Types.DU
 
@@ -152,6 +158,8 @@ type FormatMyDU() =
             | _ ->
                 failwith "Unexpected DU case tag"
 
+Cache<MyDU>.Store (FormatMyDU() :> Format<MyDU>)
+
 open FSMPack.Tests.Types.Record
 
 type FormatMyGenericRecord<'T>() =
@@ -184,6 +192,8 @@ type FormatMyGenericRecord<'T>() =
             {
                 foo = foo
             }
+
+Cache<MyGenericRecord<_>>.StoreGeneric typedefof<FormatMyGenericRecord<_>>
 
 open FSMPack.Tests.Types.Mixed
 
@@ -219,6 +229,8 @@ type FormatFoo() =
                 a = a
             }
 
+Cache<Foo>.Store (FormatFoo() :> Format<Foo>)
+
 open FSMPack.Tests.Types.Mixed
 
 type FormatBar() =
@@ -246,6 +258,8 @@ type FormatBar() =
                 Bar.B (x0)
             | _ ->
                 failwith "Unexpected DU case tag"
+
+Cache<Bar>.Store (FormatBar() :> Format<Bar>)
 
 open FSMPack.Tests.Types.Mixed
 
@@ -292,3 +306,7 @@ type FormatBaz<'T>() =
                 bar = bar
                 c = c
             }
+
+Cache<Baz<_>>.StoreGeneric typedefof<FormatBaz<_>>
+
+printfn "%s" "loaded formatters"
