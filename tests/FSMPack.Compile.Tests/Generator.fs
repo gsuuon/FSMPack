@@ -98,7 +98,7 @@ let tests =
                 typeof<Bar>
                 typedefof<Baz<_>>
             ]
-            |> List.map Generate.generateFormat
+            |> List.map GenerateFormat.generateFormat
             |> String.concat "\n"
             |> prependText
                 ( "open FSMPack.Tests.Types.Record\n"
