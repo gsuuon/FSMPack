@@ -44,13 +44,21 @@ module GenericFormatterCache =
             | false, _ ->
                 failwith ("missing Formatter type for " + string typeof<'SpecializedType>)
 
+let mutable _knownTypes = []
+
 type Cache<'T>() =
     static let mutable format : Format<'T> option = None
     
     static member Store _format =
+        printfn "Stored format: %A" typeof<'T>
+        _knownTypes <- _knownTypes @ [typeof<'T>]
+
         format <- Some _format
 
     static member StoreGeneric genFormatterType =
+        printfn "Stored generic format: %A" typedefof<'T>
+        _knownTypes <- _knownTypes @ [typedefof<'T>]
+
         GenericFormatterCache.Generalized.[typedefof<'T>] <- genFormatterType
         
     static member Retrieve () =
@@ -61,4 +69,6 @@ type Cache<'T>() =
             | Some f ->
                 f
             | None ->
-                failwith ("missing Format for " + string typeof<'T>)
+                failwith
+                    <| "missing Format for " + string typeof<'T>
+                        + " -- known types:\n" + (_knownTypes |> List.map string |> String.concat "\n")
