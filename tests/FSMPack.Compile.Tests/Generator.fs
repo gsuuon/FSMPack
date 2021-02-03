@@ -86,38 +86,6 @@ let createFormatterFromAsm asm typeName =
                 System.Exception (sprintf "Found type name: %s, searched for: %s" typ.FullName searchName)
                 |])
 
-[<PTests>]
-let scratch =
-    testSequencedGroup "scratch" <| testList "Scratch" [
-        testCase "host assembly location" <| fun _ ->
-            let asm = typeof<FSMPack.Format.Format<_>>.Assembly
-
-            printfn "Host"
-            printfn "%A" asm.Location
-            printfn "%A" asm.CodeBase
-
-        testCase "generated assembly location" <| fun _ ->
-            let asm = Assembly.LoadFrom outAsmPath
-
-            let cacheType =
-                asm.GetReferencedAssemblies()
-                |> Array.pick
-                    (fun asmName ->
-                        let asm' = Assembly.Load(asmName)
-                        let typ = asm'.GetType ("FSMPack.Format+Cache`1")
-
-                        if typ = null then
-                            None
-                        else
-                            Some typ)
-                
-            let cacheAsm = cacheType.Assembly
-
-            printfn "Generated"
-            printfn "%A" cacheAsm.Location
-            printfn "%A" cacheAsm.CodeBase
-    ]
-
 // NOTE need to dotnet publish `TestCommon` project
 // TODO add item to start publish process
 [<Tests>]
