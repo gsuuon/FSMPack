@@ -9,4 +9,9 @@
         <Compile Include="Library.fs" />
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="../../src/FSMPack/FSMPack.fsproj" />
+        <ProjectReference Include="../../src/FSMPack.Compile/FSMPack.Compile.fsproj" />
+    </ItemGroup>
+
 </Project>

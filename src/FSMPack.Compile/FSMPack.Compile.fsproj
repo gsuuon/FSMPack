@@ -13,6 +13,7 @@
         <Compile Include="AnalyzeInputAssembly.fs" />
         <Compile Include="GenerateFormat.fs" />
         <Compile Include="CompileAssembly.fs" />
+        <Compile Include="Program.fs" />
     </ItemGroup>
 
     <ItemGroup>
