@@ -24,13 +24,14 @@ open FSMPack.Tests.Types.Mixed
 
 [<AutoOpen>]
 module Configuration =
-    let generatedModuleName = "FSMPack.GeneratedFormatters+"
+    let generatedModuleName = "FSMPack.GeneratedFormatters"
     let generatedOutputDirectory = "GeneratedFormatters"
     let formattersOutPath =
         Path.Join (generatedOutputDirectory, "GeneratedFormatters.fs")
 
-    let outAsmName =
-        Path.Join (generatedOutputDirectory, "outasmtest.dll")
+    let outAsmName = "outasmtest"
+    let outAsmPath =
+        Path.Join (generatedOutputDirectory, outAsmName + ".dll")
 
     let assemblyReferences = [
         "System.Memory"
@@ -68,10 +69,10 @@ let getTypeFromAssembly (asm: Assembly) typeName =
     formatterTyp
 
 let getGenericTypeFromAsm asm typeName =
-    getTypeFromAssembly asm (generatedModuleName + typeName)
+    getTypeFromAssembly asm (generatedModuleName + "+" + typeName)
 
 let createFormatterFromAsm asm typeName =
-    let searchName = generatedModuleName + typeName
+    let searchName = generatedModuleName + "+" + typeName
 
     try
         getTypeFromAssembly asm searchName
@@ -85,12 +86,43 @@ let createFormatterFromAsm asm typeName =
                 System.Exception (sprintf "Found type name: %s, searched for: %s" typ.FullName searchName)
                 |])
 
+[<PTests>]
+let scratch =
+    testSequencedGroup "scratch" <| testList "Scratch" [
+        testCase "host assembly location" <| fun _ ->
+            let asm = typeof<FSMPack.Format.Format<_>>.Assembly
+
+            printfn "Host"
+            printfn "%A" asm.Location
+            printfn "%A" asm.CodeBase
+
+        testCase "generated assembly location" <| fun _ ->
+            let asm = Assembly.LoadFrom outAsmPath
+
+            let cacheType =
+                asm.GetReferencedAssemblies()
+                |> Array.pick
+                    (fun asmName ->
+                        let asm' = Assembly.Load(asmName)
+                        let typ = asm'.GetType ("FSMPack.Format+Cache`1")
+
+                        if typ = null then
+                            None
+                        else
+                            Some typ)
+                
+            let cacheAsm = cacheType.Assembly
+
+            printfn "Generated"
+            printfn "%A" cacheAsm.Location
+            printfn "%A" cacheAsm.CodeBase
+    ]
+
 // NOTE need to dotnet publish `TestCommon` project
 // TODO add item to start publish process
 [<Tests>]
 let tests =
-
-    testSequenced <| testList "Generator" [
+    testSequencedGroup "Generate Assembly" <| testList "Generator" [
         testCase "can publish TestCommon" <| fun _ ->
             let p = Process.Start ("dotnet", "publish ../TestCommon/TestCommon.fsproj")
             p.WaitForExit()
@@ -119,39 +151,23 @@ let tests =
             runCompileProcess {
                 files = additionalIncludes @ [formattersOutPath] 
                 references = assemblyReferences
-                outfile = outAsmName
+                outfile = outAsmPath
                 libDirs = searchDirs
             }
 
             "Dll written"
-            |> Expect.isTrue (File.Exists outAsmName)
+            |> Expect.isTrue (File.Exists outAsmPath)
 
-        testCase "Compiled formatters can be cached" <| fun _ ->
-            let asm = Assembly.LoadFrom outAsmName
+        testCase "can initialize Cache" <| fun _ ->
+            let asm = Assembly.LoadFrom outAsmPath
 
-            createFormatterFromAsm asm "FormatMyInnerType"
-            |> cacheFormatterWithReflection<MyInnerType>
-            
-            createFormatterFromAsm asm "FormatMyTestType"
-            |> cacheFormatterWithReflection<MyTestType>
-            
-            createFormatterFromAsm asm "FormatMyInnerDU"
-            |> cacheFormatterWithReflection<MyInnerDU>
+            let startupType =
+                getTypeFromAssembly
+                    asm
+                    ("<StartupCode$" + outAsmName +
+                        ">.$" + generatedModuleName)
 
-            createFormatterFromAsm asm "FormatMyDU"
-            |> cacheFormatterWithReflection<MyDU>
-            
-            createFormatterFromAsm asm "FormatFoo"
-            |> cacheFormatterWithReflection<Foo>
-            
-            createFormatterFromAsm asm "FormatBar"
-            |> cacheFormatterWithReflection<Bar>
-            
-            getGenericTypeFromAsm asm "FormatBaz`1"
-            |> cacheGenFormatterTypeWithReflection<Baz<_>>
-
-            getGenericTypeFromAsm asm "FormatMyGenericRecord`1"
-            |> cacheGenFormatterTypeWithReflection<MyGenericRecord<_>>
+            Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor startupType.TypeHandle
 
         testList "Roundtrip" [
             testCase "Setup basic formatters" FSMPack.BasicFormatters.setup

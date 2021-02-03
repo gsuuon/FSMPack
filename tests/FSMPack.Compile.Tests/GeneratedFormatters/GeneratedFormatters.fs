@@ -308,5 +308,3 @@ type FormatBaz<'T>() =
             }
 
 Cache<Baz<_>>.StoreGeneric typedefof<FormatBaz<_>>
-
-printfn "%s" "loaded formatters"
