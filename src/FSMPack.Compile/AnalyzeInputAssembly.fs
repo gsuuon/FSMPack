@@ -1,3 +1,17 @@
 module FSMPack.Compile.AnalyzeInputAssembly
 
-// traverses types and calls generator
+open System.Reflection
+
+open FSMPack.Attribute
+
+let discoverRootTypes (asm: Assembly) =
+    asm.GetTypes()
+    |> Array.filter (fun typ ->
+
+        typ.GetCustomAttributes()
+        |> Seq.exists (fun attr ->
+
+            attr :? FormatGeneratorRootAttribute
+            ) )
+
+    |> Array.toList
