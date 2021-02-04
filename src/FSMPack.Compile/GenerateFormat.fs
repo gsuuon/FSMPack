@@ -1,6 +1,7 @@
 module FSMPack.Compile.GenerateFormat
 
 open System
+open System.IO
 open System.Collections.Generic
 open System.Reflection
 open Microsoft.FSharp.Reflection
@@ -32,3 +33,6 @@ let produceFormattersText types =
     |> List.map generateFormat
     |> String.concat "\n"
     |> prependText Generator.Common.header
+
+let writeFormatterText outpath text =
+    File.WriteAllText (outpath, text)
