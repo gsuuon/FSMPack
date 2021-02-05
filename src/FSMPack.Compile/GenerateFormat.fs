@@ -33,6 +33,7 @@ let produceFormattersText types =
     |> List.map generateFormat
     |> String.concat "\n"
     |> prependText Generator.Common.header
+    |> fun t -> t + footer
 
 let writeFormatterText outpath text =
     File.WriteAllText (outpath, text)
