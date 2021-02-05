@@ -45,9 +45,6 @@ module Configuration =
         "../TestCommon/bin/Debug/netstandard2.0/publish"
     ]
 
-let writeFormatters formattersText =
-    File.WriteAllText (formattersOutPath, formattersText)
-
 let cacheGenFormatterTypeWithReflection<'T> formatterTyp = 
     let mi = (typeof<Cache<'T>>).GetMethod "StoreGeneric"
     ignore <| mi.Invoke (null, [| formatterTyp |])
@@ -110,7 +107,7 @@ let tests =
                 typedefof<Baz<_>>
             ]
             |> GenerateFormat.produceFormattersText
-            |> writeFormatters
+            |> GenerateFormat.writeText formattersOutPath
 
             "Formatters written"
             |> Expect.isTrue (File.Exists formattersOutPath)
@@ -138,7 +135,7 @@ let tests =
             Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor startupType.TypeHandle
 
         testList "Roundtrip" [
-            testCase "Setup basic formatters" FSMPack.BasicFormatters.setup
+            testCase "Setup basic formatters" FSMPack.BasicFormats.setup
 
             TestCases.records
             TestCases.DUs

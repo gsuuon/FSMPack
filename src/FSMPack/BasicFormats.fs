@@ -1,9 +1,11 @@
-module FSMPack.BasicFormatters
+module FSMPack.BasicFormats
 
 open FSMPack.Spec
 open FSMPack.Read
 open FSMPack.Write
 open FSMPack.Format
+
+#nowarn "0025"
 
 let setup () =
     Cache<string>.Store
