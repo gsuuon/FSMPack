@@ -16,7 +16,7 @@ let generateFormat (typ: Type) =
     else if FSharpType.IsUnion typ then
         generateFormatDU typ
     else
-        "// Unknown type"
+        sprintf "// Unknown type %A" typ
 
 let addFormattersFileHeader (formatters: string list) =
     header +
