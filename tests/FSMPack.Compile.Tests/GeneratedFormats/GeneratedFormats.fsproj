@@ -10,7 +10,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="GeneratedFormatters.fs" />
+        <Compile Include="GeneratedFormats.fs" />
     </ItemGroup>
 
 </Project>
