@@ -35,5 +35,5 @@ let produceFormattersText types =
     |> prependText Generator.Common.header
     |> fun t -> t + footer
 
-let writeFormatterText outpath text =
+let writeText outpath text =
     File.WriteAllText (outpath, text)

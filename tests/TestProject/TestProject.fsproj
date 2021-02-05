@@ -1,17 +1,21 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
         <Compile Include="Types.fs" />
         <Compile Include="Library.fs" />
+        <Compile Include="Program.fs" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="../../src/FSMPack/FSMPack.fsproj" />
-        <ProjectReference Include="../../src/FSMPack.Compile/FSMPack.Compile.fsproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Reference Include="Generated/outasm.dll" />
+    </ItemGroup>
 </Project>
