@@ -16,6 +16,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="Generated/outasm.dll" />
+        <Reference Include="Generated/FSMPack.GeneratedFormats.dll" />
     </ItemGroup>
 </Project>

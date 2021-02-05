@@ -72,7 +72,7 @@ let getTypeOpenPath (typ: Type) =
     else
         declaringModule.FullName
 
-let header = """module FSMPack.GeneratedFormatters
+let header = """module FSMPack.GeneratedFormats
 
 open System
 

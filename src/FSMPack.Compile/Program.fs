@@ -17,7 +17,7 @@ let compileTypes formatsOutpath addlRefs types =
     //         from compile host process (and also FSMPack)
 
     runCompileProcess {
-        outfile = "Generated/outasm.dll"
+        outfile = "Generated/FSMPack.GeneratedFormats.dll"
         files = [formatsOutpath]
         references = [
             "FSMPack"
