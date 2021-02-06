@@ -72,26 +72,3 @@ let getTypeOpenPath (typ: Type) =
     else
         declaringModule.FullName
 
-let header = """module FSMPack.GeneratedFormats
-
-open System
-
-open FSMPack.Format
-open FSMPack.Spec
-open FSMPack.Read
-open FSMPack.Write
-
-#nowarn "0025"
-
-"""
-
-(* NOTE
-Using the mutable _initStartupCode to kick off initialization code of the generated module w/o reflection.
-Is there a better way to do this? *)
-let footer = """
-let mutable _initStartupCode = 0
-let initialize () =
-    FSMPack.BasicFormats.setup ()
-
-    _initStartupCode
-"""
