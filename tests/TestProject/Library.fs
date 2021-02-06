@@ -26,22 +26,28 @@ module Roundtrip =
             ( BufReader.Create()
             , bufRead )
 
-    let myBaz = {
-        word = "hi"
-        bar = BarFoo {
-            num = 2
+    let myQuix = {
+        baz = {
+            word = "hi"
+            bar = BarFoo {
+                num = 2
+            }
         }
+        b = true
     }
 
-    let tryRoundtrip () =
-        ignore <| FSMPack.GeneratedFormatters.initialize()
+    let roundtrip (format: Format<'T>) item =
         printfn "Trying roundtrip"
-        printfn "%s" <| SayItem.sayBaz myBaz
-        let buf = BufWriter.Create 0
+        printfn "%A" item
 
-        let format = Cache<Baz>.Retrieve()
-        format.Write buf myBaz
+        let buf = BufWriter.Create 0
+        format.Write buf item
 
         let read = readFormat format buf
-        printfn "%s" <| SayItem.sayBaz read
-        myBaz = read
+        printfn "%A" <| read
+        item = read
+
+    let tryRoundtrip () =
+        ignore <| FSMPack.GeneratedFormats.initialize()
+
+        roundtrip (Cache<Quix>.Retrieve()) myQuix

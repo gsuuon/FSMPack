@@ -1,4 +1,4 @@
-module FSMPack.GeneratedFormatters
+module FSMPack.GeneratedFormats
 
 open System
 
@@ -9,6 +9,50 @@ open FSMPack.Write
 
 #nowarn "0025"
 
+let mutable _initStartupCode = 0
+
+
+open TestProject.Types
+
+type FormatQuix() =
+    interface Format<Quix> with
+        member _.Write bw (v: Quix) =
+            writeMapFormat bw 2
+            writeValue bw (RawString "baz")
+            Cache<Baz>.Retrieve().Write bw v.baz
+            writeValue bw (RawString "b")
+            writeValue bw (Boolean v.b)
+
+        member _.Read (br, bytes) =
+            let count = 2
+            let expectedCount = readMapFormatCount br &bytes
+
+            if count <> expectedCount then
+                failwith
+                    ("Map has wrong count, expected " + string count
+                        + " got " + string expectedCount)
+
+            let mutable items = 0
+            let mutable baz = Unchecked.defaultof<Baz>
+            let mutable b = Unchecked.defaultof<Boolean>
+            while items < count do
+                match readValue br &bytes with
+                | RawString key ->
+                    match key with
+                    | "baz" ->
+                        baz <- Cache<Baz>.Retrieve().Read(br, bytes)
+                    | "b" ->
+                        let (Boolean x) = readValue br &bytes
+                        b <- x
+                    | _ -> failwith "Unknown key"
+                items <- items + 1
+
+            {
+                baz = baz
+                b = b
+            }
+
+Cache<Quix>.Store (FormatQuix() :> Format<Quix>)
 
 open TestProject.Types
 
@@ -126,7 +170,7 @@ Cache<Foo>.Store (FormatFoo() :> Format<Foo>)
 // Unknown type System.String
 // Unknown type System.Int32
 // Unknown type System.Double
-let mutable _initStartupCode = 0
+// Unknown type System.Boolean
 let initialize () =
     FSMPack.BasicFormats.setup ()
 

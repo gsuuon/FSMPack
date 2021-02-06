@@ -11,8 +11,13 @@ type Bar =
     | BarFloat of float
     | BarCase
 
-[<FormatGeneratorRoot>]
 type Baz = {
     word : string
     bar : Bar
+}
+
+[<FormatGeneratorRoot>]
+type Quix = {
+    baz : Baz
+    b : bool
 }
