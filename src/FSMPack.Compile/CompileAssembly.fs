@@ -26,9 +26,12 @@ let buildCompilerArgs args =
         args.files |> prependToEach "-a"
         args.references |> prependToEach "-r"
         args.libDirs |> combineWithEach "--lib:"
-        [ "-o"; args.outfile ]
     ]
     |> List.concat
+    |> List.append [
+        "-o"; args.outfile 
+        "--nocopyfsharpcore"
+        ]
     |> List.toArray
 
 let runCompileProcess args =
