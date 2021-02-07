@@ -6,6 +6,12 @@
         <RestoreSources>$(RestoreSources);..\..\src\FSMPack.Compile\FSMPack.Compile.Tasks\bin\Debug\</RestoreSources>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <FSMPackCompileDir>../../src/FSMPack.Compile</FSMPackCompileDir>
+    </PropertyGroup>
+
+    <Import Project="$(FSMPackCompileDir)/build/FSMPack.Compile.targets" />
+
     <ItemGroup>
         <Compile Include="Types.fs" />
         <Compile Include="Library.fs" />
@@ -20,9 +26,4 @@
         <Reference Include="FSMPack.GeneratedFormats.dll" HintPath="Generated/FSMPack.GeneratedFormats.dll" />
     </ItemGroup>
 
-    <PropertyGroup>
-        <FSMPackCompileDir>../../src/FSMPack.Compile</FSMPackCompileDir>
-    </PropertyGroup>
-
-    <Import Project="$(FSMPackCompileDir)/build/FSMPack.Compile.targets" />
 </Project>

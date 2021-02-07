@@ -20,8 +20,8 @@ type FormatQuix() =
             writeMapFormat bw 2
             writeValue bw (RawString "baz")
             Cache<Baz>.Retrieve().Write bw v.baz
-            writeValue bw (RawString "count")
-            writeValue bw (Integer v.count)
+            writeValue bw (RawString "a")
+            writeValue bw (Integer v.a)
 
         member _.Read (br, bytes) =
             let count = 2
@@ -34,22 +34,22 @@ type FormatQuix() =
 
             let mutable items = 0
             let mutable baz = Unchecked.defaultof<Baz>
-            let mutable count = Unchecked.defaultof<Int32>
+            let mutable a = Unchecked.defaultof<Int32>
             while items < count do
                 match readValue br &bytes with
                 | RawString key ->
                     match key with
                     | "baz" ->
                         baz <- Cache<Baz>.Retrieve().Read(br, bytes)
-                    | "count" ->
+                    | "a" ->
                         let (Integer x) = readValue br &bytes
-                        count <- x
+                        a <- x
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
             {
                 baz = baz
-                count = count
+                a = a
             }
 
 Cache<Quix>.Store (FormatQuix() :> Format<Quix>)
