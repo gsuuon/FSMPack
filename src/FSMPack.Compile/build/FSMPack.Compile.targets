@@ -8,12 +8,12 @@
             BeforeTargets="Build"
             Condition="!Exists('$(FSMPackGeneratedDir)/$(FSMPackGeneratedDll)')">
         <Message Text="FSMPack initialized with placeholder dll" Importance="high" />
-        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory) -- init" />
+        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- init" />
     </Target>
 
     <Target Name="TryUpdateFSMPack" AfterTargets="Build">
         <Message Text="FSMPack updating formats" Importance="high" />
-        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory) -- update $(OutputPath)/$(AssemblyName).dll" />
+        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- update $(OutputPath)/$(AssemblyName).dll" />
     </Target>
 </Project>
 
