@@ -17,10 +17,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="Generated/FSMPack.GeneratedFormats.dll" />
+        <Reference Include="FSMPack.GeneratedFormats.dll" HintPath="Generated/FSMPack.GeneratedFormats.dll" />
     </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="FSMPack.Compile.Tasks" Version="0.0.1" />
-    </ItemGroup>
+    <PropertyGroup>
+        <FSMPackCompileDir>../../src/FSMPack.Compile</FSMPackCompileDir>
+    </PropertyGroup>
+
+    <Import Project="$(FSMPackCompileDir)/FSMPack.Compile.CLI/FSMPack.AutoBuild.targets" />
 </Project>

@@ -33,7 +33,7 @@ module Roundtrip =
                 num = 2
             }
         }
-        b = true
+        count = 2
     }
 
     let roundtrip (format: Format<'T>) item =

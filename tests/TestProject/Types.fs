@@ -19,5 +19,5 @@ type Baz = {
 [<FormatGeneratorRoot>]
 type Quix = {
     baz : Baz
-    b : bool
+    count : int
 }

@@ -20,8 +20,8 @@ type FormatQuix() =
             writeMapFormat bw 2
             writeValue bw (RawString "baz")
             Cache<Baz>.Retrieve().Write bw v.baz
-            writeValue bw (RawString "b")
-            writeValue bw (Boolean v.b)
+            writeValue bw (RawString "count")
+            writeValue bw (Integer v.count)
 
         member _.Read (br, bytes) =
             let count = 2
@@ -34,22 +34,22 @@ type FormatQuix() =
 
             let mutable items = 0
             let mutable baz = Unchecked.defaultof<Baz>
-            let mutable b = Unchecked.defaultof<Boolean>
+            let mutable count = Unchecked.defaultof<Int32>
             while items < count do
                 match readValue br &bytes with
                 | RawString key ->
                     match key with
                     | "baz" ->
                         baz <- Cache<Baz>.Retrieve().Read(br, bytes)
-                    | "b" ->
-                        let (Boolean x) = readValue br &bytes
-                        b <- x
+                    | "count" ->
+                        let (Integer x) = readValue br &bytes
+                        count <- x
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
             {
                 baz = baz
-                b = b
+                count = count
             }
 
 Cache<Quix>.Store (FormatQuix() :> Format<Quix>)
@@ -170,7 +170,7 @@ Cache<Foo>.Store (FormatFoo() :> Format<Foo>)
 // Unknown type System.String
 // Unknown type System.Int32
 // Unknown type System.Double
-// Unknown type System.Boolean
+// Unknown type System.Int32
 let initialize () =
     FSMPack.BasicFormats.setup ()
 

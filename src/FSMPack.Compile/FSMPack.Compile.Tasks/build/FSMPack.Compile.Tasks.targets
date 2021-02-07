@@ -1,6 +1,6 @@
 <Project>
     <UsingTask TaskName="Tasks.InitializeTask"
-        AssemblyFile="C:\Users\Steven\Projects\FSMPack\src\FSMPack.Compile\FSMPack.Compile.Tasks\bin\Debug\net5.0\publish\FSMPack.Compile.Tasks.dll" />
+        AssemblyFile="$(OutpathPath)FSMPack.Compile.Tasks.dll" />
 
     <Target Name="MyBeforeTarget" BeforeTargets="Build">
         <InitializeTask />

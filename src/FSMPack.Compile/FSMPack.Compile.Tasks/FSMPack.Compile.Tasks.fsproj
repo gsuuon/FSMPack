@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFrameworks>net5.0;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <DevelopmentDependency>true</DevelopmentDependency>
         <PackageId>FSMPack.Compile.Tasks</PackageId>
         <Version>0.0.1</Version>
@@ -11,6 +11,11 @@
     <ItemGroup>
         <Compile Include="Tasks.fs" />
     </ItemGroup>
+
+    <Target Name="BuildFSMPackCompileCLI" BeforeTargets="build">
+        <Message Text="Building Compile CLI" Importance="high" />
+        <Exec Command="dotnet build ../FSMPack.Compile.CLI/FSMPack.Compile.CLI.fsproj" />
+    </Target>
 
     <ItemGroup>
         <!-- Why is there no documentation anywhere explaining how to do this >:( -->
