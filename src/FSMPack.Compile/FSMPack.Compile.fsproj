@@ -4,6 +4,12 @@
         <TargetFramework>net50</TargetFramework>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <!-- This may not do anything, could still need <PrivateAssets>all<> in consuming project -->
+        <!-- https://github.com/NuGet/Home/issues/4125 -->
+        <DevelopmentDependency>true</DevelopmentDependency>
+    </PropertyGroup>
+
     <ItemGroup>
         <Compile Include="TypeInfo.fs" />
         <Compile Include="Generator\Common.fs" />

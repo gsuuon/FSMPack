@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net5.0;netstandard2.0;netcoreapp3.1</TargetFrameworks>
+        <DevelopmentDependency>true</DevelopmentDependency>
+        <PackageId>FSMPack.Compile.Tasks</PackageId>
+        <Version>0.0.1</Version>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <Compile Include="Tasks.fs" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <!-- Why is there no documentation anywhere explaining how to do this >:( -->
+        <Content Include="build/FSMPack.Compile.Tasks.targets" PackagePath="/build" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Build.Utilities.Core" Version="16.8.0" />
+    </ItemGroup>
+
+</Project>

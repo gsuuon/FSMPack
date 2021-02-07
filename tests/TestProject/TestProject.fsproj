@@ -3,6 +3,7 @@
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>netcoreapp3.1</TargetFramework>
+        <RestoreSources>$(RestoreSources);..\..\src\FSMPack.Compile\FSMPack.Compile.Tasks\bin\Debug\</RestoreSources>
     </PropertyGroup>
 
     <ItemGroup>
@@ -17,5 +18,9 @@
 
     <ItemGroup>
         <Reference Include="Generated/FSMPack.GeneratedFormats.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="FSMPack.Compile.Tasks" Version="0.0.1" />
     </ItemGroup>
 </Project>
