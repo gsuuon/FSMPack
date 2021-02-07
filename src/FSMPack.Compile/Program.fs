@@ -9,7 +9,7 @@ let compileTypes formatsOutpath addlRefs types =
     produceFormattersText types
     |> writeText formatsOutpath
 
-    printfn "Formats written to %s" formatsOutpath
+    printfn "FSMPack: Formats written to %s" formatsOutpath
 
     // TODO How to include references correctly?
     // - [ ] Kick off process to publish FSMPack and add output directory as libDir
@@ -32,12 +32,12 @@ let compileTypes formatsOutpath addlRefs types =
 let main args =
     match args.[0] with
     | "init" -> 
-        printfn "Creating placeholder dll"
+        printfn "FSMPack: Creating placeholder dll"
         compileTypes "Generated/Formats.fs" [] []
 
     | "update" ->
         let targetDllPath = args.[1]
-        printfn "Updating generated dll using %s" targetDllPath
+        printfn "FSMPack: Updating generated dll using %s" targetDllPath
 
         targetDllPath
         |> Assembly.LoadFrom
@@ -49,6 +49,6 @@ let main args =
         printfn "init - create placeholder dll"
         printfn "update [target dll path] - update dll with generated formats from target dll"
     | _ ->
-        printfn "Unknown command"
+        printfn "FSMPack: Unknown command"
 
     0

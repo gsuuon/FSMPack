@@ -2,18 +2,19 @@
     <PropertyGroup>
         <FSMPackGeneratedDir Condition="$(FSMPackGeneratedDir) == ''">Generated</FSMPackGeneratedDir>
         <FSMPackGeneratedDll Condition="$(FSMPackGeneratedDll) == ''">FSMPack.GeneratedFormats.dll</FSMPackGeneratedDll>
+        <FSMPackGeneratedPath>$(FSMPackGeneratedDir)/$(FSMPackGeneratedDll)</FSMPackGeneratedPath>
     </PropertyGroup>
 
     <Target Name="TryInitializeFSMPack"
-            BeforeTargets="Build"
-            Condition="!Exists('$(FSMPackGeneratedDir)/$(FSMPackGeneratedDll)')">
-        <Message Text="FSMPack initialized with placeholder dll" Importance="high" />
+            BeforeTargets="BeforeResolveReferences"
+            Condition="!Exists('$(FSMPackGeneratedPath)')"
+        >
         <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- init" />
     </Target>
 
-    <Target Name="TryUpdateFSMPack" AfterTargets="Build">
-        <Message Text="FSMPack updating formats" Importance="high" />
+    <Target Name="TryUpdateFSMPack" AfterTargets="AfterBuild">
         <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- update $(OutputPath)/$(AssemblyName).dll" />
+        <Copy SourceFiles="$(FSMPackGeneratedPath)" DestinationFolder="$(OutputPath)" />
     </Target>
 </Project>
 
