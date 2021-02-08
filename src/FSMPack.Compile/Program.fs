@@ -1,4 +1,5 @@
 open System
+open System.IO
 open System.Reflection
 
 open FSMPack.Compile.CompileAssembly
@@ -28,26 +29,31 @@ let compileTypes formatsOutpath addlRefs types =
             ]
     }
 
+let generatedFsFileName = "Formats.fs"
+
 [<EntryPoint>]
 let main args =
     match args.[0] with
     | "init" -> 
         printfn "FSMPack: Creating placeholder dll"
-        compileTypes "Generated/Formats.fs" [] []
+        let generatedDir = args.[1]
+        compileTypes (Path.Join(generatedDir, generatedFsFileName)) [] []
 
     | "update" ->
-        let targetDllPath = args.[1]
+        let generatedDir = args.[1]
+        let targetDllPath = args.[2]
+
         printfn "FSMPack: Updating generated dll using %s" targetDllPath
 
         targetDllPath
         |> Assembly.LoadFrom
         |> discoverRootTypes
         |> discoverAllChildTypes
-        |> compileTypes "Generated/Formats.fs" [targetDllPath]
+        |> compileTypes (Path.Join(generatedDir, generatedFsFileName)) [targetDllPath]
 
     | "help" ->
-        printfn "init - create placeholder dll"
-        printfn "update [target dll path] - update dll with generated formats from target dll"
+        printfn "init [generated dir] - create placeholder dll"
+        printfn "update [generated dir] [target dll path] - update dll with generated formats from target dll"
     | _ ->
         printfn "FSMPack: Unknown command"
 

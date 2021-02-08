@@ -9,11 +9,11 @@
             BeforeTargets="BeforeResolveReferences"
             Condition="!Exists('$(FSMPackGeneratedPath)')"
         >
-        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- init" />
+        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- init $(FSMPackGeneratedDir)" />
     </Target>
 
     <Target Name="TryUpdateFSMPack" AfterTargets="AfterBuild">
-        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- update $(OutputPath)/$(AssemblyName).dll" />
+        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- update $(FSMPackGeneratedDir) $(OutputPath)/$(AssemblyName).dll" />
         <Copy SourceFiles="$(FSMPackGeneratedPath)" DestinationFolder="$(OutputPath)" />
     </Target>
 </Project>

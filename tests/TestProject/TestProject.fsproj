@@ -13,6 +13,10 @@
     <Import Project="$(FSMPackCompileDir)/build/FSMPack.Compile.targets" />
 
     <ItemGroup>
+        <Reference Include="FSMPack.GeneratedFormats.dll" HintPath="Generated/FSMPack.GeneratedFormats.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Compile Include="Types.fs" />
         <Compile Include="Library.fs" />
         <Compile Include="Program.fs" />
@@ -20,10 +24,6 @@
 
     <ItemGroup>
         <ProjectReference Include="../../src/FSMPack/FSMPack.fsproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Reference Include="FSMPack.GeneratedFormats.dll" HintPath="Generated/FSMPack.GeneratedFormats.dll" />
     </ItemGroup>
 
 </Project>

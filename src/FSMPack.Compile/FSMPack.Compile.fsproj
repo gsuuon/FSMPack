@@ -3,6 +3,9 @@
     <PropertyGroup>
         <TargetFramework>net50</TargetFramework>
         <OutputType>Exe</OutputType>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageId>FSMPack.Compile</PackageId>
+        <Version>0.0.1</Version>
     </PropertyGroup>
 
     <PropertyGroup>
