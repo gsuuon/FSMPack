@@ -8,6 +8,7 @@
         <Compile Include="Types/DU.fs" />
         <Compile Include="Types/Record.fs" />
         <Compile Include="Types/Mixed.fs" />
+        <Compile Include="Types/Collection.fs" />
         <Compile Include="Utility.fs" />
         <Compile Include="FormatTests.fs" />
     </ItemGroup>
