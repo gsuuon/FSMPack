@@ -93,3 +93,15 @@ module TestCases =
             testCase "Roundtrip generic record of value type" roundtripGenericOfValue
             testCase "Roundtrip generic record of reference type" roundtripGenericOfReference
         ]
+
+    let collections =
+        testList "Format.Collection" [
+            testCase "FSharp" <| fun _ ->
+                "roundtrip Map"
+                |> roundtripFormat
+                    (Cache<Map<int,string>>.Retrieve())
+                    (Map.ofList [
+                        0, "hi"
+                        1, "bye" ] )
+
+        ]

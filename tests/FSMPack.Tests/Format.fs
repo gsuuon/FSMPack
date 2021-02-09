@@ -44,3 +44,7 @@ let genericTests =
     FSMPack.BasicFormats.setup()
 
     TestCases.generics
+
+[<Tests>]
+let collectionTests =
+    TestCases.collections

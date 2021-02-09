@@ -1,11 +1,47 @@
 module FSMPack.BasicFormats
 
+open System.Collections.Generic
+
 open FSMPack.Spec
 open FSMPack.Read
 open FSMPack.Write
 open FSMPack.Format
 
 #nowarn "0025"
+
+type FormatMap<'K, 'V when 'K : comparison>() =
+    interface FSMPack.Format.Format<Map<'K, 'V>> with
+    // TODO if 'K and 'V are msgpack types, we could use Value.MapCollection
+        member _.Write bw (v: Map<'K, 'V>) =
+            let keyFormat = Cache<'K>.Retrieve()
+            let valueFormat = Cache<'V>.Retrieve()
+
+            writeMapFormat bw v.Count
+
+            Map.iter
+                (fun k x ->
+                    keyFormat.Write bw k
+                    valueFormat.Write bw x)
+                v
+
+        member _.Read (br, bytes) =
+            let keyFormat = Cache<'K>.Retrieve()
+            let valueFormat = Cache<'V>.Retrieve()
+
+            let expectedCount = readMapFormatCount br &bytes
+
+            let mutable items = 0
+            let collection = Dictionary()
+
+            while items < expectedCount do
+                let key = keyFormat.Read (br, bytes)
+                let value = valueFormat.Read (br, bytes)
+                collection.[key] <- value
+                items <- items + 1
+
+            collection
+            |> Seq.map (|KeyValue|)
+            |> Map.ofSeq
 
 let setup () =
     Cache<string>.Store
@@ -31,3 +67,5 @@ let setup () =
         member _.Read (br, bytes) =
             let (FloatDouble x) = readValue br &bytes
             x } 
+    
+    Cache<Map<_,_>>.StoreGeneric typedefof<FormatMap<_,_>>
