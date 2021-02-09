@@ -1,7 +1,8 @@
 module FSMPack.Compile.AnalyzeInputAssembly
 
-open System.Reflection
 open System
+open System.Reflection
+open System.Collections.Generic
 open Microsoft.FSharp.Reflection
 
 open FSMPack.Attribute
@@ -39,20 +40,19 @@ let getSubtypesOf (typ: Type) =
                     yield pi.PropertyType
     ]
 
-let rec getAllSubtypesOf allSubtypes (typ: Type) : Type list =
-    let subtypes = getSubtypesOf typ
+let rec getAllSubtypesOf (allSubtypes: HashSet<Type>) (typ: Type) : HashSet<Type> =
+    if allSubtypes.Contains typ then allSubtypes else
 
-    if subtypes.Length = 0 then
-        allSubtypes @ [typ]
-    else
-        subtypes
-        |> List.fold
-            getAllSubtypesOf
-            allSubtypes
-        |> List.append [typ]
+    ignore <| allSubtypes.Add typ
+
+    getSubtypesOf typ
+    |> List.fold
+        getAllSubtypesOf
+        allSubtypes
 
 let discoverAllChildTypes rootTypes =
     rootTypes
     |> List.fold
         getAllSubtypesOf
-        []
+        (HashSet())
+    |> Seq.toList
