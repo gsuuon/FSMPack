@@ -1,4 +1,4 @@
-module FSMPack.GeneratedFormatters
+module FSMPack.GeneratedFormats
 
 open System
 
@@ -8,6 +8,8 @@ open FSMPack.Read
 open FSMPack.Write
 
 #nowarn "0025"
+
+let mutable _initStartupCode = 0
 
 
 open FSMPack.Tests.Types.Record
@@ -308,3 +310,8 @@ type FormatBaz<'T>() =
             }
 
 Cache<Baz<_>>.StoreGeneric typedefof<FormatBaz<_>>
+
+let initialize () =
+    FSMPack.BasicFormats.setup ()
+
+    _initStartupCode

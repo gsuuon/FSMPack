@@ -53,7 +53,7 @@ module Helpers =
     let prependText text body =
         text + "\n" + body
 
-let produceFormattersText types =
+let produceFormatsText types =
     types
     |> List.map generateFormat
     |> String.concat "\n"

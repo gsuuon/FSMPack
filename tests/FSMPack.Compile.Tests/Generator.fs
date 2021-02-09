@@ -24,10 +24,10 @@ open FSMPack.Tests.Types.Mixed
 
 [<AutoOpen>]
 module Configuration =
-    let generatedModuleName = "FSMPack.GeneratedFormatters"
-    let generatedOutputDirectory = "GeneratedFormatters"
+    let generatedModuleName = "FSMPack.GeneratedFormats"
+    let generatedOutputDirectory = "GeneratedFormats"
     let formattersOutPath =
-        Path.Join (generatedOutputDirectory, "GeneratedFormatters.fs")
+        Path.Join (generatedOutputDirectory, "GeneratedFormats.fs")
 
     let outAsmName = "outasmtest"
     let outAsmPath =
@@ -106,10 +106,10 @@ let tests =
                 typeof<Bar>
                 typedefof<Baz<_>>
             ]
-            |> GenerateFormat.produceFormattersText
+            |> GenerateFormat.produceFormatsText
             |> GenerateFormat.writeText formattersOutPath
 
-            "Formatters written"
+            "Formats written"
             |> Expect.isTrue (File.Exists formattersOutPath)
 
         testCase "fsc compiles text" <| fun _ ->

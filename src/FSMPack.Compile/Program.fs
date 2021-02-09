@@ -7,7 +7,7 @@ open FSMPack.Compile.GenerateFormat
 open FSMPack.Compile.AnalyzeInputAssembly
 
 let compileTypes formatsOutpath addlRefs types =
-    produceFormattersText types
+    produceFormatsText types
     |> writeText formatsOutpath
 
     printfn "FSMPack: Formats written to %s" formatsOutpath
@@ -37,6 +37,7 @@ let main args =
     | "init" -> 
         printfn "FSMPack: Creating placeholder dll"
         let generatedDir = args.[1]
+        if not <| Directory.Exists generatedDir then Directory.CreateDirectory generatedDir |> ignore
         compileTypes (Path.Join(generatedDir, generatedFsFileName)) [] []
 
     | "update" ->
