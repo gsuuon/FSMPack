@@ -22,48 +22,6 @@ let msgpackTypes = dict [
         // TODO Extension
 ]
 
-let deriveTypeSimpleName (typ: Type) =
-    (typ.Name.Split '`').[0]
-
-let deriveTypeName (typ: Type) = 
-    let typeSimpleName = deriveTypeSimpleName typ
-
-    let genArgs = typ.GetGenericArguments()
-
-    if genArgs.Length > 0 then
-        let genArgsForTypeName =
-            genArgs
-            |> Array.map (fun arg -> "'" + arg.Name)
-            |> String.concat ","
-
-        $"{typeSimpleName}<{genArgsForTypeName}>"
-    else
-        typeSimpleName
-
-let deriveGenericDefaultArgs (typ: Type) =
-    let genArgs = typ.GetGenericArguments()
-
-    if genArgs.Length > 0 then
-        "<" +
-            ( genArgs
-                |> Array.map (fun _ -> "_")
-                |> String.concat "," )
-            + ">"
-    else
-        ""
-
-let writeCacheFormatLine (typ: Type) typName =
-    let isGeneric = typ.IsGenericType
-
-    if isGeneric then
-        let simpleName = deriveTypeSimpleName typ
-        let genArgs = deriveGenericDefaultArgs typ
-
-        $"Cache<{simpleName}{genArgs}>.StoreGeneric typedefof<Format{simpleName}{genArgs}>"
-
-    else
-        $"Cache<{typName}>.Store (Format{typName}() :> Format<{typName}>)"
-
 let getTypeOpenPath (typ: Type) =
     let declaringModule = typ.DeclaringType
 
@@ -71,4 +29,82 @@ let getTypeOpenPath (typ: Type) =
         typ.Namespace
     else
         declaringModule.FullName
+
+[<AutoOpen>]
+module private TransformTypeName  =
+    /// Foo`2[[string, int]] -> Foo
+    /// Bar`2 -> Bar
+    /// Baz -> Baz
+    let lexName (typName: string) =
+        (typName.Split '`').[0]
+
+    /// MyNamespace.MyModule+MyType`2[[string, int]]
+    let fullName (typ: Type) = typ.FullName
+
+    /// MyType`2
+    let simpleName (typ: Type) = typ.Name
+
+    let addArgsString (typ: Type) typName argMap =
+        let args =
+            typ.GetGenericArguments()
+            |> Array.map argMap
+            |> String.concat ","
+
+        if args.Length > 0 then
+            typName + "<" + args + ">"
+        else
+            typName
+        
+    /// myTypeNameString -> myType -> MyTypeNameString<'A,'B>
+    let addNamedArgs (typ: Type) typName =
+        addArgsString typ typName (fun arg -> "'" + arg.Name)
+
+    /// myTypeNameString -> myType -> MyTypeNameString<_,_>
+    let addAnonArgs (typ: Type) typName =
+        addArgsString typ typName (fun _ -> "_")
+
+    /// MyNamespace.MyModule+MyType -> MyNamespace.MyModule.MyType
+    let canonName (typName: string) =
+        typName.Replace ("+", ".")
+
+module TypeName =
+    // TODO These don't need readable names, better to make them 
+    // more explicit and avoid namespace collisions
+    let simpleWithGenArgs typ =
+        typ
+        |> simpleName
+        |> lexName
+        |> addNamedArgs typ
+
+    let fullWithAnonArgs typ =
+        typ
+        |> fullName
+        |> canonName
+        |> lexName
+        |> addAnonArgs typ
+
+    /// If is generic parameter, then 'T else T
+    let field (typ: Type) =
+        if typ.IsGenericTypeParameter then
+            typ
+            |> simpleName
+            |> (+) "'"
+        else
+            typ
+            |> fullWithAnonArgs
+
+let writeCacheFormatLine (typ: Type) =
+    let typeName =
+        typ
+        |> simpleName
+        |> lexName
+        |> addAnonArgs typ
+
+    if typ.IsGenericType then
+        // Cache<Foo<_>>.StoreGeneric typedefof<FormatFoo<_>>
+        $"Cache<{typeName}>.StoreGeneric typedefof<Format{typeName}>"
+
+    else
+        // Cache<Foo>.Store (FormatFoo :> typeof<FormatFoo>
+        $"Cache<{typeName}>.Store (Format{typeName}() :> Format<{typeName}>)"
 

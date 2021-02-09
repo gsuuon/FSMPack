@@ -31,7 +31,7 @@ type FormatMyInnerType() =
                         + " got " + string expectedCount)
 
             let mutable items = 0
-            let mutable C = Unchecked.defaultof<String>
+            let mutable C = Unchecked.defaultof<System.String>
             while items < count do
                 match readValue br &bytes with
                 | RawString key ->
@@ -59,7 +59,7 @@ type FormatMyTestType() =
             writeValue bw (RawString "B")
             writeValue bw (FloatDouble v.B)
             writeValue bw (RawString "inner")
-            Cache<MyInnerType>.Retrieve().Write bw v.inner
+            Cache<FSMPack.Tests.Types.Record.MyInnerType>.Retrieve().Write bw v.inner
 
         member _.Read (br, bytes) =
             let count = 3
@@ -71,9 +71,9 @@ type FormatMyTestType() =
                         + " got " + string expectedCount)
 
             let mutable items = 0
-            let mutable A = Unchecked.defaultof<Int32>
-            let mutable B = Unchecked.defaultof<Double>
-            let mutable inner = Unchecked.defaultof<MyInnerType>
+            let mutable A = Unchecked.defaultof<System.Int32>
+            let mutable B = Unchecked.defaultof<System.Double>
+            let mutable inner = Unchecked.defaultof<FSMPack.Tests.Types.Record.MyInnerType>
             while items < count do
                 match readValue br &bytes with
                 | RawString key ->
@@ -85,7 +85,7 @@ type FormatMyTestType() =
                         let (FloatDouble x) = readValue br &bytes
                         B <- x
                     | "inner" ->
-                        inner <- Cache<MyInnerType>.Retrieve().Read(br, bytes)
+                        inner <- Cache<FSMPack.Tests.Types.Record.MyInnerType>.Retrieve().Read(br, bytes)
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
@@ -216,7 +216,7 @@ type FormatFoo() =
                         + " got " + string expectedCount)
 
             let mutable items = 0
-            let mutable a = Unchecked.defaultof<Int32>
+            let mutable a = Unchecked.defaultof<System.Int32>
             while items < count do
                 match readValue br &bytes with
                 | RawString key ->
@@ -272,7 +272,7 @@ type FormatBaz<'T>() =
             writeValue bw (RawString "b")
             writeValue bw (RawString v.b)
             writeValue bw (RawString "bar")
-            Cache<Bar>.Retrieve().Write bw v.bar
+            Cache<FSMPack.Tests.Types.Mixed.Bar>.Retrieve().Write bw v.bar
             writeValue bw (RawString "c")
             Cache<'T>.Retrieve().Write bw v.c
 
@@ -286,8 +286,8 @@ type FormatBaz<'T>() =
                         + " got " + string expectedCount)
 
             let mutable items = 0
-            let mutable b = Unchecked.defaultof<String>
-            let mutable bar = Unchecked.defaultof<Bar>
+            let mutable b = Unchecked.defaultof<System.String>
+            let mutable bar = Unchecked.defaultof<FSMPack.Tests.Types.Mixed.Bar>
             let mutable c = Unchecked.defaultof<'T>
             while items < count do
                 match readValue br &bytes with
@@ -297,7 +297,7 @@ type FormatBaz<'T>() =
                         let (RawString x) = readValue br &bytes
                         b <- x
                     | "bar" ->
-                        bar <- Cache<Bar>.Retrieve().Read(br, bytes)
+                        bar <- Cache<FSMPack.Tests.Types.Mixed.Bar>.Retrieve().Read(br, bytes)
                     | "c" ->
                         c <- Cache<'T>.Retrieve().Read(br, bytes)
                     | _ -> failwith "Unknown key"

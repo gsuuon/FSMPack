@@ -9,40 +9,35 @@ open FSMPack.Compile.Generator.Common
 
 type RecordField =
   { name : string
-    typName : string
+    typFullName : string
     typ : Type }
 
-let writeValueString f (typ: Type) =
+let writeValueString f =
     match msgpackTypes.TryGetValue f.typ with
     | true, mpType ->
         $"writeValue bw ({mpType} v.{f.name})"
     | false, _ ->
-        $"Cache<{f.typName}>.Retrieve().Write bw v.{f.name}"
+        $"Cache<{f.typFullName}>.Retrieve().Write bw v.{f.name}"
     
 let getFields (typ: Type) = [
     for pi in FSharpType.GetRecordFields typ do
       { name = pi.Name
-        typName =
-            if pi.PropertyType.IsGenericParameter then
-                "'" + pi.PropertyType.Name
-            else
-                pi.PropertyType.Name
-        typ =
-            pi.PropertyType } ]
+        typFullName = TypeName.field pi.PropertyType
+        typ = pi.PropertyType } ]
 
 let generateFormatRecord (typ: Type) =
     let fields = getFields typ
-    let typName = deriveTypeName typ
+    let nameWithGenArgs = TypeName.simpleWithGenArgs typ
 
     $"""open {getTypeOpenPath typ}
 
-type Format{typName}() =
-{__}interface Format<{typName}> with
-{__}{__}member _.Write bw (v: {typName}) =
+type Format{nameWithGenArgs}() =
+{__}interface Format<{nameWithGenArgs}> with
+{__}{__}member _.Write bw (v: {nameWithGenArgs}) =
 {__}{__}{__}writeMapFormat bw {fields.Length}
 { [ for f in fields do
         yield $"writeValue bw (RawString \"{f.name}\")"
-        yield writeValueString f typ ]
+        yield writeValueString f ]
     |> List.map (indentLine 3)
     |> String.concat "\n" }
 
@@ -57,7 +52,7 @@ type Format{typName}() =
 
 {__}{__}{__}let mutable items = 0
 { [ for f in fields do
-        yield $"let mutable {f.name} = Unchecked.defaultof<{f.typName}>" ]
+        yield $"let mutable {f.name} = Unchecked.defaultof<{f.typFullName}>" ]
     |> List.map (indentLine 3)
     |> String.concat "\n" }
 {__}{__}{__}while items < count do
@@ -72,7 +67,7 @@ type Format{typName}() =
             yield $"{__}let ({mpType} x) = readValue br &bytes"
             yield $"{__}{f.name} <- x"
         | false, _ ->
-            yield $"{__}{f.name} <- Cache<{f.typName}>.Retrieve().Read(br, bytes)"
+            yield $"{__}{f.name} <- Cache<{f.typFullName}>.Retrieve().Read(br, bytes)"
     ] @ [ "| _ -> failwith \"Unknown key\"" ]
     |> List.map (indentLine 5)
     |> String.concat "\n" }
@@ -85,5 +80,5 @@ type Format{typName}() =
     |> String.concat "\n" }
 {__}{__}{__}}}
 
-{writeCacheFormatLine typ typName}
+{writeCacheFormatLine typ}
 """

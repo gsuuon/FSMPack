@@ -7,22 +7,32 @@ open Microsoft.FSharp.Reflection
 
 open FSMPack.Compile.Generator.Common
 
-type DUCase = {
-    name : string
+type DUField =
+  { typeFullName : string
+    typ : Type }
+
+type DUCase =
+  { name : string
     tag : int
-    fieldInfos : PropertyInfo array
-}
+    fields : DUField array }
+
+let getField (fi: PropertyInfo) =
+  { typeFullName = TypeName.field fi.PropertyType
+    typ = fi.PropertyType }
 
 let getCases (typ: Type) = [
     for uci in FSharpType.GetUnionCases typ do
         yield
           { name = uci.Name
             tag = uci.Tag
-            fieldInfos = uci.GetFields() } ]
+            fields =
+                uci.GetFields()
+                |> Array.map getField } ]
 
+/// (x0, x1, ...xn) or empty string if no fields
 let destructFields case =
-    if case.fieldInfos.Length > 0 then
-        $""" ({ case.fieldInfos
+    if case.fields.Length > 0 then
+        $""" ({ case.fields
                 |> Array.mapi (fun idx _ -> $"x{idx}" )
                 |> String.concat ", " })"""
     else
@@ -33,27 +43,27 @@ let canonTypeName (fullName: string) =
 
 let generateFormatDU (typ: Type) =
     let cases = getCases typ
-    let typName = deriveTypeName typ
+    let nameWithGenArgs = TypeName.simpleWithGenArgs typ
 
     $"""open {getTypeOpenPath typ}
 
-type Format{typName}() =
-{__}interface Format<{typName}> with
-{__}{__}member _.Write bw (v: {typName}) =
+type Format{nameWithGenArgs}() =
+{__}interface Format<{nameWithGenArgs}> with
+{__}{__}member _.Write bw (v: {nameWithGenArgs}) =
 {__}{__}{__}match v with
 { [ for c in cases do
-        yield $"| {typName}.{c.name}{destructFields c} ->"
-        yield $"{__}writeArrayFormat bw {c.fieldInfos.Length + 1}"
+        yield $"| {nameWithGenArgs}.{c.name}{destructFields c} ->"
+        yield $"{__}writeArrayFormat bw {c.fields.Length + 1}"
         yield $"{__}writeValue bw (Integer {c.tag})"
         yield! 
-            c.fieldInfos
+            c.fields
             |> Array.mapi
                 (fun idx f ->
-                    match msgpackTypes.TryGetValue f.PropertyType with
+                    match msgpackTypes.TryGetValue f.typ with
                     | true, mpType ->
                         $"{__}writeValue bw ({mpType} x{idx})"
                     | false, _ ->
-                        $"{__}Cache<{canonTypeName f.PropertyType.FullName}>.Retrieve().Write bw x{idx}")
+                        $"{__}Cache<{f.typeFullName}>.Retrieve().Write bw x{idx}")
         ]
         |> List.map (indentLine 3)
         |> String.concat "\n" }
@@ -65,20 +75,20 @@ type Format{typName}() =
 { [ for c in cases do
         yield $"| Integer {c.tag} ->"
         yield! 
-            c.fieldInfos
+            c.fields
             |> Array.mapi (fun idx f ->
-                match msgpackTypes.TryGetValue f.PropertyType with
+                match msgpackTypes.TryGetValue f.typ with
                 | true, mpType ->
                     $"{__}let ({mpType} x{idx}) = readValue br &bytes"
                 | false, _ ->
-                    $"{__}let x{idx} = Cache<{canonTypeName f.PropertyType.FullName}>.Retrieve().Read(br, bytes)"
+                    $"{__}let x{idx} = Cache<{f.typeFullName}>.Retrieve().Read(br, bytes)"
             )
-        yield $"{__}{typName}.{c.name}{destructFields c}"
+        yield $"{__}{nameWithGenArgs}.{c.name}{destructFields c}"
     ]
     |> List.map (indentLine 3)
     |> String.concat "\n" }
 {__}{__}{__}| _ ->
 {__}{__}{__}{__}failwith "Unexpected DU case tag"
 
-{writeCacheFormatLine typ typName}
+{writeCacheFormatLine typ}
 """
