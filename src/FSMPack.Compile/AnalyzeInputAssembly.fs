@@ -56,6 +56,18 @@ let generalize (typ: Type) =
     else
         typ
 
+let knownTypes = HashSet [
+        typedefof<Map<_,_>>
+        typedefof<_ list>
+        typedefof<_ option>
+        typedefof<_ array>
+    ]
+
+/// setB - setA
+let exclude (setA: 'a HashSet) (setB: 'a HashSet) =
+    setB.ExceptWith setA
+    setB
+
 let discoverAllChildTypes rootTypes =
     rootTypes
     |> List.fold
@@ -63,4 +75,5 @@ let discoverAllChildTypes rootTypes =
         (HashSet())
     |> Seq.map generalize
     |> HashSet
+    |> exclude knownTypes
     |> Seq.toList
