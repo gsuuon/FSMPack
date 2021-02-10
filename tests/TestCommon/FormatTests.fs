@@ -9,7 +9,7 @@ open FSMPack.Format
 open FSMPack.Tests.Utility
 open FSMPack.Tests.Types.Record
 open FSMPack.Tests.Types.DU
-open FSMPack.Tests.Types.DefaultCollections
+open FSMPack.Tests.Types.Collection
 
 open FSMPack.Spec
 open FSMPack.Read
@@ -92,7 +92,7 @@ module TestCases =
         ]
 
     let generics =
-        testList "Generic formatter" [
+        testList "Format.Generic" [
             testCase "Roundtrip generic record of value type" roundtripGenericOfValue
             testCase "Roundtrip generic record of reference type" roundtripGenericOfReference
         ]
@@ -128,12 +128,15 @@ module TestCases =
                         0, "hi"
                         1, "bye"
                         4, "hi again"] )
+        ]
 
-            (* testCase "FSharp collection container" <| fun _ -> *)
-            (*     "roundtrip" *)
-            (*     |> roundtripFormat *)
-            (*         (Cache<FSharpCollectionContainer>.Retrieve()) *)
-            (*         { myMap = Map.ofList [ *)
-            (*             0, "a" *)
-            (*             1, "b" ] } *)
+    let containerCollections =
+        testList "Format.Collection container" [
+            testCase "FSharpMap" <| fun _ ->
+                "roundtrip"
+                |> roundtripFormat
+                    (Cache<FSharpCollectionContainer>.Retrieve())
+                    { myMap = Map.ofList [
+                        0, "a"
+                        1, "b" ] }
         ]

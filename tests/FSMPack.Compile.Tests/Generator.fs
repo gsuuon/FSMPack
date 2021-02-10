@@ -21,6 +21,7 @@ open FSMPack.Tests.Types
 open FSMPack.Tests.Types.Record
 open FSMPack.Tests.Types.DU
 open FSMPack.Tests.Types.Mixed
+open FSMPack.Tests.Types.Collection
 
 [<AutoOpen>]
 module Configuration =
@@ -105,6 +106,8 @@ let tests =
                 typeof<Foo>
                 typeof<Bar>
                 typedefof<Baz<_>>
+
+                typeof<FSharpCollectionContainer>
             ]
             |> GenerateFormat.produceFormatsText
             |> GenerateFormat.writeText formattersOutPath
@@ -161,5 +164,7 @@ let tests =
                     bar = B 1.1
                     c = 3
                 }
+
+            TestCases.containerCollections
         ]
     ]

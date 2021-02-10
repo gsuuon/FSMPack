@@ -311,6 +311,41 @@ type FormatBaz<'T>() =
 
 Cache<Baz<_>>.StoreGeneric typedefof<FormatBaz<_>>
 
+open FSMPack.Tests.Types.Collection
+
+type FormatFSharpCollectionContainer() =
+    interface Format<FSharpCollectionContainer> with
+        member _.Write bw (v: FSharpCollectionContainer) =
+            writeMapFormat bw 1
+            writeValue bw (RawString "myMap")
+            Cache<Map<_,_>>.Retrieve().Write bw v.myMap
+
+        member _.Read (br, bytes) =
+            let count = 1
+            let expectedCount = readMapFormatCount br &bytes
+
+            if count <> expectedCount then
+                failwith
+                    ("Map has wrong count, expected " + string count
+                        + " got " + string expectedCount)
+
+            let mutable items = 0
+            let mutable myMap = Unchecked.defaultof<Map<_,_>>
+            while items < count do
+                match readValue br &bytes with
+                | RawString key ->
+                    match key with
+                    | "myMap" ->
+                        myMap <- Cache<Map<_,_>>.Retrieve().Read(br, bytes)
+                    | _ -> failwith "Unknown key"
+                items <- items + 1
+
+            {
+                myMap = myMap
+            }
+
+Cache<FSharpCollectionContainer>.Store (FormatFSharpCollectionContainer() :> Format<FSharpCollectionContainer>)
+
 let initialize () =
     FSMPack.BasicFormats.setup ()
 

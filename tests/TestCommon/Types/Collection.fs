@@ -1,4 +1,4 @@
-module FSMPack.Tests.Types.DefaultCollections
+module FSMPack.Tests.Types.Collection
 
 open System.Collections.Generic
 

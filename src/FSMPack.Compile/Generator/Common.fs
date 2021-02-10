@@ -32,17 +32,32 @@ let getTypeOpenPath (typ: Type) =
 
 [<AutoOpen>]
 module private TransformTypeName  =
+    let genTypeMap = typedefof<Map<_,_>>
+
+    let isMapType (typ: Type) =
+        typ.IsGenericType &&
+        typ.GetGenericTypeDefinition() = genTypeMap
+
     /// Foo`2[[string, int]] -> Foo
     /// Bar`2 -> Bar
     /// Baz -> Baz
     let lexName (typName: string) =
         (typName.Split '`').[0]
 
+
     /// MyNamespace.MyModule+MyType`2[[string, int]]
-    let fullName (typ: Type) = typ.FullName
+    let fullName (typ: Type) =
+        if isMapType typ then
+            "Map"
+        else
+            typ.FullName
 
     /// MyType`2
-    let simpleName (typ: Type) = typ.Name
+    let simpleName (typ: Type) =
+        if isMapType typ then
+            "Map"
+        else
+             typ.Name
 
     let addArgsString (typ: Type) typName argMap =
         let args =
