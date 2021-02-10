@@ -78,20 +78,21 @@ type TypeCategory =
     | RecordType
 
 let determineTypeCategory (typ: Type) =
-    if FSharpType.IsRecord typ then
-        RecordType
-    else if FSharpType.IsUnion typ then
-        DUType
-    else
-        let matchType = 
-            if typ.IsGenericType then
-                typ.GetGenericTypeDefinition()
-            else
-                typ
+    let matchType = 
+        if typ.IsGenericType then
+            typ.GetGenericTypeDefinition()
+        else
+            typ
 
-        match knownTypes.TryGetValue matchType with
-        | true, _ -> KnownType
-        | _ -> UnknownType
+    match knownTypes.TryGetValue matchType with
+    | true, _ -> KnownType
+    | _ ->
+        if FSharpType.IsRecord typ then
+            RecordType
+        else if FSharpType.IsUnion typ then
+            DUType
+        else
+            UnknownType
 
 let discoverAllChildTypes rootTypes =
     rootTypes
