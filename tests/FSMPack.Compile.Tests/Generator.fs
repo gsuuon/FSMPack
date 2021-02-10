@@ -106,6 +106,7 @@ let tests =
                 typeof<Foo>
                 typeof<Bar>
                 typedefof<Baz<_>>
+                typedefof<MyGenDU<_>>
 
                 typeof<FSharpCollectionContainer>
             ]
@@ -165,6 +166,22 @@ let tests =
                     c = 3
                 }
 
-            TestCases.containerCollections
+            testList "Format.Collection container" [
+                testCase "FSharpMap" <| fun _ ->
+                    "roundtrip"
+                    |> roundtripFormat
+                        (Cache<FSharpCollectionContainer>.Retrieve())
+                        { myMap = Map.ofList [
+                            0, "a"
+                            1, "b" ] }
+            ]
+
+            testList "Format.Generic DU" [
+                testCase "Roundtrip" <| fun _ ->
+                    "Simple generic DU"
+                    |> roundtripFormat
+                        (Cache<MyGenDU<_>>.Retrieve())
+                        (MyT "hi")
+            ]
         ]
     ]

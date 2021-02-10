@@ -19,6 +19,10 @@ type MyDU =
     (* | F of int * bool *)
         // depends on tuple
 
+type MyGenDU<'T> =
+    | MyT of 'T
+    | Foo
+
 // Array size 1 + max fields count
 // 1 byte tag PosFix
 // fields in order

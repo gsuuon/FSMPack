@@ -129,14 +129,3 @@ module TestCases =
                         1, "bye"
                         4, "hi again"] )
         ]
-
-    let containerCollections =
-        testList "Format.Collection container" [
-            testCase "FSharpMap" <| fun _ ->
-                "roundtrip"
-                |> roundtripFormat
-                    (Cache<FSharpCollectionContainer>.Retrieve())
-                    { myMap = Map.ofList [
-                        0, "a"
-                        1, "b" ] }
-        ]
