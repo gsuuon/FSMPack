@@ -311,6 +311,34 @@ type FormatBaz<'T>() =
 
 Cache<Baz<_>>.StoreGeneric typedefof<FormatBaz<_>>
 
+open FSMPack.Tests.Types.DU
+
+type FormatMyGenDU<'T>() =
+    interface Format<MyGenDU<'T>> with
+        member _.Write bw (v: MyGenDU<'T>) =
+            match v with
+            | MyGenDU.MyT (x0) ->
+                writeArrayFormat bw 2
+                writeValue bw (Integer 0)
+                Cache<'T>.Retrieve().Write bw x0
+            | MyGenDU.Foo ->
+                writeArrayFormat bw 1
+                writeValue bw (Integer 1)
+
+        member _.Read (br, bytes) =
+            let count = readArrayFormatCount br &bytes
+
+            match readValue br &bytes with
+            | Integer 0 ->
+                let x0 = Cache<'T>.Retrieve().Read(br, bytes)
+                MyGenDU<'T>.MyT (x0)
+            | Integer 1 ->
+                MyGenDU<'T>.Foo
+            | _ ->
+                failwith "Unexpected DU case tag"
+
+Cache<MyGenDU<_>>.StoreGeneric typedefof<FormatMyGenDU<_>>
+
 open FSMPack.Tests.Types.Collection
 
 type FormatFSharpCollectionContainer() =

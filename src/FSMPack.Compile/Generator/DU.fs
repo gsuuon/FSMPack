@@ -43,7 +43,14 @@ let canonTypeName (fullName: string) =
 
 let generateFormatDU (typ: Type) =
     let cases = getCases typ
-    let nameWithGenArgs = TypeName.simpleWithGenArgs typ
+    let simpleName =
+        typ
+        |> TypeName.Transform.simpleName
+        |> TypeName.Transform.lexName
+
+    let nameWithGenArgs =
+        simpleName
+        |> TypeName.Transform.addNamedArgs typ
 
     $"""open {getTypeOpenPath typ}
 
@@ -52,7 +59,7 @@ type Format{nameWithGenArgs}() =
 {__}{__}member _.Write bw (v: {nameWithGenArgs}) =
 {__}{__}{__}match v with
 { [ for c in cases do
-        yield $"| {nameWithGenArgs}.{c.name}{destructFields c} ->"
+        yield $"| {simpleName}.{c.name}{destructFields c} ->"
         yield $"{__}writeArrayFormat bw {c.fields.Length + 1}"
         yield $"{__}writeValue bw (Integer {c.tag})"
         yield! 
