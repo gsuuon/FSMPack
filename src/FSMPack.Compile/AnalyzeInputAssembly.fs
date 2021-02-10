@@ -56,12 +56,30 @@ let generalize (typ: Type) =
     else
         typ
 
-let knownTypes = HashSet [
+let knownGenericTypes = HashSet [
         typedefof<Map<_,_>>
         typedefof<_ list>
         typedefof<_ option>
         typedefof<_ array>
     ]
+
+type TypeCategory =
+    | KnownType
+    | UnknownType
+    | DUType
+    | RecordType
+
+let determineTypeCategory (typ: Type) =
+    if FSharpType.IsRecord typ then
+        RecordType
+    else if FSharpType.IsUnion typ then
+        DUType
+    else if typ.IsGenericType then
+        match knownGenericTypes.TryGetValue (typ.GetGenericTypeDefinition()) with
+        | true, _ -> KnownType
+        | _ -> UnknownType
+    else
+        UnknownType
 
 /// setB - setA
 let exclude (setA: 'a HashSet) (setB: 'a HashSet) =
@@ -75,5 +93,5 @@ let discoverAllChildTypes rootTypes =
         (HashSet())
     |> Seq.map generalize
     |> HashSet
-    |> exclude knownTypes
     |> Seq.toList
+    |> List.map (fun typ -> typ, determineTypeCategory typ)

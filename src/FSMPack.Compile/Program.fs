@@ -7,15 +7,30 @@ open FSMPack.Compile.GenerateFormat
 open FSMPack.Compile.AnalyzeInputAssembly
 
 let compileTypes formatsOutpath addlRefs types =
-    produceFormatsText types
-    |> writeText formatsOutpath
+    types
+    |> List.partition
+        (fun (_, typCat) ->
+            match typCat with
+            | KnownType -> false
+            | UnknownType -> false
+            | _ -> true)
+    |> fun (generateTypes, skipTypes) ->
+        let skipNoticeText =
+            skipTypes
+            |> List.map (fun (typ, typCat) ->
+                sprintf "Skipped %A: %A" typCat typ)
+            |> String.concat "\n"
 
-    printfn "FSMPack: Formats written to %s" formatsOutpath
+        generateTypes
+        |> produceFormatsText
+        |> fun formatsText -> formatsText + "\n\n" + skipNoticeText
+        |> writeText formatsOutpath
+
+        printfn "FSMPack: Formats written to %s" formatsOutpath
 
     // TODO How to include references correctly?
     // - [ ] Kick off process to publish FSMPack and add output directory as libDir
-    // - [ ] Add System.Memory as a dependency to FSMPack.Compile, and get assembly.Location 
-    //         from compile host process (and also FSMPack)
+    // - [ ] Add System.Memory as a dependency to FSMPack.Compile, and get assembly.Location from compile host process (and also FSMPack)
 
     runCompileProcess {
         outfile = "Generated/FSMPack.GeneratedFormats.dll"

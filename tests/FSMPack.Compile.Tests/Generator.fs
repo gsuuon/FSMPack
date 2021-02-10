@@ -110,6 +110,8 @@ let tests =
 
                 typeof<FSharpCollectionContainer>
             ]
+            |> List.map (fun typ ->
+                typ, AnalyzeInputAssembly.determineTypeCategory typ)
             |> GenerateFormat.produceFormatsText
             |> GenerateFormat.writeText formattersOutPath
 

@@ -6,6 +6,7 @@ open System.Collections.Generic
 open System.Reflection
 open Microsoft.FSharp.Reflection
 
+open FSMPack.Compile.AnalyzeInputAssembly
 open FSMPack.Compile.Generator.Common
 open FSMPack.Compile.Generator.Record
 open FSMPack.Compile.Generator.DU
@@ -35,12 +36,13 @@ let initialize () =
     _initStartupCode
 """
 
-let generateFormat (typ: Type) =
-    if FSharpType.IsRecord typ then
+let generateFormat (typ: Type, typCat) =
+    match typCat with
+    | RecordType ->
         generateFormatRecord typ
-    else if FSharpType.IsUnion typ then
+    | DUType ->
         generateFormatDU typ
-    else
+    | _ ->
         sprintf "// Unknown type %A" typ
 
 let addFormattersFileHeader (formatters: string list) =
@@ -53,8 +55,8 @@ module Helpers =
     let prependText text body =
         text + "\n" + body
 
-let produceFormatsText types =
-    types
+let produceFormatsText typesAndTypCat =
+    typesAndTypCat
     |> List.map generateFormat
     |> String.concat "\n"
     |> prependText header
