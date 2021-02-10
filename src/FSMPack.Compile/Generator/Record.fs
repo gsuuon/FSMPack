@@ -29,6 +29,21 @@ let generateFormatRecord (typ: Type) =
     let fields = getFields typ
     let names = TypeName.getGeneratorNames typ
 
+    let keyName =
+        // Avoids collision with field names in match statement
+        // TODO is there a way around this?
+        let mutable key = "_k"
+
+        let fieldNames =
+            fields
+            |> List.map (fun f -> f.name)
+            |> HashSet
+
+        while fieldNames.Contains key do
+            key <- key + "'"
+
+        key
+
     $"""type {names.formatTypeNamedArgs}() =
 {__}interface Format<{names.dataTypeNamedArgs}> with
 {__}{__}member _.Write bw (v: {names.dataTypeNamedArgs}) =
@@ -55,8 +70,8 @@ let generateFormatRecord (typ: Type) =
     |> String.concat "\n" }
 {__}{__}{__}while items < count do
 {__}{__}{__}{__}match readValue br &bytes with
-{__}{__}{__}{__}| RawString key ->
-{__}{__}{__}{__}{__}match key with
+{__}{__}{__}{__}| RawString {keyName} ->
+{__}{__}{__}{__}{__}match {keyName} with
 { [ for f in fields do
         yield $"| \"{f.name}\" ->"
 

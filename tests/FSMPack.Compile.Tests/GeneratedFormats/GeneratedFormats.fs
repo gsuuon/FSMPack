@@ -32,8 +32,8 @@ type FMT_FSMPack_Tests_Types_Record_MyInnerType() =
             let mutable C = Unchecked.defaultof<System.String>
             while items < count do
                 match readValue br &bytes with
-                | RawString key ->
-                    match key with
+                | RawString _k ->
+                    match _k with
                     | "C" ->
                         let (RawString x) = readValue br &bytes
                         C <- x
@@ -72,8 +72,8 @@ type FMT_FSMPack_Tests_Types_Record_MyTestType() =
             let mutable inner = Unchecked.defaultof<FSMPack.Tests.Types.Record.MyInnerType>
             while items < count do
                 match readValue br &bytes with
-                | RawString key ->
-                    match key with
+                | RawString _k ->
+                    match _k with
                     | "A" ->
                         let (Integer x) = readValue br &bytes
                         A <- x
@@ -174,8 +174,8 @@ type FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>() =
             let mutable foo = Unchecked.defaultof<'T>
             while items < count do
                 match readValue br &bytes with
-                | RawString key ->
-                    match key with
+                | RawString _k ->
+                    match _k with
                     | "foo" ->
                         foo <- Cache<'T>.Retrieve().Read(br, bytes)
                     | _ -> failwith "Unknown key"
@@ -207,8 +207,8 @@ type FMT_FSMPack_Tests_Types_Mixed_Foo() =
             let mutable a = Unchecked.defaultof<System.Int32>
             while items < count do
                 match readValue br &bytes with
-                | RawString key ->
-                    match key with
+                | RawString _k ->
+                    match _k with
                     | "a" ->
                         let (Integer x) = readValue br &bytes
                         a <- x
@@ -275,8 +275,8 @@ type FMT_FSMPack_Tests_Types_Mixed_Baz<'T>() =
             let mutable c = Unchecked.defaultof<'T>
             while items < count do
                 match readValue br &bytes with
-                | RawString key ->
-                    match key with
+                | RawString _k ->
+                    match _k with
                     | "b" ->
                         let (RawString x) = readValue br &bytes
                         b <- x
@@ -341,8 +341,8 @@ type FMT_FSMPack_Tests_Types_Collection_FSharpCollectionContainer() =
             let mutable myMap = Unchecked.defaultof<Map<_,_>>
             while items < count do
                 match readValue br &bytes with
-                | RawString key ->
-                    match key with
+                | RawString _k ->
+                    match _k with
                     | "myMap" ->
                         myMap <- Cache<Map<_,_>>.Retrieve().Read(br, bytes)
                     | _ -> failwith "Unknown key"
