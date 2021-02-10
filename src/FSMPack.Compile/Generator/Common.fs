@@ -24,14 +24,6 @@ let msgpackTypes = dict [
         // TODO Extension
 ]
 
-let getTypeOpenPath (typ: Type) =
-    let declaringModule = typ.DeclaringType
-
-    if declaringModule = null then
-        typ.Namespace
-    else
-        declaringModule.FullName
-
 [<AutoOpen>]
 module private TransformTypeName  =
     let genTypeMap = typedefof<Map<_,_>>
@@ -45,13 +37,38 @@ module private TransformTypeName  =
     let lexName (typName: string) =
         (typName.Split '`').[0]
 
+    type FullNameNullReason =
+        | GenericTypeParameter
+        | ContainsGenPrmsNotTypeDef
+        | Unknown
+
+    let fullnameIsFalseReason (typ: Type) =
+        if typ.IsGenericTypeParameter then
+            GenericTypeParameter
+        else if typ.ContainsGenericParameters && not typ.IsGenericTypeDefinition then
+            ContainsGenPrmsNotTypeDef
+        else
+            Unknown
 
     /// MyNamespace.MyModule+MyType`2[[string, int]]
     let fullName (typ: Type) =
+        // fullname is null if typ:
+        // - is a generic type parameter
+        // - represents an array type, pointer type, or byref type based on a generic type parameter
+        // - type contains generic type parameters, but is not a generic type definition
+        //       - ie, ContainsGenericParameters = true; IsGenericTypeDefinition = false;
+        // 
         if isMapType typ then
             "Map"
         else
-            typ.FullName
+            if typ.FullName = null then
+                match fullnameIsFalseReason typ with
+                | ContainsGenPrmsNotTypeDef ->
+                    typ.GetGenericTypeDefinition().FullName
+                | _ ->
+                    failwith <| sprintf "Type had null FullName: %A\nReason: %A" typ (fullnameIsFalseReason typ)
+            else
+                typ.FullName
 
     /// MyType`2
     let simpleName (typ: Type) =
@@ -123,4 +140,13 @@ let writeCacheFormatLine (typ: Type) =
     else
         // Cache<Foo>.Store (FormatFoo :> typeof<FormatFoo>
         $"Cache<{typeName}>.Store (Format{typeName}() :> Format<{typeName}>)"
+
+let getTypeOpenPath (typ: Type) =
+    let declaringModule = typ.DeclaringType
+
+    if declaringModule = null then
+        typ.Namespace
+    else
+        declaringModule.FullName
+        |> canonName
 
