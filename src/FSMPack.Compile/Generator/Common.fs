@@ -26,10 +26,11 @@ let msgpackTypes = dict [
 
 module TypeName =
     module Transform =
-        let genTypeMap = typedefof<Map<_,_>>
-
-        let isMapType (typ: Type) =
-            generalize typ = genTypeMap
+        let knownGenTypeNames = dict [
+            typedefof<Map<_,_>>, "Map"
+            typedefof<_ list>, "List"
+            typedefof<_ option>, "Option"
+        ]
 
         /// Foo`2[[string, int]] -> Foo
         /// Bar`2 -> Bar
@@ -52,30 +53,27 @@ module TypeName =
 
         /// MyNamespace.MyModule+MyType`2[[string, int]]
         let fullName (typ: Type) =
-            // fullname is null if typ:
-            // - is a generic type parameter
-            // - represents an array type, pointer type, or byref type based on a generic type parameter
-            // - type contains generic type parameters, but is not a generic type definition
-            //       - ie, ContainsGenericParameters = true; IsGenericTypeDefinition = false;
-            // 
-            if isMapType typ then
-                "Map"
-            else
+            match knownGenTypeNames.TryGetValue (generalize typ) with
+            | true, typName -> typName
+            | _ ->
                 if typ.FullName = null then
                     match fullnameIsFalseReason typ with
                     | ContainsGenPrmsNotTypeDef ->
                         typ.GetGenericTypeDefinition().FullName
                     | _ ->
-                        failwith <| sprintf "Type had null FullName: %A\nReason: %A" typ (fullnameIsFalseReason typ)
+                        failwith
+                        <| sprintf
+                            "Type had null FullName: %A\nReason: %A"
+                                typ
+                                (fullnameIsFalseReason typ)
                 else
                     typ.FullName
 
         /// MyType`2
         let simpleName (typ: Type) =
-            if isMapType typ then
-                "Map"
-            else
-                 typ.Name
+            match knownGenTypeNames.TryGetValue (generalize typ) with
+            | true, typName -> typName
+            | _ -> typ.Name
 
         let addArgsString (typ: Type) typName argMap =
             let args =
@@ -130,32 +128,40 @@ module TypeName =
 
 open TypeName.Transform
 
-let writeCacheFormatLine (typ: Type) fmtTypeName =
-    let typeName =
+type GeneratorNames = {
+    formatType : string
+    dataType : string
+    dataTypeNamedArgs : string
+    dataTypeAnonArgs : string
+}
+
+let getGeneratorNames (typ: Type) =
+    let fullName =
         typ
         |> fullName
-        |> canonName
         |> lexName
-        |> addAnonArgs typ
-
-    if typ.IsGenericType then
-        // Cache<Foo<_>>.StoreGeneric typedefof<FormatFoo<_>>
-        $"Cache<{typeName}>.StoreGeneric typedefof<{fmtTypeName}>"
-
-    else
-        // Cache<Foo>.Store (FormatFoo :> typeof<FormatFoo>
-        $"Cache<{typeName}>.Store ({fmtTypeName}() :> Format<{typeName}>)"
-
-let getTypeOpenPath (typ: Type) =
-    let declaringModule = typ.DeclaringType
-
-    if declaringModule = null then
-        typ.Namespace
-    else
-        declaringModule.FullName
         |> canonName
 
-let formatTypeName (typ: Type) =
+    {
+        formatType =
+            fullName
+            |> declarableName
+            |> addNamedArgs typ
+            |> (+) "FMT_"
+
+        dataType =
+            fullName
+
+        dataTypeNamedArgs =
+            fullName
+            |> addNamedArgs typ
+
+        dataTypeAnonArgs =
+            fullName
+            |> addAnonArgs typ
+    }
+
+let getFormatTypeName (typ: Type) =
     typ
     |> fullName
     |> lexName
@@ -163,3 +169,18 @@ let formatTypeName (typ: Type) =
     |> declarableName
     |> addNamedArgs typ
     |> (+) "FMT_"
+
+let getDataTypeName (typ: Type) =
+    typ
+    |> fullName
+    |> lexName
+    |> canonName
+
+let writeCacheFormatLine (typ: Type) (names: GeneratorNames) =
+    if typ.IsGenericType then
+        // Cache<Foo<_>>.StoreGeneric typedefof<FormatFoo<_>>
+        $"Cache<{names.dataTypeAnonArgs}>.StoreGeneric typedefof<{names.formatType}>"
+
+    else
+        // Cache<Foo>.Store (FormatFoo :> typeof<FormatFoo>
+        $"Cache<{names.dataTypeAnonArgs}>.Store ({names.formatType}() :> Format<{names.dataTypeAnonArgs}>)"

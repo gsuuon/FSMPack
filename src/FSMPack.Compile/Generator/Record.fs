@@ -27,14 +27,11 @@ let getFields (typ: Type) = [
 
 let generateFormatRecord (typ: Type) =
     let fields = getFields typ
-    let nameWithGenArgs = TypeName.simpleWithGenArgs typ
-    let fmtTypName = formatTypeName typ
+    let names = getGeneratorNames typ
 
-    $"""open {getTypeOpenPath typ}
-
-type {fmtTypName}() =
-{__}interface Format<{nameWithGenArgs}> with
-{__}{__}member _.Write bw (v: {nameWithGenArgs}) =
+    $"""type {names.formatType}() =
+{__}interface Format<{names.dataTypeNamedArgs}> with
+{__}{__}member _.Write bw (v: {names.dataTypeNamedArgs}) =
 {__}{__}{__}writeMapFormat bw {fields.Length}
 { [ for f in fields do
         yield $"writeValue bw (RawString \"{f.name}\")"
@@ -81,5 +78,5 @@ type {fmtTypName}() =
     |> String.concat "\n" }
 {__}{__}{__}}}
 
-{writeCacheFormatLine typ fmtTypName}
+{writeCacheFormatLine typ names}
 """

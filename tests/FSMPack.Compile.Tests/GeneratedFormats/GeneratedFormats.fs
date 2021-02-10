@@ -12,11 +12,9 @@ open FSMPack.Write
 let mutable _initStartupCode = 0
 
 
-open FSMPack.Tests.Types.Record
-
 type FMT_FSMPack_Tests_Types_Record_MyInnerType() =
-    interface Format<MyInnerType> with
-        member _.Write bw (v: MyInnerType) =
+    interface Format<FSMPack.Tests.Types.Record.MyInnerType> with
+        member _.Write bw (v: FSMPack.Tests.Types.Record.MyInnerType) =
             writeMapFormat bw 1
             writeValue bw (RawString "C")
             writeValue bw (RawString v.C)
@@ -48,11 +46,9 @@ type FMT_FSMPack_Tests_Types_Record_MyInnerType() =
 
 Cache<FSMPack.Tests.Types.Record.MyInnerType>.Store (FMT_FSMPack_Tests_Types_Record_MyInnerType() :> Format<FSMPack.Tests.Types.Record.MyInnerType>)
 
-open FSMPack.Tests.Types.Record
-
 type FMT_FSMPack_Tests_Types_Record_MyTestType() =
-    interface Format<MyTestType> with
-        member _.Write bw (v: MyTestType) =
+    interface Format<FSMPack.Tests.Types.Record.MyTestType> with
+        member _.Write bw (v: FSMPack.Tests.Types.Record.MyTestType) =
             writeMapFormat bw 3
             writeValue bw (RawString "A")
             writeValue bw (Integer v.A)
@@ -97,16 +93,14 @@ type FMT_FSMPack_Tests_Types_Record_MyTestType() =
 
 Cache<FSMPack.Tests.Types.Record.MyTestType>.Store (FMT_FSMPack_Tests_Types_Record_MyTestType() :> Format<FSMPack.Tests.Types.Record.MyTestType>)
 
-open FSMPack.Tests.Types.DU
-
 type FMT_FSMPack_Tests_Types_DU_MyInnerDU() =
-    interface Format<MyInnerDU> with
-        member _.Write bw (v: MyInnerDU) =
+    interface Format<FSMPack.Tests.Types.DU.MyInnerDU> with
+        member _.Write bw (v: FSMPack.Tests.Types.DU.MyInnerDU) =
             match v with
-            | MyInnerDU.A ->
+            | FSMPack.Tests.Types.DU.MyInnerDU.A ->
                 writeArrayFormat bw 1
                 writeValue bw (Integer 0)
-            | MyInnerDU.B (x0) ->
+            | FSMPack.Tests.Types.DU.MyInnerDU.B (x0) ->
                 writeArrayFormat bw 2
                 writeValue bw (Integer 1)
                 writeValue bw (Integer x0)
@@ -116,31 +110,29 @@ type FMT_FSMPack_Tests_Types_DU_MyInnerDU() =
 
             match readValue br &bytes with
             | Integer 0 ->
-                MyInnerDU.A
+                FSMPack.Tests.Types.DU.MyInnerDU.A
             | Integer 1 ->
                 let (Integer x0) = readValue br &bytes
-                MyInnerDU.B (x0)
+                FSMPack.Tests.Types.DU.MyInnerDU.B (x0)
             | _ ->
                 failwith "Unexpected DU case tag"
 
 Cache<FSMPack.Tests.Types.DU.MyInnerDU>.Store (FMT_FSMPack_Tests_Types_DU_MyInnerDU() :> Format<FSMPack.Tests.Types.DU.MyInnerDU>)
 
-open FSMPack.Tests.Types.DU
-
 type FMT_FSMPack_Tests_Types_DU_MyDU() =
-    interface Format<MyDU> with
-        member _.Write bw (v: MyDU) =
+    interface Format<FSMPack.Tests.Types.DU.MyDU> with
+        member _.Write bw (v: FSMPack.Tests.Types.DU.MyDU) =
             match v with
-            | MyDU.C (x0, x1) ->
+            | FSMPack.Tests.Types.DU.MyDU.C (x0, x1) ->
                 writeArrayFormat bw 3
                 writeValue bw (Integer 0)
                 writeValue bw (RawString x0)
                 writeValue bw (FloatDouble x1)
-            | MyDU.D (x0) ->
+            | FSMPack.Tests.Types.DU.MyDU.D (x0) ->
                 writeArrayFormat bw 2
                 writeValue bw (Integer 1)
                 Cache<FSMPack.Tests.Types.DU.MyInnerDU>.Retrieve().Write bw x0
-            | MyDU.E ->
+            | FSMPack.Tests.Types.DU.MyDU.E ->
                 writeArrayFormat bw 1
                 writeValue bw (Integer 2)
 
@@ -151,22 +143,20 @@ type FMT_FSMPack_Tests_Types_DU_MyDU() =
             | Integer 0 ->
                 let (RawString x0) = readValue br &bytes
                 let (FloatDouble x1) = readValue br &bytes
-                MyDU.C (x0, x1)
+                FSMPack.Tests.Types.DU.MyDU.C (x0, x1)
             | Integer 1 ->
                 let x0 = Cache<FSMPack.Tests.Types.DU.MyInnerDU>.Retrieve().Read(br, bytes)
-                MyDU.D (x0)
+                FSMPack.Tests.Types.DU.MyDU.D (x0)
             | Integer 2 ->
-                MyDU.E
+                FSMPack.Tests.Types.DU.MyDU.E
             | _ ->
                 failwith "Unexpected DU case tag"
 
 Cache<FSMPack.Tests.Types.DU.MyDU>.Store (FMT_FSMPack_Tests_Types_DU_MyDU() :> Format<FSMPack.Tests.Types.DU.MyDU>)
 
-open FSMPack.Tests.Types.Record
-
 type FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>() =
-    interface Format<MyGenericRecord<'T>> with
-        member _.Write bw (v: MyGenericRecord<'T>) =
+    interface Format<FSMPack.Tests.Types.Record.MyGenericRecord<'T>> with
+        member _.Write bw (v: FSMPack.Tests.Types.Record.MyGenericRecord<'T>) =
             writeMapFormat bw 1
             writeValue bw (RawString "foo")
             Cache<'T>.Retrieve().Write bw v.foo
@@ -197,11 +187,9 @@ type FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>() =
 
 Cache<FSMPack.Tests.Types.Record.MyGenericRecord<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>>
 
-open FSMPack.Tests.Types.Mixed
-
 type FMT_FSMPack_Tests_Types_Mixed_Foo() =
-    interface Format<Foo> with
-        member _.Write bw (v: Foo) =
+    interface Format<FSMPack.Tests.Types.Mixed.Foo> with
+        member _.Write bw (v: FSMPack.Tests.Types.Mixed.Foo) =
             writeMapFormat bw 1
             writeValue bw (RawString "a")
             writeValue bw (Integer v.a)
@@ -233,17 +221,15 @@ type FMT_FSMPack_Tests_Types_Mixed_Foo() =
 
 Cache<FSMPack.Tests.Types.Mixed.Foo>.Store (FMT_FSMPack_Tests_Types_Mixed_Foo() :> Format<FSMPack.Tests.Types.Mixed.Foo>)
 
-open FSMPack.Tests.Types.Mixed
-
 type FMT_FSMPack_Tests_Types_Mixed_Bar() =
-    interface Format<Bar> with
-        member _.Write bw (v: Bar) =
+    interface Format<FSMPack.Tests.Types.Mixed.Bar> with
+        member _.Write bw (v: FSMPack.Tests.Types.Mixed.Bar) =
             match v with
-            | Bar.A (x0) ->
+            | FSMPack.Tests.Types.Mixed.Bar.A (x0) ->
                 writeArrayFormat bw 2
                 writeValue bw (Integer 0)
                 Cache<FSMPack.Tests.Types.Mixed.Foo>.Retrieve().Write bw x0
-            | Bar.B (x0) ->
+            | FSMPack.Tests.Types.Mixed.Bar.B (x0) ->
                 writeArrayFormat bw 2
                 writeValue bw (Integer 1)
                 writeValue bw (FloatDouble x0)
@@ -254,20 +240,18 @@ type FMT_FSMPack_Tests_Types_Mixed_Bar() =
             match readValue br &bytes with
             | Integer 0 ->
                 let x0 = Cache<FSMPack.Tests.Types.Mixed.Foo>.Retrieve().Read(br, bytes)
-                Bar.A (x0)
+                FSMPack.Tests.Types.Mixed.Bar.A (x0)
             | Integer 1 ->
                 let (FloatDouble x0) = readValue br &bytes
-                Bar.B (x0)
+                FSMPack.Tests.Types.Mixed.Bar.B (x0)
             | _ ->
                 failwith "Unexpected DU case tag"
 
 Cache<FSMPack.Tests.Types.Mixed.Bar>.Store (FMT_FSMPack_Tests_Types_Mixed_Bar() :> Format<FSMPack.Tests.Types.Mixed.Bar>)
 
-open FSMPack.Tests.Types.Mixed
-
 type FMT_FSMPack_Tests_Types_Mixed_Baz<'T>() =
-    interface Format<Baz<'T>> with
-        member _.Write bw (v: Baz<'T>) =
+    interface Format<FSMPack.Tests.Types.Mixed.Baz<'T>> with
+        member _.Write bw (v: FSMPack.Tests.Types.Mixed.Baz<'T>) =
             writeMapFormat bw 3
             writeValue bw (RawString "b")
             writeValue bw (RawString v.b)
@@ -311,17 +295,15 @@ type FMT_FSMPack_Tests_Types_Mixed_Baz<'T>() =
 
 Cache<FSMPack.Tests.Types.Mixed.Baz<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_Mixed_Baz<'T>>
 
-open FSMPack.Tests.Types.DU
-
 type FMT_FSMPack_Tests_Types_DU_MyGenDU<'T>() =
-    interface Format<MyGenDU<'T>> with
-        member _.Write bw (v: MyGenDU<'T>) =
+    interface Format<FSMPack.Tests.Types.DU.MyGenDU<'T>> with
+        member _.Write bw (v: FSMPack.Tests.Types.DU.MyGenDU<'T>) =
             match v with
-            | MyGenDU.MyT (x0) ->
+            | FSMPack.Tests.Types.DU.MyGenDU.MyT (x0) ->
                 writeArrayFormat bw 2
                 writeValue bw (Integer 0)
                 Cache<'T>.Retrieve().Write bw x0
-            | MyGenDU.Foo ->
+            | FSMPack.Tests.Types.DU.MyGenDU.Foo ->
                 writeArrayFormat bw 1
                 writeValue bw (Integer 1)
 
@@ -331,19 +313,17 @@ type FMT_FSMPack_Tests_Types_DU_MyGenDU<'T>() =
             match readValue br &bytes with
             | Integer 0 ->
                 let x0 = Cache<'T>.Retrieve().Read(br, bytes)
-                MyGenDU<'T>.MyT (x0)
+                FSMPack.Tests.Types.DU.MyGenDU<'T>.MyT (x0)
             | Integer 1 ->
-                MyGenDU<'T>.Foo
+                FSMPack.Tests.Types.DU.MyGenDU<'T>.Foo
             | _ ->
                 failwith "Unexpected DU case tag"
 
 Cache<FSMPack.Tests.Types.DU.MyGenDU<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_DU_MyGenDU<'T>>
 
-open FSMPack.Tests.Types.Collection
-
 type FMT_FSMPack_Tests_Types_Collection_FSharpCollectionContainer() =
-    interface Format<FSharpCollectionContainer> with
-        member _.Write bw (v: FSharpCollectionContainer) =
+    interface Format<FSMPack.Tests.Types.Collection.FSharpCollectionContainer> with
+        member _.Write bw (v: FSMPack.Tests.Types.Collection.FSharpCollectionContainer) =
             writeMapFormat bw 1
             writeValue bw (RawString "myMap")
             Cache<Map<_,_>>.Retrieve().Write bw v.myMap

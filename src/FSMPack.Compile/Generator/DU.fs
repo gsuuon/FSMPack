@@ -43,25 +43,14 @@ let canonTypeName (fullName: string) =
 
 let generateFormatDU (typ: Type) =
     let cases = getCases typ
-    let simpleName =
-        typ
-        |> TypeName.Transform.simpleName
-        |> TypeName.Transform.lexName
+    let names = getGeneratorNames typ
 
-    let nameWithGenArgs =
-        simpleName
-        |> TypeName.Transform.addNamedArgs typ
-
-    let fmtTypName = formatTypeName typ
-
-    $"""open {getTypeOpenPath typ}
-
-type {fmtTypName}() =
-{__}interface Format<{nameWithGenArgs}> with
-{__}{__}member _.Write bw (v: {nameWithGenArgs}) =
+    $"""type {names.formatType}() =
+{__}interface Format<{names.dataTypeNamedArgs}> with
+{__}{__}member _.Write bw (v: {names.dataTypeNamedArgs}) =
 {__}{__}{__}match v with
 { [ for c in cases do
-        yield $"| {simpleName}.{c.name}{destructFields c} ->"
+        yield $"| {names.dataType}.{c.name}{destructFields c} ->"
         yield $"{__}writeArrayFormat bw {c.fields.Length + 1}"
         yield $"{__}writeValue bw (Integer {c.tag})"
         yield! 
@@ -92,12 +81,12 @@ type {fmtTypName}() =
                 | false, _ ->
                     $"{__}let x{idx} = Cache<{f.typeFullName}>.Retrieve().Read(br, bytes)"
             )
-        yield $"{__}{nameWithGenArgs}.{c.name}{destructFields c}"
+        yield $"{__}{names.dataTypeNamedArgs}.{c.name}{destructFields c}"
     ]
     |> List.map (indentLine 3)
     |> String.concat "\n" }
 {__}{__}{__}| _ ->
 {__}{__}{__}{__}failwith "Unexpected DU case tag"
 
-{writeCacheFormatLine typ fmtTypName}
+{writeCacheFormatLine typ names}
 """
