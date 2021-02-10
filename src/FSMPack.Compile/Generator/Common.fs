@@ -2,6 +2,8 @@ module FSMPack.Compile.Generator.Common
 
 open System
 
+open FSMPack.Compile.AnalyzeInputAssembly
+
 let __ = "    "
 let indentLine count line = String.replicate count __ + line
 
@@ -35,8 +37,7 @@ module private TransformTypeName  =
     let genTypeMap = typedefof<Map<_,_>>
 
     let isMapType (typ: Type) =
-        typ.IsGenericType &&
-        typ.GetGenericTypeDefinition() = genTypeMap
+        generalize typ = genTypeMap
 
     /// Foo`2[[string, int]] -> Foo
     /// Bar`2 -> Bar

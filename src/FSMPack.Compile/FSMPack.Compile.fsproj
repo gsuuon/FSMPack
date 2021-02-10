@@ -16,12 +16,12 @@
 
     <ItemGroup>
         <Compile Include="TypeInfo.fs" />
+        <Compile Include="AnalyzeInputAssembly.fs" />
+        <Compile Include="CompileAssembly.fs" />
         <Compile Include="Generator\Common.fs" />
         <Compile Include="Generator\Record.fs" />
         <Compile Include="Generator\DU.fs" />
-        <Compile Include="AnalyzeInputAssembly.fs" />
         <Compile Include="GenerateFormat.fs" />
-        <Compile Include="CompileAssembly.fs" />
         <Compile Include="Program.fs" />
     </ItemGroup>
 

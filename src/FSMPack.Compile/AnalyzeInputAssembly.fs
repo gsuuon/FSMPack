@@ -50,9 +50,17 @@ let rec getAllSubtypesOf (allSubtypes: HashSet<Type>) (typ: Type) : HashSet<Type
         getAllSubtypesOf
         allSubtypes
 
+let generalize (typ: Type) = 
+    if typ.IsGenericType then
+        typ.GetGenericTypeDefinition()
+    else
+        typ
+
 let discoverAllChildTypes rootTypes =
     rootTypes
     |> List.fold
         getAllSubtypesOf
         (HashSet())
+    |> Seq.map generalize
+    |> HashSet
     |> Seq.toList
