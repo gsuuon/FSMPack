@@ -43,9 +43,9 @@ let canonTypeName (fullName: string) =
 
 let generateFormatDU (typ: Type) =
     let cases = getCases typ
-    let names = getGeneratorNames typ
+    let names = TypeName.getGeneratorNames typ
 
-    $"""type {names.formatType}() =
+    $"""type {names.formatTypeNamedArgs}() =
 {__}interface Format<{names.dataTypeNamedArgs}> with
 {__}{__}member _.Write bw (v: {names.dataTypeNamedArgs}) =
 {__}{__}{__}match v with
@@ -67,7 +67,7 @@ let generateFormatDU (typ: Type) =
         |> String.concat "\n" }
 
 {__}{__}member _.Read (br, bytes) =
-{__}{__}{__}let count = readArrayFormatCount br &bytes
+{__}{__}{__}let _count = readArrayFormatCount br &bytes
 
 {__}{__}{__}match readValue br &bytes with
 { [ for c in cases do

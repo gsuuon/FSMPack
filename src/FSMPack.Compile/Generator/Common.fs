@@ -51,6 +51,25 @@ module TypeName =
             else
                 Unknown
 
+        // if a type and a module share a name, the module will be implicitly
+        // suffixed with 'Module', e.g
+        // ```
+        // type Foo = ..
+        // module Foo = ...
+        // ```
+        // will generate Foo and FooModule types
+        let stripModuleSuffix (name: string) =
+            name.Split(".")
+            |> Array.map
+                (fun segment ->
+                    let matched = Text.RegularExpressions.Regex.Match(segment, "(.+)Module$")
+                    if matched.Success then
+                        matched.Groups.[1].Value
+                    else
+                        segment
+                )
+            |> String.concat "."
+
         /// MyNamespace.MyModule+MyType`2[[string, int]]
         let fullName (typ: Type) =
             match knownGenTypeNames.TryGetValue (generalize typ) with
@@ -103,20 +122,50 @@ module TypeName =
 
     open Transform
 
-    let simpleWithGenArgs typ =
-        typ
-        |> simpleName
-        |> lexName
-        |> addNamedArgs typ
+    type GeneratorNames = {
+        formatTypeNamedArgs : string
+        formatTypeAnonArgs : string
+        dataType : string
+        dataTypeNamedArgs : string
+        dataTypeAnonArgs : string
+    }
 
-    let fullWithAnonArgs typ =
+    let getFullCanonName (typ: Type) =
         typ
         |> fullName
-        |> canonName
         |> lexName
-        |> addAnonArgs typ
+        |> canonName
+        |> stripModuleSuffix
 
-    /// If is generic parameter, then 'T else T
+    let getGeneratorNames (typ: Type) =
+        let fullName = getFullCanonName typ
+        let formatTypeName = 
+            fullName
+            |> declarableName
+            |> (+) "FMT_"
+
+        {
+            formatTypeNamedArgs =
+                formatTypeName
+                |> addNamedArgs typ
+
+            formatTypeAnonArgs =
+                formatTypeName
+                |> addAnonArgs typ
+
+            dataType =
+                fullName
+
+            dataTypeNamedArgs =
+                fullName
+                |> addNamedArgs typ
+
+            dataTypeAnonArgs =
+                fullName
+                |> addAnonArgs typ
+        }
+
+    /// If typ is generic parameter, then 'T else T
     let field (typ: Type) =
         if typ.IsGenericTypeParameter then
             typ
@@ -124,63 +173,14 @@ module TypeName =
             |> (+) "'"
         else
             typ
-            |> fullWithAnonArgs
-
-open TypeName.Transform
-
-type GeneratorNames = {
-    formatType : string
-    dataType : string
-    dataTypeNamedArgs : string
-    dataTypeAnonArgs : string
-}
-
-let getGeneratorNames (typ: Type) =
-    let fullName =
-        typ
-        |> fullName
-        |> lexName
-        |> canonName
-
-    {
-        formatType =
-            fullName
-            |> declarableName
-            |> addNamedArgs typ
-            |> (+) "FMT_"
-
-        dataType =
-            fullName
-
-        dataTypeNamedArgs =
-            fullName
-            |> addNamedArgs typ
-
-        dataTypeAnonArgs =
-            fullName
+            |> getFullCanonName
             |> addAnonArgs typ
-    }
 
-let getFormatTypeName (typ: Type) =
-    typ
-    |> fullName
-    |> lexName
-    |> canonName
-    |> declarableName
-    |> addNamedArgs typ
-    |> (+) "FMT_"
-
-let getDataTypeName (typ: Type) =
-    typ
-    |> fullName
-    |> lexName
-    |> canonName
-
-let writeCacheFormatLine (typ: Type) (names: GeneratorNames) =
+let writeCacheFormatLine (typ: Type) (names: TypeName.GeneratorNames) =
     if typ.IsGenericType then
         // Cache<Foo<_>>.StoreGeneric typedefof<FormatFoo<_>>
-        $"Cache<{names.dataTypeAnonArgs}>.StoreGeneric typedefof<{names.formatType}>"
+        $"Cache<{names.dataTypeAnonArgs}>.StoreGeneric typedefof<{names.formatTypeAnonArgs}>"
 
     else
         // Cache<Foo>.Store (FormatFoo :> typeof<FormatFoo>
-        $"Cache<{names.dataTypeAnonArgs}>.Store ({names.formatType}() :> Format<{names.dataTypeAnonArgs}>)"
+        $"Cache<{names.dataTypeAnonArgs}>.Store ({names.formatTypeNamedArgs}() :> Format<{names.dataTypeAnonArgs}>)"

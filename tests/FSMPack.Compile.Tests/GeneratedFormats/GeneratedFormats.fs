@@ -106,7 +106,7 @@ type FMT_FSMPack_Tests_Types_DU_MyInnerDU() =
                 writeValue bw (Integer x0)
 
         member _.Read (br, bytes) =
-            let count = readArrayFormatCount br &bytes
+            let _count = readArrayFormatCount br &bytes
 
             match readValue br &bytes with
             | Integer 0 ->
@@ -137,7 +137,7 @@ type FMT_FSMPack_Tests_Types_DU_MyDU() =
                 writeValue bw (Integer 2)
 
         member _.Read (br, bytes) =
-            let count = readArrayFormatCount br &bytes
+            let _count = readArrayFormatCount br &bytes
 
             match readValue br &bytes with
             | Integer 0 ->
@@ -185,7 +185,7 @@ type FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>() =
                 foo = foo
             }
 
-Cache<FSMPack.Tests.Types.Record.MyGenericRecord<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>>
+Cache<FSMPack.Tests.Types.Record.MyGenericRecord<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_Record_MyGenericRecord<_>>
 
 type FMT_FSMPack_Tests_Types_Mixed_Foo() =
     interface Format<FSMPack.Tests.Types.Mixed.Foo> with
@@ -235,7 +235,7 @@ type FMT_FSMPack_Tests_Types_Mixed_Bar() =
                 writeValue bw (FloatDouble x0)
 
         member _.Read (br, bytes) =
-            let count = readArrayFormatCount br &bytes
+            let _count = readArrayFormatCount br &bytes
 
             match readValue br &bytes with
             | Integer 0 ->
@@ -293,7 +293,7 @@ type FMT_FSMPack_Tests_Types_Mixed_Baz<'T>() =
                 c = c
             }
 
-Cache<FSMPack.Tests.Types.Mixed.Baz<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_Mixed_Baz<'T>>
+Cache<FSMPack.Tests.Types.Mixed.Baz<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_Mixed_Baz<_>>
 
 type FMT_FSMPack_Tests_Types_DU_MyGenDU<'T>() =
     interface Format<FSMPack.Tests.Types.DU.MyGenDU<'T>> with
@@ -308,7 +308,7 @@ type FMT_FSMPack_Tests_Types_DU_MyGenDU<'T>() =
                 writeValue bw (Integer 1)
 
         member _.Read (br, bytes) =
-            let count = readArrayFormatCount br &bytes
+            let _count = readArrayFormatCount br &bytes
 
             match readValue br &bytes with
             | Integer 0 ->
@@ -319,7 +319,7 @@ type FMT_FSMPack_Tests_Types_DU_MyGenDU<'T>() =
             | _ ->
                 failwith "Unexpected DU case tag"
 
-Cache<FSMPack.Tests.Types.DU.MyGenDU<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_DU_MyGenDU<'T>>
+Cache<FSMPack.Tests.Types.DU.MyGenDU<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_DU_MyGenDU<_>>
 
 type FMT_FSMPack_Tests_Types_Collection_FSharpCollectionContainer() =
     interface Format<FSMPack.Tests.Types.Collection.FSharpCollectionContainer> with

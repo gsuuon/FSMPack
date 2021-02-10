@@ -27,9 +27,9 @@ let getFields (typ: Type) = [
 
 let generateFormatRecord (typ: Type) =
     let fields = getFields typ
-    let names = getGeneratorNames typ
+    let names = TypeName.getGeneratorNames typ
 
-    $"""type {names.formatType}() =
+    $"""type {names.formatTypeNamedArgs}() =
 {__}interface Format<{names.dataTypeNamedArgs}> with
 {__}{__}member _.Write bw (v: {names.dataTypeNamedArgs}) =
 {__}{__}{__}writeMapFormat bw {fields.Length}
