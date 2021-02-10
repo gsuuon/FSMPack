@@ -71,13 +71,20 @@ let knownTypes = HashSet [
     typeof<float>
 ]
 
-type TypeCategory =
-    | KnownType
-    | UnknownType
-    | DUType
-    | RecordType
+type CategorizedTypes =
+    {
+        knownTypes : Type list
+        unknownTypes : Type list
+        duTypes : Type list
+        recordTypes: Type list
+    }
+    static member Empty = {
+        knownTypes = []
+        unknownTypes = []
+        recordTypes = []
+        duTypes = [] }
 
-let determineTypeCategory (typ: Type) =
+let categorizeTypes (catTypes: CategorizedTypes) (typ: Type) =
     let matchType = 
         if typ.IsGenericType then
             typ.GetGenericTypeDefinition()
@@ -85,14 +92,15 @@ let determineTypeCategory (typ: Type) =
             typ
 
     match knownTypes.TryGetValue matchType with
-    | true, _ -> KnownType
+    | true, _ ->
+        { catTypes with knownTypes = typ :: catTypes.knownTypes }
     | _ ->
         if FSharpType.IsRecord typ then
-            RecordType
+            { catTypes with recordTypes = typ :: catTypes.recordTypes }
         else if FSharpType.IsUnion typ then
-            DUType
+            { catTypes with duTypes = typ :: catTypes.duTypes }
         else
-            UnknownType
+            { catTypes with unknownTypes = typ :: catTypes.unknownTypes }
 
 let discoverAllChildTypes rootTypes =
     rootTypes
@@ -102,4 +110,4 @@ let discoverAllChildTypes rootTypes =
     |> Seq.map generalize
     |> HashSet
     |> Seq.toList
-    |> List.map (fun typ -> typ, determineTypeCategory typ)
+    |> List.fold categorizeTypes CategorizedTypes.Empty

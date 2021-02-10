@@ -5,35 +5,59 @@ open System.Reflection
 open FSMPack.Compile.CompileAssembly
 open FSMPack.Compile.GenerateFormat
 open FSMPack.Compile.AnalyzeInputAssembly
+open FSMPack.Compile.Generator.Common
 
-let compileTypes formatsOutpath addlRefs types =
-    types
-    |> List.partition
-        (fun (_, typCat) ->
-            match typCat with
-            | KnownType -> false
-            | UnknownType -> false
-            | _ -> true)
-    |> fun (generateTypes, skipTypes) ->
-        let skipNoticeText =
-            skipTypes
-            |> List.map (fun (typ, typCat) ->
-                sprintf "// Skipped %A: %A" typCat typ)
+// FIXME this path is untested
+let compileTypes
+    (generateOutDir: string)
+    generateOutFsFilename
+    addlRefs
+    (categorizedTypes: CategorizedTypes)
+    =
+
+    let skipNoticeText =
+        let produceCacheRetrieveCalls types =
+            types
+            |> List.map (fun typ ->
+                typ
+                |> TypeName.getFullCanonName
+                |> TypeName.Transform.addAnonArgs typ
+                |> sprintf "    ignore <| Cache<%s>.Retrieve()"
+                )
+
+        let produceUnitFn fnName fnBodyLines =
+            fnBodyLines
             |> String.concat "\n"
+            |> (+) (sprintf "let %s () =\n" fnName)
+            |> fun t -> t + "    ()\n"
+            
+        (categorizedTypes.knownTypes
+        |> produceCacheRetrieveCalls
+        |> produceUnitFn "verifyFormatsKnownTypes"
+        )
 
-        generateTypes
-        |> produceFormatsText
-        |> fun formatsText -> formatsText + "\n\n" + skipNoticeText
-        |> writeText formatsOutpath
+        +
 
-        printfn "FSMPack: Formats written to %s" formatsOutpath
+        (categorizedTypes.unknownTypes
+        |> produceCacheRetrieveCalls
+        |> produceUnitFn "verifyFormatsUnknownTypes"
+        )
+
+    let formatsOutpath = Path.Join(generateOutDir, generateOutFsFilename)
+
+    categorizedTypes
+    |> produceFormatsText
+    |> fun formatsText -> formatsText + "\n\n" + skipNoticeText
+    |> writeText formatsOutpath
+
+    printfn "FSMPack: Formats written to %s" formatsOutpath
 
     // TODO How to include references correctly?
     // - [ ] Kick off process to publish FSMPack and add output directory as libDir
     // - [ ] Add System.Memory as a dependency to FSMPack.Compile, and get assembly.Location from compile host process (and also FSMPack)
 
     runCompileProcess {
-        outfile = "Generated/FSMPack.GeneratedFormats.dll"
+        outfile = Path.Join(generateOutDir, "GeneratedFormats.dll")
         files = [formatsOutpath]
         references = [
             "FSMPack"
@@ -53,7 +77,7 @@ let main args =
         printfn "FSMPack: Creating placeholder dll"
         let generatedDir = args.[1]
         if not <| Directory.Exists generatedDir then Directory.CreateDirectory generatedDir |> ignore
-        compileTypes (Path.Join(generatedDir, generatedFsFileName)) [] []
+        compileTypes generatedDir generatedFsFileName [] CategorizedTypes.Empty
 
     | "update" ->
         let generatedDir = args.[1]
@@ -65,7 +89,7 @@ let main args =
         |> Assembly.LoadFrom
         |> discoverRootTypes
         |> discoverAllChildTypes
-        |> compileTypes (Path.Join(generatedDir, generatedFsFileName)) [targetDllPath]
+        |> compileTypes generatedDir generatedFsFileName [targetDllPath]
 
     | "help" ->
         printfn "init [generated dir] - create placeholder dll"

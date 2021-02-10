@@ -36,15 +36,6 @@ let initialize () =
     _initStartupCode
 """
 
-let generateFormat (typ: Type, typCat) =
-    match typCat with
-    | RecordType ->
-        generateFormatRecord typ
-    | DUType ->
-        generateFormatDU typ
-    | _ ->
-        sprintf "// Unknown type %A" typ
-
 let addFormattersFileHeader (formatters: string list) =
     header +
         (formatters
@@ -55,9 +46,11 @@ module Helpers =
     let prependText text body =
         text + "\n" + body
 
-let produceFormatsText typesAndTypCat =
-    typesAndTypCat
-    |> List.map generateFormat
+let produceFormatsText categorizedTypes =
+    List.map generateFormatRecord
+        categorizedTypes.recordTypes
+    @ List.map generateFormatDU
+        categorizedTypes.duTypes
     |> String.concat "\n"
     |> prependText header
     |> fun t -> t + footer
