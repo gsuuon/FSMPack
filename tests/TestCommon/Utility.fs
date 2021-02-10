@@ -124,7 +124,7 @@ let generateRandomSimpleValue (seed: System.Random) =
 let generateRandomValue (seed: System.Random) =
     generateValue <| seed.Next(13)
 
-let roundtripFormat (f: Format<'T>) v message =
+let roundtripFormatExpect (f: Format<'T>) v expect message =
     let bw = BufWriter.Create 0
 
     f.Write bw v
@@ -132,4 +132,15 @@ let roundtripFormat (f: Format<'T>) v message =
     let written = bw.GetWritten()
     let read = f.Read (BufReader.Create(), ReadOnlySpan(written))
 
-    Expect.equal read v message
+    expect read v message
+
+let expectIDictEqual
+    (actual: IDictionary<'K,'V>)
+    (expected: IDictionary<'K,'V>)
+    msg
+    =
+    Expect.containsAll actual expected msg
+    Expect.equal actual.Count expected.Count msg
+    
+let roundtripFormat (f: Format<'T>) v message =
+    roundtripFormatExpect f v Expect.equal message

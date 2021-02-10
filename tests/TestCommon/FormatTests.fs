@@ -1,5 +1,7 @@
 module FSMPack.Tests.FormatTests
 
+open System.Collections.Generic
+
 open Expecto
 
 open FSMPack.Format
@@ -7,6 +9,7 @@ open FSMPack.Format
 open FSMPack.Tests.Utility
 open FSMPack.Tests.Types.Record
 open FSMPack.Tests.Types.DU
+open FSMPack.Tests.Types.DefaultCollections
 
 open FSMPack.Spec
 open FSMPack.Read
@@ -96,12 +99,41 @@ module TestCases =
 
     let collections =
         testList "Format.Collection" [
+            testCase "Net" <| fun _ ->
+                "roundtrip IDictionary"
+                |> roundtripFormatExpect
+                    (Cache<IDictionary<string, int>>.Retrieve())
+                    (dict [
+                        "x", 1
+                        "y", 10
+                        "z", 100
+                    ] )
+                    expectIDictEqual
+
+                "roundtrip Dictionary"
+                |> roundtripFormatExpect
+                    (Cache<Dictionary<string, int>>.Retrieve())
+                    (Dictionary (dict [
+                        "a", 3
+                        "b", 12
+                        "c", 50
+                    ] ) )
+                    expectIDictEqual
+
             testCase "FSharp" <| fun _ ->
                 "roundtrip Map"
                 |> roundtripFormat
                     (Cache<Map<int,string>>.Retrieve())
                     (Map.ofList [
                         0, "hi"
-                        1, "bye" ] )
+                        1, "bye"
+                        4, "hi again"] )
 
+            (* testCase "FSharp collection container" <| fun _ -> *)
+            (*     "roundtrip" *)
+            (*     |> roundtripFormat *)
+            (*         (Cache<FSharpCollectionContainer>.Retrieve()) *)
+            (*         { myMap = Map.ofList [ *)
+            (*             0, "a" *)
+            (*             1, "b" ] } *)
         ]
