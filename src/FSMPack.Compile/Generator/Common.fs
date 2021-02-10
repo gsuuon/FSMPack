@@ -100,10 +100,11 @@ module TypeName =
         let canonName (typName: string) =
             typName.Replace ("+", ".")
 
+        let declarableName (canonTypeName: string) =
+            canonTypeName.Replace (".", "_")
+
     open Transform
 
-    // TODO These don't need readable names, better to make them 
-    // more explicit and avoid namespace collisions
     let simpleWithGenArgs typ =
         typ
         |> simpleName
@@ -129,20 +130,21 @@ module TypeName =
 
 open TypeName.Transform
 
-let writeCacheFormatLine (typ: Type) =
+let writeCacheFormatLine (typ: Type) fmtTypeName =
     let typeName =
         typ
-        |> simpleName
+        |> fullName
+        |> canonName
         |> lexName
         |> addAnonArgs typ
 
     if typ.IsGenericType then
         // Cache<Foo<_>>.StoreGeneric typedefof<FormatFoo<_>>
-        $"Cache<{typeName}>.StoreGeneric typedefof<Format{typeName}>"
+        $"Cache<{typeName}>.StoreGeneric typedefof<{fmtTypeName}>"
 
     else
         // Cache<Foo>.Store (FormatFoo :> typeof<FormatFoo>
-        $"Cache<{typeName}>.Store (Format{typeName}() :> Format<{typeName}>)"
+        $"Cache<{typeName}>.Store ({fmtTypeName}() :> Format<{typeName}>)"
 
 let getTypeOpenPath (typ: Type) =
     let declaringModule = typ.DeclaringType
@@ -153,3 +155,11 @@ let getTypeOpenPath (typ: Type) =
         declaringModule.FullName
         |> canonName
 
+let formatTypeName (typ: Type) =
+    typ
+    |> fullName
+    |> lexName
+    |> canonName
+    |> declarableName
+    |> addNamedArgs typ
+    |> (+) "FMT_"

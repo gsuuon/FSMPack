@@ -28,10 +28,11 @@ let getFields (typ: Type) = [
 let generateFormatRecord (typ: Type) =
     let fields = getFields typ
     let nameWithGenArgs = TypeName.simpleWithGenArgs typ
+    let fmtTypName = formatTypeName typ
 
     $"""open {getTypeOpenPath typ}
 
-type Format{nameWithGenArgs}() =
+type {fmtTypName}() =
 {__}interface Format<{nameWithGenArgs}> with
 {__}{__}member _.Write bw (v: {nameWithGenArgs}) =
 {__}{__}{__}writeMapFormat bw {fields.Length}
@@ -80,5 +81,5 @@ type Format{nameWithGenArgs}() =
     |> String.concat "\n" }
 {__}{__}{__}}}
 
-{writeCacheFormatLine typ}
+{writeCacheFormatLine typ fmtTypName}
 """

@@ -14,7 +14,7 @@ let mutable _initStartupCode = 0
 
 open FSMPack.Tests.Types.Record
 
-type FormatMyInnerType() =
+type FMT_FSMPack_Tests_Types_Record_MyInnerType() =
     interface Format<MyInnerType> with
         member _.Write bw (v: MyInnerType) =
             writeMapFormat bw 1
@@ -46,11 +46,11 @@ type FormatMyInnerType() =
                 C = C
             }
 
-Cache<MyInnerType>.Store (FormatMyInnerType() :> Format<MyInnerType>)
+Cache<FSMPack.Tests.Types.Record.MyInnerType>.Store (FMT_FSMPack_Tests_Types_Record_MyInnerType() :> Format<FSMPack.Tests.Types.Record.MyInnerType>)
 
 open FSMPack.Tests.Types.Record
 
-type FormatMyTestType() =
+type FMT_FSMPack_Tests_Types_Record_MyTestType() =
     interface Format<MyTestType> with
         member _.Write bw (v: MyTestType) =
             writeMapFormat bw 3
@@ -95,11 +95,11 @@ type FormatMyTestType() =
                 inner = inner
             }
 
-Cache<MyTestType>.Store (FormatMyTestType() :> Format<MyTestType>)
+Cache<FSMPack.Tests.Types.Record.MyTestType>.Store (FMT_FSMPack_Tests_Types_Record_MyTestType() :> Format<FSMPack.Tests.Types.Record.MyTestType>)
 
 open FSMPack.Tests.Types.DU
 
-type FormatMyInnerDU() =
+type FMT_FSMPack_Tests_Types_DU_MyInnerDU() =
     interface Format<MyInnerDU> with
         member _.Write bw (v: MyInnerDU) =
             match v with
@@ -123,11 +123,11 @@ type FormatMyInnerDU() =
             | _ ->
                 failwith "Unexpected DU case tag"
 
-Cache<MyInnerDU>.Store (FormatMyInnerDU() :> Format<MyInnerDU>)
+Cache<FSMPack.Tests.Types.DU.MyInnerDU>.Store (FMT_FSMPack_Tests_Types_DU_MyInnerDU() :> Format<FSMPack.Tests.Types.DU.MyInnerDU>)
 
 open FSMPack.Tests.Types.DU
 
-type FormatMyDU() =
+type FMT_FSMPack_Tests_Types_DU_MyDU() =
     interface Format<MyDU> with
         member _.Write bw (v: MyDU) =
             match v with
@@ -160,11 +160,11 @@ type FormatMyDU() =
             | _ ->
                 failwith "Unexpected DU case tag"
 
-Cache<MyDU>.Store (FormatMyDU() :> Format<MyDU>)
+Cache<FSMPack.Tests.Types.DU.MyDU>.Store (FMT_FSMPack_Tests_Types_DU_MyDU() :> Format<FSMPack.Tests.Types.DU.MyDU>)
 
 open FSMPack.Tests.Types.Record
 
-type FormatMyGenericRecord<'T>() =
+type FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>() =
     interface Format<MyGenericRecord<'T>> with
         member _.Write bw (v: MyGenericRecord<'T>) =
             writeMapFormat bw 1
@@ -195,11 +195,11 @@ type FormatMyGenericRecord<'T>() =
                 foo = foo
             }
 
-Cache<MyGenericRecord<_>>.StoreGeneric typedefof<FormatMyGenericRecord<_>>
+Cache<FSMPack.Tests.Types.Record.MyGenericRecord<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>>
 
 open FSMPack.Tests.Types.Mixed
 
-type FormatFoo() =
+type FMT_FSMPack_Tests_Types_Mixed_Foo() =
     interface Format<Foo> with
         member _.Write bw (v: Foo) =
             writeMapFormat bw 1
@@ -231,11 +231,11 @@ type FormatFoo() =
                 a = a
             }
 
-Cache<Foo>.Store (FormatFoo() :> Format<Foo>)
+Cache<FSMPack.Tests.Types.Mixed.Foo>.Store (FMT_FSMPack_Tests_Types_Mixed_Foo() :> Format<FSMPack.Tests.Types.Mixed.Foo>)
 
 open FSMPack.Tests.Types.Mixed
 
-type FormatBar() =
+type FMT_FSMPack_Tests_Types_Mixed_Bar() =
     interface Format<Bar> with
         member _.Write bw (v: Bar) =
             match v with
@@ -261,11 +261,11 @@ type FormatBar() =
             | _ ->
                 failwith "Unexpected DU case tag"
 
-Cache<Bar>.Store (FormatBar() :> Format<Bar>)
+Cache<FSMPack.Tests.Types.Mixed.Bar>.Store (FMT_FSMPack_Tests_Types_Mixed_Bar() :> Format<FSMPack.Tests.Types.Mixed.Bar>)
 
 open FSMPack.Tests.Types.Mixed
 
-type FormatBaz<'T>() =
+type FMT_FSMPack_Tests_Types_Mixed_Baz<'T>() =
     interface Format<Baz<'T>> with
         member _.Write bw (v: Baz<'T>) =
             writeMapFormat bw 3
@@ -309,11 +309,11 @@ type FormatBaz<'T>() =
                 c = c
             }
 
-Cache<Baz<_>>.StoreGeneric typedefof<FormatBaz<_>>
+Cache<FSMPack.Tests.Types.Mixed.Baz<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_Mixed_Baz<'T>>
 
 open FSMPack.Tests.Types.DU
 
-type FormatMyGenDU<'T>() =
+type FMT_FSMPack_Tests_Types_DU_MyGenDU<'T>() =
     interface Format<MyGenDU<'T>> with
         member _.Write bw (v: MyGenDU<'T>) =
             match v with
@@ -337,11 +337,11 @@ type FormatMyGenDU<'T>() =
             | _ ->
                 failwith "Unexpected DU case tag"
 
-Cache<MyGenDU<_>>.StoreGeneric typedefof<FormatMyGenDU<_>>
+Cache<FSMPack.Tests.Types.DU.MyGenDU<_>>.StoreGeneric typedefof<FMT_FSMPack_Tests_Types_DU_MyGenDU<'T>>
 
 open FSMPack.Tests.Types.Collection
 
-type FormatFSharpCollectionContainer() =
+type FMT_FSMPack_Tests_Types_Collection_FSharpCollectionContainer() =
     interface Format<FSharpCollectionContainer> with
         member _.Write bw (v: FSharpCollectionContainer) =
             writeMapFormat bw 1
@@ -372,7 +372,7 @@ type FormatFSharpCollectionContainer() =
                 myMap = myMap
             }
 
-Cache<FSharpCollectionContainer>.Store (FormatFSharpCollectionContainer() :> Format<FSharpCollectionContainer>)
+Cache<FSMPack.Tests.Types.Collection.FSharpCollectionContainer>.Store (FMT_FSMPack_Tests_Types_Collection_FSharpCollectionContainer() :> Format<FSMPack.Tests.Types.Collection.FSharpCollectionContainer>)
 
 let initialize () =
     FSMPack.BasicFormats.setup ()

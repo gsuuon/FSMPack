@@ -52,9 +52,11 @@ let generateFormatDU (typ: Type) =
         simpleName
         |> TypeName.Transform.addNamedArgs typ
 
+    let fmtTypName = formatTypeName typ
+
     $"""open {getTypeOpenPath typ}
 
-type Format{nameWithGenArgs}() =
+type {fmtTypName}() =
 {__}interface Format<{nameWithGenArgs}> with
 {__}{__}member _.Write bw (v: {nameWithGenArgs}) =
 {__}{__}{__}match v with
@@ -97,5 +99,5 @@ type Format{nameWithGenArgs}() =
 {__}{__}{__}| _ ->
 {__}{__}{__}{__}failwith "Unexpected DU case tag"
 
-{writeCacheFormatLine typ}
+{writeCacheFormatLine typ fmtTypName}
 """
