@@ -195,28 +195,28 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
                 (readBytes br &bytes 2)
             |> int
 
-        readArrayValues br &bytes (Queue()) len
+        readArrayValues br &bytes len
     | Format.Array32 ->
         let len =
             BinaryPrimitives.ReadUInt32BigEndian
                 (readBytes br &bytes 4)
             |> int
 
-        readArrayValues br &bytes (Queue()) len
+        readArrayValues br &bytes len
     | Format.Map16 ->
         let len =
             BinaryPrimitives.ReadUInt16BigEndian
                 (readBytes br &bytes 2)
             |> int
 
-        readMapValues br &bytes (Dictionary()) len
+        readMapValues br &bytes len
     | Format.Map32 ->
         let len =
             BinaryPrimitives.ReadUInt32BigEndian
                 (readBytes br &bytes 4)
             |> int
 
-        readMapValues br &bytes (Dictionary()) len
+        readMapValues br &bytes len
     | format ->
         match Cast.asValue format with
         | byt when
@@ -235,7 +235,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
                 maskByte 0b11110000uy byt
                 |> int
 
-            readMapValues br &bytes (Dictionary()) len
+            readMapValues br &bytes len
 
         | byt when
             format > Format.FixArray &&
@@ -245,7 +245,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
                 maskByte 0b11110000uy byt
                 |> int
 
-            readArrayValues br &bytes (Queue()) len
+            readArrayValues br &bytes len
 
         | byt when
             format >= Format.FixStr &&
@@ -272,10 +272,10 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
 and readArrayValues
     (br: BufReader)
     (bytes: inref<Bytes>)
-    (values: Queue<Value>)
     count
     =
     let mutable curCount = count
+    let values = Queue()
 
     while curCount <> 0 do
         values.Enqueue <| readValue br &bytes
@@ -285,10 +285,10 @@ and readArrayValues
 and readMapValues
     (br: BufReader)
     (bytes: inref<Bytes>)
-    (values: Dictionary<Value, Value>)
     count
     =
     let mutable curCount = count
+    let values = Dictionary<Value, Value>()
 
     while curCount <> 0 do
         let key =
