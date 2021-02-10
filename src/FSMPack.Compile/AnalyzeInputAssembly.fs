@@ -56,12 +56,20 @@ let generalize (typ: Type) =
     else
         typ
 
-let knownGenericTypes = HashSet [
-        typedefof<Map<_,_>>
-        typedefof<_ list>
-        typedefof<_ option>
-        typedefof<_ array>
-    ]
+// Formats found in FSMPack/BasicFormats.fs
+let knownTypes = HashSet [
+    typedefof<Map<_,_>>
+    typedefof<Dictionary<_,_>>
+    typedefof<IDictionary<_,_>>
+
+    typedefof<_ list> // TODO
+    typedefof<_ option> // TODO
+    typedefof<_ array> // TODO
+
+    typeof<string>
+    typeof<int>
+    typeof<float>
+]
 
 type TypeCategory =
     | KnownType
@@ -74,17 +82,16 @@ let determineTypeCategory (typ: Type) =
         RecordType
     else if FSharpType.IsUnion typ then
         DUType
-    else if typ.IsGenericType then
-        match knownGenericTypes.TryGetValue (typ.GetGenericTypeDefinition()) with
+    else
+        let matchType = 
+            if typ.IsGenericType then
+                typ.GetGenericTypeDefinition()
+            else
+                typ
+
+        match knownTypes.TryGetValue matchType with
         | true, _ -> KnownType
         | _ -> UnknownType
-    else
-        UnknownType
-
-/// setB - setA
-let exclude (setA: 'a HashSet) (setB: 'a HashSet) =
-    setB.ExceptWith setA
-    setB
 
 let discoverAllChildTypes rootTypes =
     rootTypes

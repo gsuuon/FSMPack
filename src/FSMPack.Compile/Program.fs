@@ -18,7 +18,7 @@ let compileTypes formatsOutpath addlRefs types =
         let skipNoticeText =
             skipTypes
             |> List.map (fun (typ, typCat) ->
-                sprintf "Skipped %A: %A" typCat typ)
+                sprintf "// Skipped %A: %A" typCat typ)
             |> String.concat "\n"
 
         generateTypes
