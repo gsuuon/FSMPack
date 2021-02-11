@@ -9,7 +9,7 @@ open FSMPack.Compile.Generator.Common
 
 type RecordField =
   { name : string
-    typFullName : string
+    typeFullName : string
     typ : Type }
 
 let writeValueString f =
@@ -17,12 +17,12 @@ let writeValueString f =
     | true, mpType ->
         $"writeValue bw ({mpType} v.{f.name})"
     | false, _ ->
-        $"Cache<{f.typFullName}>.Retrieve().Write bw v.{f.name}"
+        $"Cache<{f.typeFullName}>.Retrieve().Write bw v.{f.name}"
     
 let getFields (typ: Type) = [
     for pi in FSharpType.GetRecordFields typ do
       { name = pi.Name
-        typFullName = TypeName.field pi.PropertyType
+        typeFullName = TypeName.field pi.PropertyType
         typ = pi.PropertyType } ]
 
 let generateFormatRecord (typ: Type) =
@@ -65,7 +65,7 @@ let generateFormatRecord (typ: Type) =
 
 {__}{__}{__}let mutable items = 0
 { [ for f in fields do
-        yield $"let mutable {f.name} = Unchecked.defaultof<{f.typFullName}>" ]
+        yield $"let mutable {f.name} = Unchecked.defaultof<{f.typeFullName}>" ]
     |> List.map (indentLine 3)
     |> String.concat "\n" }
 {__}{__}{__}while items < count do
@@ -80,7 +80,7 @@ let generateFormatRecord (typ: Type) =
             yield $"{__}let ({mpType} x) = readValue br &bytes"
             yield $"{__}{f.name} <- x"
         | false, _ ->
-            yield $"{__}{f.name} <- Cache<{f.typFullName}>.Retrieve().Read(br, bytes)"
+            yield $"{__}{f.name} <- Cache<{f.typeFullName}>.Retrieve().Read(br, bytes)"
     ] @ [ "| _ -> failwith \"Unknown key\"" ]
     |> List.map (indentLine 5)
     |> String.concat "\n" }
