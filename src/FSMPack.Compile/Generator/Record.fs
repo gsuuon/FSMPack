@@ -7,11 +7,6 @@ open Microsoft.FSharp.Reflection
 
 open FSMPack.Compile.Generator.Common
 
-type RecordField =
-  { name : string
-    typeFullName : string
-    typ : Type }
-
 let writeValueString f =
     match msgpackTypes.TryGetValue f.typ with
     | true, mpType ->

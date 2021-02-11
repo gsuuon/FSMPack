@@ -7,17 +7,14 @@ open Microsoft.FSharp.Reflection
 
 open FSMPack.Compile.Generator.Common
 
-type DUField =
-  { typeFullName : string
-    typ : Type }
-
 type DUCase =
   { name : string
     tag : int
-    fields : DUField array }
+    fields : Field array }
 
 let getField (fi: PropertyInfo) =
   { typeFullName = TypeName.field fi.PropertyType
+    name = fi.Name
     typ = fi.PropertyType }
 
 let getCases (typ: Type) = [

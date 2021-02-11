@@ -24,6 +24,11 @@ let msgpackTypes = dict [
         // TODO Extension
 ]
 
+type Field =
+  { name : string
+    typeFullName : string
+    typ : Type }
+
 module TypeName =
     module Transform =
         let knownGenTypeNames = dict [
