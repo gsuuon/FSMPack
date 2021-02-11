@@ -107,6 +107,8 @@ let categorizeTypes (catTypes: CategorizedTypes) (typ: Type) =
             { catTypes with duTypes = typ :: catTypes.duTypes }
         else if typ.IsEnum then
             { catTypes with enumTypes = typ :: catTypes.enumTypes }
+        else if typ.IsArray then
+            { catTypes with knownTypes = typ :: catTypes.knownTypes }
         else
             { catTypes with unknownTypes = typ :: catTypes.unknownTypes }
 
