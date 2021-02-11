@@ -11,9 +11,7 @@ type Format<'T> =
     abstract member Write : BufWriter -> 'T -> unit
     abstract member Read : BufReader * System.ReadOnlySpan<byte> -> 'T
 
-module GenericFormatterCache =
-    let Generalized = Dictionary<Type, Type>()
-        
+module GenericFormatCache =
     type Specialized<'SpecializedType>() =
         static let mutable format : Format<'SpecializedType> option = None
         
@@ -21,29 +19,39 @@ module GenericFormatterCache =
             format <- Some _format
 
         static member Retrieve () =
-            match format with
-            | Some f ->
-                f
-            | None ->
-                let genFormatterType : Type = Specialized<'SpecializedType>.RetrieveGeneralized()
-                let specializations = typeof<'SpecializedType>.GetGenericArguments()
+            format
 
-                let specializedFormatterType = genFormatterType.MakeGenericType specializations 
-                let specializedFormatterInstance = Activator.CreateInstance specializedFormatterType :?> Format<'SpecializedType>
+    let Generalized = Dictionary<Type, Type>()
 
-                Specialized<'SpecializedType>.Store specializedFormatterInstance
+    let retrieveGeneralized<'SpecializedType> () =
+        let genType = typedefof<'SpecializedType>
 
-                specializedFormatterInstance
+        match Generalized.TryGetValue genType with
+        | true, format ->
+            format
+        | false, _ ->
+            failwith ("missing Format type for " + string typeof<'SpecializedType>)
 
-        static member RetrieveGeneralized () =
-            let genType = typedefof<'SpecializedType>
+    let specializeAndActivate<'SpecializedType> (genFormatType: Type) =
+        let specializations = typeof<'SpecializedType>.GetGenericArguments()
 
-            match Generalized.TryGetValue genType with
-            | true, formatter ->
-                formatter
-            | false, _ ->
-                failwith ("missing Formatter type for " + string typeof<'SpecializedType>)
+        let specializedFormatType = genFormatType.MakeGenericType specializations 
+        let specializedFormatInstance = Activator.CreateInstance specializedFormatType :?> Format<'SpecializedType>
 
+        specializedFormatInstance
+
+    let retrieve<'SpecializedType> () =
+        match Specialized<'SpecializedType>.Retrieve() with
+        | Some f ->
+            f
+        | None ->
+            let format =
+                retrieveGeneralized<'SpecializedType>()
+                |> specializeAndActivate<'SpecializedType>
+
+            Specialized<'SpecializedType>.Store format
+            format
+        
 let mutable _knownTypes = []
 
 type Cache<'T>() =
@@ -55,20 +63,31 @@ type Cache<'T>() =
 
         format <- Some _format
 
-    static member StoreGeneric genFormatterType =
+    static member StoreGeneric genFormatType =
         printfn "Stored generic format: %A" typedefof<'T>
         _knownTypes <- _knownTypes @ [typedefof<'T>]
 
-        GenericFormatterCache.Generalized.[typedefof<'T>] <- genFormatterType
+        GenericFormatCache.Generalized.[typedefof<'T>] <- genFormatType
         
     static member Retrieve () =
-        if typeof<'T>.IsGenericType then
-            GenericFormatterCache.Specialized<'T>.Retrieve ()
+        let typ = typeof<'T>
+
+        if typ.IsGenericType then
+            GenericFormatCache.retrieve<'T> ()
+        (* else if typ.IsArray then *)
+        (*     let matchArrayType = typedefof<_ array> *)
+                // using typedefof to match how it will be inserted
+                // for array typs, typedefof and typedef return the same thing
+                // right now since it's not actually a generic
+            (* match GenericFormatterCache.Generalized.TryGetValue matchArrayType with *)
+            (* | false, _ -> failwith "Missing array format" *)
+            (* | true, formatType -> *)
+
         else
             match format with
             | Some f ->
                 f
             | None ->
                 failwith
-                    <| "missing Format for " + string typeof<'T>
+                    <| "missing Format for " + string typ
                         + " -- known types:\n" + (_knownTypes |> List.map string |> String.concat "\n")
