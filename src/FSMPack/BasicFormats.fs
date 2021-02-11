@@ -165,7 +165,8 @@ let setup () =
         member _.Read (br, bytes) =
             let (Boolean x) = readValue br &bytes
             x } 
-    
+
+    FSMPack.FormatUnitWorkaround.FormatUnit.StoreFormat()
     Cache<IDictionary<_,_>>.StoreGeneric typedefof<FormatIDictionary<_,_>>
     Cache<Dictionary<_,_>>.StoreGeneric typedefof<FormatDictionary<_,_>>
     Cache<Map<_,_>>.StoreGeneric typedefof<FormatMap<_,_>>

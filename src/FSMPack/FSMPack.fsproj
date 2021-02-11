@@ -5,6 +5,10 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Reference Include="FSMPack.FormatUnitWorkaround/FSMPack.FormatUnitWorkaround.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
         <Compile Include="Utility.fs" />
         <Compile Include="Spec.fs" />
         <Compile Include="Read.fs" />
@@ -16,8 +20,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.Memory" Version="4.5.4" />
-      <PackageReference Update="FSharp.Core" Version="4.7.2" />
+        <PackageReference Include="System.Memory" Version="4.5.4" />
+        <PackageReference Update="FSharp.Core" Version="4.7.2" />
     </ItemGroup>
 
 </Project>

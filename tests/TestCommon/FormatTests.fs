@@ -164,4 +164,9 @@ module TestCases =
                 |> roundtripFormat
                     (Cache<bool>.Retrieve())
                     false
+
+                "roundtrip unit"
+                |> roundtripFormat
+                    (Cache<unit>.Retrieve())
+                    ()
         ]

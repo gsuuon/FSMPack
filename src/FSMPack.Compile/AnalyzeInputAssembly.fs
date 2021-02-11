@@ -71,6 +71,7 @@ let knownTypes = HashSet [
     typeof<int16>
     typeof<float>
     typeof<bool>
+    typeof<unit>
 ]
 
 type CategorizedTypes =
