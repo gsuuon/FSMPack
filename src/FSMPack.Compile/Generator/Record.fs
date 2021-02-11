@@ -68,9 +68,10 @@ let generateFormatRecord (typ: Type) =
 {__}{__}{__}{__}| RawString {keyName} ->
 {__}{__}{__}{__}{__}match {keyName} with
 { [ for f in fields do
+        let fieldTempName = f.name + "'"
         yield $"| \"{f.name}\" ->"
-        yield __ + getReadFieldCall f "x"
-        yield __ + $"{f.name} <- x"
+        yield __ + getReadFieldCall f fieldTempName
+        yield __ + $"{f.name} <- {fieldTempName}"
     ] @ [ "| _ -> failwith \"Unknown key\"" ]
     |> List.map (indentLine 5)
     |> String.concat "\n" }

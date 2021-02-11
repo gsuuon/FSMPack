@@ -64,7 +64,7 @@ let knownTypes = HashSet [
 
     typedefof<_ list>
     typedefof<_ option>
-    typedefof<_ array> // TODO
+    typedefof<_ array>
 
     typeof<string>
     typeof<int>
@@ -79,13 +79,16 @@ type CategorizedTypes =
         knownTypes : Type list
         unknownTypes : Type list
         duTypes : Type list
-        recordTypes: Type list
+        recordTypes : Type list
+        enumTypes : Type list
     }
     static member Empty = {
         knownTypes = []
         unknownTypes = []
         recordTypes = []
-        duTypes = [] }
+        duTypes = []
+        enumTypes = []
+    }
 
 let categorizeTypes (catTypes: CategorizedTypes) (typ: Type) =
     let matchType = 
@@ -102,6 +105,8 @@ let categorizeTypes (catTypes: CategorizedTypes) (typ: Type) =
             { catTypes with recordTypes = typ :: catTypes.recordTypes }
         else if FSharpType.IsUnion typ then
             { catTypes with duTypes = typ :: catTypes.duTypes }
+        else if typ.IsEnum then
+            { catTypes with enumTypes = typ :: catTypes.enumTypes }
         else
             { catTypes with unknownTypes = typ :: catTypes.unknownTypes }
 

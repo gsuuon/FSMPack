@@ -10,6 +10,7 @@ open FSMPack.Compile.AnalyzeInputAssembly
 open FSMPack.Compile.Generator.Common
 open FSMPack.Compile.Generator.Record
 open FSMPack.Compile.Generator.DU
+open FSMPack.Compile.Generator.Enum
 
 (* NOTE
 Using the mutable _initStartupCode to kick off initialization code of the generated module w/o reflection.
@@ -51,6 +52,8 @@ let produceFormatsText categorizedTypes =
         categorizedTypes.recordTypes
     @ List.map generateFormatDU
         categorizedTypes.duTypes
+    @ List.map generateFormatEnum
+        categorizedTypes.enumTypes
     |> String.concat "\n"
     |> prependText header
     |> fun t -> t + footer
