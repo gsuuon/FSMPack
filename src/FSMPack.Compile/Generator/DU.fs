@@ -54,11 +54,8 @@ let generateFormatDU (typ: Type) =
             c.fields
             |> Array.mapi
                 (fun idx f ->
-                    match msgpackTypes.TryGetValue f.typ with
-                    | true, mpType ->
-                        $"{__}writeValue bw ({mpType} x{idx})"
-                    | false, _ ->
-                        $"{__}Cache<{f.typeFullName}>.Retrieve().Write bw x{idx}")
+                    getWriteFieldCall f ("x" + string idx) )
+            |> Array.map (indentLine 1)
         ]
         |> List.map (indentLine 3)
         |> String.concat "\n" }

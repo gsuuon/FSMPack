@@ -189,3 +189,10 @@ let writeCacheFormatLine (typ: Type) (names: TypeName.GeneratorNames) =
     else
         // Cache<Foo>.Store (FormatFoo :> typeof<FormatFoo>
         $"Cache<{names.dataTypeAnonArgs}>.Store ({names.formatTypeNamedArgs}() :> Format<{names.dataTypeAnonArgs}>)"
+
+let getWriteFieldCall (field: Field) valueText =
+    match msgpackTypes.TryGetValue field.typ with
+    | true, mpType ->
+        $"writeValue bw ({mpType} {valueText})"
+    | _ ->
+        $"Cache<{field.typeFullName}>.Retrieve().Write bw {valueText}"

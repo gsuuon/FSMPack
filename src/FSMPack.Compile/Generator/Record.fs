@@ -45,7 +45,7 @@ let generateFormatRecord (typ: Type) =
 {__}{__}{__}writeMapFormat bw {fields.Length}
 { [ for f in fields do
         yield $"writeValue bw (RawString \"{f.name}\")"
-        yield writeValueString f ]
+        yield getWriteFieldCall f $"v.{f.name}"]
     |> List.map (indentLine 3)
     |> String.concat "\n" }
 
