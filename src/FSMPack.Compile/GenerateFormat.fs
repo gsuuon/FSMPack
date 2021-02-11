@@ -32,7 +32,7 @@ let mutable _initStartupCode = 0
 
 let footer = """
 let initialize () =
-    FSMPack.BasicFormats.setup ()
+    FSMPack.Formats.Default.setup ()
 
     _initStartupCode
 """

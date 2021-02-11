@@ -151,8 +151,8 @@ module TestCases =
                     [| 1; 9; 17 |]
         ]
 
-    let basicFormats =
-        testList "Format.Basic" [
+    let standardFormats =
+        testList "Format.Standard" [
             testCase "Generics" <| fun _ ->
                 "roundtrip Option"
                 |> roundtripFormat

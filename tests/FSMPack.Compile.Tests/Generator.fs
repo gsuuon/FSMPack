@@ -142,7 +142,7 @@ let tests =
             Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor startupType.TypeHandle
 
         testList "Roundtrip" [
-            testCase "Setup basic formatters" FSMPack.BasicFormats.setup
+            testCase "Setup basic formatters" FSMPack.Formats.Default.setup
 
             TestCases.records
             TestCases.DUs

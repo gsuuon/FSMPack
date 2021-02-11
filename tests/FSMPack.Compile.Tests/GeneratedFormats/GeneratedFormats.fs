@@ -360,6 +360,6 @@ type FMT_FSMPack_Tests_Types_DU_MyInnerDU() =
 Cache<FSMPack.Tests.Types.DU.MyInnerDU>.Store (FMT_FSMPack_Tests_Types_DU_MyInnerDU() :> Format<FSMPack.Tests.Types.DU.MyInnerDU>)
 
 let initialize () =
-    FSMPack.BasicFormats.setup ()
+    FSMPack.Formats.Default.setup ()
 
     _initStartupCode

@@ -41,7 +41,7 @@ let genericTests =
     Cache<MyInnerType>.Store 
         (FormatMyInnerType() :> Format<MyInnerType>)
 
-    FSMPack.BasicFormats.setup()
+    FSMPack.Formats.Default.setup()
 
     TestCases.generics
 
@@ -51,4 +51,4 @@ let collectionTests =
 
 [<Tests>]
 let basicTests =
-    TestCases.basicFormats
+    TestCases.standardFormats
