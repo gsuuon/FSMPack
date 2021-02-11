@@ -25,11 +25,15 @@ let compileTypes
                 |> sprintf "    ignore <| Cache<%s>.Retrieve()"
                 )
 
-        let produceUnitFn fnName fnBodyLines =
+        let produceUnitFn fnName (fnBodyLines: string list) =
             fnBodyLines
             |> String.concat "\n"
             |> (+) (sprintf "\nlet %s () =\n" fnName)
-            |> fun t -> t + "\n    ()\n"
+            |> fun t ->
+                if fnBodyLines.Length = 0 then
+                    t + "\n    ()\n"
+                else
+                    t + "\n"
             
         (categorizedTypes.knownTypes
         |> produceCacheRetrieveCalls
@@ -47,7 +51,7 @@ let compileTypes
 
     categorizedTypes
     |> produceFormatsText
-    |> fun formatsText -> formatsText + "\n\n" + skipNoticeText
+    |> fun formatsText -> formatsText + skipNoticeText
     |> writeText formatsOutpath
 
     printfn "FSMPack: Formats written to %s" formatsOutpath
