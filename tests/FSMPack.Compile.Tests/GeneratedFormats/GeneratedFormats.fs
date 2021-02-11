@@ -35,7 +35,8 @@ type FMT_FSMPack_Tests_Types_Collection_FSharpCollectionContainer() =
                 | RawString _k ->
                     match _k with
                     | "myMap" ->
-                        myMap <- Cache<Map<_,_>>.Retrieve().Read(br, bytes)
+                        let myMap' = Cache<Map<_,_>>.Retrieve().Read(br, bytes)
+                        myMap <- myMap'
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
@@ -74,12 +75,14 @@ type FMT_FSMPack_Tests_Types_Mixed_Baz<'T>() =
                 | RawString _k ->
                     match _k with
                     | "b" ->
-                        let (RawString x) = readValue br &bytes
-                        b <- x
+                        let (RawString b') = readValue br &bytes
+                        b <- b'
                     | "bar" ->
-                        bar <- Cache<FSMPack.Tests.Types.Mixed.Bar>.Retrieve().Read(br, bytes)
+                        let bar' = Cache<FSMPack.Tests.Types.Mixed.Bar>.Retrieve().Read(br, bytes)
+                        bar <- bar'
                     | "c" ->
-                        c <- Cache<'T>.Retrieve().Read(br, bytes)
+                        let c' = Cache<'T>.Retrieve().Read(br, bytes)
+                        c <- c'
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
@@ -114,8 +117,8 @@ type FMT_FSMPack_Tests_Types_Mixed_Foo() =
                 | RawString _k ->
                     match _k with
                     | "a" ->
-                        let (Integer x) = readValue br &bytes
-                        a <- x
+                        let (Integer a') = readValue br &bytes
+                        a <- a'
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
@@ -148,7 +151,8 @@ type FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>() =
                 | RawString _k ->
                     match _k with
                     | "foo" ->
-                        foo <- Cache<'T>.Retrieve().Read(br, bytes)
+                        let foo' = Cache<'T>.Retrieve().Read(br, bytes)
+                        foo <- foo'
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
@@ -187,13 +191,14 @@ type FMT_FSMPack_Tests_Types_Record_MyTestType() =
                 | RawString _k ->
                     match _k with
                     | "A" ->
-                        let (Integer x) = readValue br &bytes
-                        A <- x
+                        let (Integer A') = readValue br &bytes
+                        A <- A'
                     | "B" ->
-                        let (FloatDouble x) = readValue br &bytes
-                        B <- x
+                        let (FloatDouble B') = readValue br &bytes
+                        B <- B'
                     | "inner" ->
-                        inner <- Cache<FSMPack.Tests.Types.Record.MyInnerType>.Retrieve().Read(br, bytes)
+                        let inner' = Cache<FSMPack.Tests.Types.Record.MyInnerType>.Retrieve().Read(br, bytes)
+                        inner <- inner'
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
@@ -228,8 +233,8 @@ type FMT_FSMPack_Tests_Types_Record_MyInnerType() =
                 | RawString _k ->
                     match _k with
                     | "C" ->
-                        let (RawString x) = readValue br &bytes
-                        C <- x
+                        let (RawString C') = readValue br &bytes
+                        C <- C'
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
