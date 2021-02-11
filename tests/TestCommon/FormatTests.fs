@@ -128,4 +128,30 @@ module TestCases =
                         0, "hi"
                         1, "bye"
                         4, "hi again"] )
+
+                "roundtrip List"
+                |> roundtripFormat
+                    (Cache<_ list>.Retrieve())
+                    [ "a"; "foo"; "one" ]
+
+
+                "roundtrip Array"
+                |> roundtripFormat
+                    (Cache<_ array>.Retrieve())
+                    [| "a"; "foo"; "one" |]
+        ]
+
+    let basicFormats =
+        testList "Format.Basic" [
+            testCase "Generics" <| fun _ ->
+                "roundtrip Option"
+                |> roundtripFormat
+                    (Cache<_ option>.Retrieve())
+                    (Some "hi")
+
+            testCase "Basics" <| fun _ ->
+                "roundtrip bool"
+                |> roundtripFormat
+                    (Cache<bool>.Retrieve())
+                    false
         ]

@@ -48,3 +48,7 @@ let genericTests =
 [<Tests>]
 let collectionTests =
     TestCases.collections
+
+[<Tests>]
+let basicTests =
+    TestCases.basicFormats

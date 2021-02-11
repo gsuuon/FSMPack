@@ -28,8 +28,8 @@ let compileTypes
         let produceUnitFn fnName fnBodyLines =
             fnBodyLines
             |> String.concat "\n"
-            |> (+) (sprintf "let %s () =\n" fnName)
-            |> fun t -> t + "    ()\n"
+            |> (+) (sprintf "\nlet %s () =\n" fnName)
+            |> fun t -> t + "\n    ()\n"
             
         (categorizedTypes.knownTypes
         |> produceCacheRetrieveCalls
@@ -57,7 +57,7 @@ let compileTypes
     // - [ ] Add System.Memory as a dependency to FSMPack.Compile, and get assembly.Location from compile host process (and also FSMPack)
 
     runCompileProcess {
-        outfile = Path.Join(generateOutDir, "GeneratedFormats.dll")
+        outfile = Path.Join(generateOutDir, "FSMPack.GeneratedFormats.dll")
         files = [formatsOutpath]
         references = [
             "FSMPack"

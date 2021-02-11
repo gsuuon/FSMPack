@@ -62,13 +62,15 @@ let knownTypes = HashSet [
     typedefof<Dictionary<_,_>>
     typedefof<IDictionary<_,_>>
 
-    typedefof<_ list> // TODO
-    typedefof<_ option> // TODO
+    typedefof<_ list>
+    typedefof<_ option>
     typedefof<_ array> // TODO
 
     typeof<string>
     typeof<int>
+    typeof<int16>
     typeof<float>
+    typeof<bool>
 ]
 
 type CategorizedTypes =
