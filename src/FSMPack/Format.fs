@@ -12,8 +12,8 @@ type Format<'T> =
     abstract member Read : BufReader * System.ReadOnlySpan<byte> -> 'T
 
 module GenericFormatCache =
-    type Specialized<'SpecializedType>() =
-        static let mutable format : Format<'SpecializedType> option = None
+    type Specialized<'Specialized>() =
+        static let mutable format : Format<'Specialized> option = None
         
         static member Store _format =
             format <- Some _format
@@ -23,36 +23,46 @@ module GenericFormatCache =
 
     let Generalized = Dictionary<Type, Type>()
 
-    let retrieveGeneralized<'SpecializedType> () =
-        let genType = typedefof<'SpecializedType>
+    let retrieveGeneralized<'Specialized> () =
+        let genType = typedefof<'Specialized>
 
         match Generalized.TryGetValue genType with
         | true, format ->
             format
         | false, _ ->
-            failwith ("missing Format type for " + string typeof<'SpecializedType>)
+            failwith ("missing Format type for " + string typeof<'Specialized>)
 
-    let specializeAndActivate<'SpecializedType> (genFormatType: Type) =
-        let specializations = typeof<'SpecializedType>.GetGenericArguments()
+    let specializations<'Specialized> () =
+        typeof<'Specialized>.GetGenericArguments()
 
-        let specializedFormatType = genFormatType.MakeGenericType specializations 
-        let specializedFormatInstance = Activator.CreateInstance specializedFormatType :?> Format<'SpecializedType>
+    let activateFormatSpecializations specializations (genType: Type) =
+        let specializedFormatType =
+            genType.MakeGenericType specializations 
 
+        let specializedFormatInstance =
+            Activator.CreateInstance
+                specializedFormatType :?> Format<'Specialized>
         specializedFormatInstance
 
-    let retrieve<'SpecializedType> () =
-        match Specialized<'SpecializedType>.Retrieve() with
+    let storeAndReturn<'Specialized> (format: Format<'Specialized>) =
+        Specialized<'Specialized>.Store format
+        format
+
+    let retrieve<'Specialized> () =
+        match Specialized<'Specialized>.Retrieve() with
         | Some f ->
             f
         | None ->
-            let format =
-                retrieveGeneralized<'SpecializedType>()
-                |> specializeAndActivate<'SpecializedType>
-
-            Specialized<'SpecializedType>.Store format
-            format
+            retrieveGeneralized<'Specialized>()
+            |> activateFormatSpecializations
+                (specializations<'Specialized>())
+            |> storeAndReturn
         
 let mutable _knownTypes = []
+let arrayGenType = typedefof<_ array>
+    // Pretend this is generic, actually obj[]
+    // using typedefof to match how it will be inserted
+    // for array types, typedefof and typedef return the same thing
 
 type Cache<'T>() =
     static let mutable format : Format<'T> option = None
@@ -74,14 +84,21 @@ type Cache<'T>() =
 
         if typ.IsGenericType then
             GenericFormatCache.retrieve<'T> ()
-        (* else if typ.IsArray then *)
-        (*     let matchArrayType = typedefof<_ array> *)
-                // using typedefof to match how it will be inserted
-                // for array typs, typedefof and typedef return the same thing
-                // right now since it's not actually a generic
-            (* match GenericFormatterCache.Generalized.TryGetValue matchArrayType with *)
-            (* | false, _ -> failwith "Missing array format" *)
-            (* | true, formatType -> *)
+        else if typ.IsArray then
+            match GenericFormatCache.Specialized<'T>.Retrieve() with
+            | Some format -> format
+            | None ->
+                let arrayGenFormat =
+                    GenericFormatCache.Generalized.TryGetValue
+                        arrayGenType 
+
+                match arrayGenFormat with
+                | false, _ -> failwith "Missing array format"
+                | true, formatType ->
+                    formatType
+                    |> GenericFormatCache.activateFormatSpecializations
+                        [|typ.GetElementType()|]
+                    |> GenericFormatCache.storeAndReturn
 
         else
             match format with

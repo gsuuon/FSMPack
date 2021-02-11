@@ -135,10 +135,20 @@ module TestCases =
                     [ "a"; "foo"; "one" ]
 
 
+                "roundtrip different List"
+                |> roundtripFormat
+                    (Cache<_ list>.Retrieve())
+                    [ 0; 10; 12 ]
+
                 "roundtrip Array"
                 |> roundtripFormat
                     (Cache<_ array>.Retrieve())
                     [| "a"; "foo"; "one" |]
+
+                "roundtrip different Array"
+                |> roundtripFormat
+                    (Cache<_ array>.Retrieve())
+                    [| 1; 9; 17 |]
         ]
 
     let basicFormats =
