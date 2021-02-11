@@ -69,13 +69,8 @@ let generateFormatRecord (typ: Type) =
 {__}{__}{__}{__}{__}match {keyName} with
 { [ for f in fields do
         yield $"| \"{f.name}\" ->"
-
-        match msgpackTypes.TryGetValue f.typ with
-        | true, mpType -> // TODO special case for extension types
-            yield $"{__}let ({mpType} x) = readValue br &bytes"
-            yield $"{__}{f.name} <- x"
-        | false, _ ->
-            yield $"{__}{f.name} <- Cache<{f.typeFullName}>.Retrieve().Read(br, bytes)"
+        yield __ + getReadFieldCall f "x"
+        yield __ + $"{f.name} <- x"
     ] @ [ "| _ -> failwith \"Unknown key\"" ]
     |> List.map (indentLine 5)
     |> String.concat "\n" }

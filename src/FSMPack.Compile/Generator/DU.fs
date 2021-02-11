@@ -69,12 +69,8 @@ let generateFormatDU (typ: Type) =
         yield! 
             c.fields
             |> Array.mapi (fun idx f ->
-                match msgpackTypes.TryGetValue f.typ with
-                | true, mpType ->
-                    $"{__}let ({mpType} x{idx}) = readValue br &bytes"
-                | false, _ ->
-                    $"{__}let x{idx} = Cache<{f.typeFullName}>.Retrieve().Read(br, bytes)"
-            )
+                getReadFieldCall f ("x" + string idx) )
+            |> Array.map (indentLine 1)
         yield $"{__}{names.dataTypeNamedArgs}.{c.name}{destructFields c}"
     ]
     |> List.map (indentLine 3)

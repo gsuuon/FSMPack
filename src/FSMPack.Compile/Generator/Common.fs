@@ -196,3 +196,10 @@ let getWriteFieldCall (field: Field) valueText =
         $"writeValue bw ({mpType} {valueText})"
     | _ ->
         $"Cache<{field.typeFullName}>.Retrieve().Write bw {valueText}"
+
+let getReadFieldCall (field: Field) assignVarText =
+    match msgpackTypes.TryGetValue field.typ with
+    | true, mpType ->
+        $"let ({mpType} {assignVarText}) = readValue br &bytes"
+    | _ ->
+        $"let {assignVarText} = Cache<{field.typeFullName}>.Retrieve().Read(br, bytes)"
