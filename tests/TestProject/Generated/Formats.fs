@@ -12,130 +12,9 @@ open FSMPack.Write
 let mutable _initStartupCode = 0
 
 
-open TestProject.Types
-
-type FormatQuix() =
-    interface Format<Quix> with
-        member _.Write bw (v: Quix) =
-            writeMapFormat bw 2
-            writeValue bw (RawString "baz")
-            Cache<Baz>.Retrieve().Write bw v.baz
-            writeValue bw (RawString "a")
-            writeValue bw (Integer v.a)
-
-        member _.Read (br, bytes) =
-            let count = 2
-            let expectedCount = readMapFormatCount br &bytes
-
-            if count <> expectedCount then
-                failwith
-                    ("Map has wrong count, expected " + string count
-                        + " got " + string expectedCount)
-
-            let mutable items = 0
-            let mutable baz = Unchecked.defaultof<Baz>
-            let mutable a = Unchecked.defaultof<Int32>
-            while items < count do
-                match readValue br &bytes with
-                | RawString key ->
-                    match key with
-                    | "baz" ->
-                        baz <- Cache<Baz>.Retrieve().Read(br, bytes)
-                    | "a" ->
-                        let (Integer x) = readValue br &bytes
-                        a <- x
-                    | _ -> failwith "Unknown key"
-                items <- items + 1
-
-            {
-                baz = baz
-                a = a
-            }
-
-Cache<Quix>.Store (FormatQuix() :> Format<Quix>)
-
-open TestProject.Types
-
-type FormatBaz() =
-    interface Format<Baz> with
-        member _.Write bw (v: Baz) =
-            writeMapFormat bw 2
-            writeValue bw (RawString "word")
-            writeValue bw (RawString v.word)
-            writeValue bw (RawString "bar")
-            Cache<Bar>.Retrieve().Write bw v.bar
-
-        member _.Read (br, bytes) =
-            let count = 2
-            let expectedCount = readMapFormatCount br &bytes
-
-            if count <> expectedCount then
-                failwith
-                    ("Map has wrong count, expected " + string count
-                        + " got " + string expectedCount)
-
-            let mutable items = 0
-            let mutable word = Unchecked.defaultof<String>
-            let mutable bar = Unchecked.defaultof<Bar>
-            while items < count do
-                match readValue br &bytes with
-                | RawString key ->
-                    match key with
-                    | "word" ->
-                        let (RawString x) = readValue br &bytes
-                        word <- x
-                    | "bar" ->
-                        bar <- Cache<Bar>.Retrieve().Read(br, bytes)
-                    | _ -> failwith "Unknown key"
-                items <- items + 1
-
-            {
-                word = word
-                bar = bar
-            }
-
-Cache<Baz>.Store (FormatBaz() :> Format<Baz>)
-
-open TestProject.Types
-
-type FormatBar() =
-    interface Format<Bar> with
-        member _.Write bw (v: Bar) =
-            match v with
-            | Bar.BarFoo (x0) ->
-                writeArrayFormat bw 2
-                writeValue bw (Integer 0)
-                Cache<TestProject.Types.Foo>.Retrieve().Write bw x0
-            | Bar.BarFloat (x0) ->
-                writeArrayFormat bw 2
-                writeValue bw (Integer 1)
-                writeValue bw (FloatDouble x0)
-            | Bar.BarCase ->
-                writeArrayFormat bw 1
-                writeValue bw (Integer 2)
-
-        member _.Read (br, bytes) =
-            let count = readArrayFormatCount br &bytes
-
-            match readValue br &bytes with
-            | Integer 0 ->
-                let x0 = Cache<TestProject.Types.Foo>.Retrieve().Read(br, bytes)
-                Bar.BarFoo (x0)
-            | Integer 1 ->
-                let (FloatDouble x0) = readValue br &bytes
-                Bar.BarFloat (x0)
-            | Integer 2 ->
-                Bar.BarCase
-            | _ ->
-                failwith "Unexpected DU case tag"
-
-Cache<Bar>.Store (FormatBar() :> Format<Bar>)
-
-open TestProject.Types
-
-type FormatFoo() =
-    interface Format<Foo> with
-        member _.Write bw (v: Foo) =
+type FMT_TestProject_Types_Foo() =
+    interface Format<TestProject.Types.Foo> with
+        member _.Write bw (v: TestProject.Types.Foo) =
             writeMapFormat bw 1
             writeValue bw (RawString "num")
             writeValue bw (Integer v.num)
@@ -150,14 +29,14 @@ type FormatFoo() =
                         + " got " + string expectedCount)
 
             let mutable items = 0
-            let mutable num = Unchecked.defaultof<Int32>
+            let mutable num = Unchecked.defaultof<System.Int32>
             while items < count do
                 match readValue br &bytes with
-                | RawString key ->
-                    match key with
+                | RawString _k ->
+                    match _k with
                     | "num" ->
-                        let (Integer x) = readValue br &bytes
-                        num <- x
+                        let (Integer num') = readValue br &bytes
+                        num <- num'
                     | _ -> failwith "Unknown key"
                 items <- items + 1
 
@@ -165,13 +44,133 @@ type FormatFoo() =
                 num = num
             }
 
-Cache<Foo>.Store (FormatFoo() :> Format<Foo>)
+Cache<TestProject.Types.Foo>.Store (FMT_TestProject_Types_Foo() :> Format<TestProject.Types.Foo>)
 
-// Unknown type System.String
-// Unknown type System.Int32
-// Unknown type System.Double
-// Unknown type System.Int32
+type FMT_TestProject_Types_Baz() =
+    interface Format<TestProject.Types.Baz> with
+        member _.Write bw (v: TestProject.Types.Baz) =
+            writeMapFormat bw 2
+            writeValue bw (RawString "word")
+            writeValue bw (RawString v.word)
+            writeValue bw (RawString "bar")
+            Cache<TestProject.Types.Bar>.Retrieve().Write bw v.bar
+
+        member _.Read (br, bytes) =
+            let count = 2
+            let expectedCount = readMapFormatCount br &bytes
+
+            if count <> expectedCount then
+                failwith
+                    ("Map has wrong count, expected " + string count
+                        + " got " + string expectedCount)
+
+            let mutable items = 0
+            let mutable word = Unchecked.defaultof<System.String>
+            let mutable bar = Unchecked.defaultof<TestProject.Types.Bar>
+            while items < count do
+                match readValue br &bytes with
+                | RawString _k ->
+                    match _k with
+                    | "word" ->
+                        let (RawString word') = readValue br &bytes
+                        word <- word'
+                    | "bar" ->
+                        let bar' = Cache<TestProject.Types.Bar>.Retrieve().Read(br, bytes)
+                        bar <- bar'
+                    | _ -> failwith "Unknown key"
+                items <- items + 1
+
+            {
+                word = word
+                bar = bar
+            }
+
+Cache<TestProject.Types.Baz>.Store (FMT_TestProject_Types_Baz() :> Format<TestProject.Types.Baz>)
+
+type FMT_TestProject_Types_Quix() =
+    interface Format<TestProject.Types.Quix> with
+        member _.Write bw (v: TestProject.Types.Quix) =
+            writeMapFormat bw 2
+            writeValue bw (RawString "baz")
+            Cache<TestProject.Types.Baz>.Retrieve().Write bw v.baz
+            writeValue bw (RawString "a")
+            writeValue bw (Integer v.a)
+
+        member _.Read (br, bytes) =
+            let count = 2
+            let expectedCount = readMapFormatCount br &bytes
+
+            if count <> expectedCount then
+                failwith
+                    ("Map has wrong count, expected " + string count
+                        + " got " + string expectedCount)
+
+            let mutable items = 0
+            let mutable baz = Unchecked.defaultof<TestProject.Types.Baz>
+            let mutable a = Unchecked.defaultof<System.Int32>
+            while items < count do
+                match readValue br &bytes with
+                | RawString _k ->
+                    match _k with
+                    | "baz" ->
+                        let baz' = Cache<TestProject.Types.Baz>.Retrieve().Read(br, bytes)
+                        baz <- baz'
+                    | "a" ->
+                        let (Integer a') = readValue br &bytes
+                        a <- a'
+                    | _ -> failwith "Unknown key"
+                items <- items + 1
+
+            {
+                baz = baz
+                a = a
+            }
+
+Cache<TestProject.Types.Quix>.Store (FMT_TestProject_Types_Quix() :> Format<TestProject.Types.Quix>)
+
+type FMT_TestProject_Types_Bar() =
+    interface Format<TestProject.Types.Bar> with
+        member _.Write bw (v: TestProject.Types.Bar) =
+            match v with
+            | TestProject.Types.Bar.BarFoo (x0) ->
+                writeArrayFormat bw 2
+                writeValue bw (Integer 0)
+                Cache<TestProject.Types.Foo>.Retrieve().Write bw x0
+            | TestProject.Types.Bar.BarFloat (x0) ->
+                writeArrayFormat bw 2
+                writeValue bw (Integer 1)
+                writeValue bw (FloatDouble x0)
+            | TestProject.Types.Bar.BarCase ->
+                writeArrayFormat bw 1
+                writeValue bw (Integer 2)
+
+        member _.Read (br, bytes) =
+            let _count = readArrayFormatCount br &bytes
+
+            match readValue br &bytes with
+            | Integer 0 ->
+                let x0 = Cache<TestProject.Types.Foo>.Retrieve().Read(br, bytes)
+                TestProject.Types.Bar.BarFoo (x0)
+            | Integer 1 ->
+                let (FloatDouble x0) = readValue br &bytes
+                TestProject.Types.Bar.BarFloat (x0)
+            | Integer 2 ->
+                TestProject.Types.Bar.BarCase
+            | _ ->
+                failwith "Unexpected DU case tag"
+
+Cache<TestProject.Types.Bar>.Store (FMT_TestProject_Types_Bar() :> Format<TestProject.Types.Bar>)
+
 let initialize () =
-    FSMPack.BasicFormats.setup ()
+    FSMPack.Formats.Default.setup ()
 
     _initStartupCode
+
+let verifyFormatsKnownTypes () =
+    ignore <| Cache<System.Double>.Retrieve()
+    ignore <| Cache<System.Int32>.Retrieve()
+    ignore <| Cache<System.String>.Retrieve()
+
+let verifyFormatsUnknownTypes () =
+
+    ()

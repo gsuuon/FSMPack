@@ -7,11 +7,11 @@ let writeColor color (msg: string) =
     Console.WriteLine msg
     Console.ResetColor()
 
-let runProject projectDirectory =
+let dotnetExec (projectDirectory, op) =
     writeColor ConsoleColor.White
-    <| sprintf "%s -- running" projectDirectory
+    <| sprintf "%s -- %s" op projectDirectory
 
-    let startInfo = ProcessStartInfo("dotnet", "run")
+    let startInfo = ProcessStartInfo("dotnet", op)
     startInfo.WorkingDirectory <- projectDirectory
     startInfo.UseShellExecute <- false
     startInfo.RedirectStandardOutput <- true
@@ -23,7 +23,7 @@ let runProject projectDirectory =
 
     if p.ExitCode = 0 then
         writeColor ConsoleColor.Green
-        <| sprintf "%s -- run success" projectDirectory
+        <| sprintf "%s -- %s success" op projectDirectory
 
         true
     else
@@ -31,15 +31,15 @@ let runProject projectDirectory =
         printfn "%s" <| p.StandardOutput.ReadToEnd() 
 
         writeColor ConsoleColor.Red
-        <| sprintf "%s -- run failure" projectDirectory
+        <| sprintf "%s -- %s failure" projectDirectory op
 
         false
 
-
-let runSequentially (projectDirs: string list) =
+let execSequentually (projectDirs: (string * string) list) =
     projectDirs
-    |> List.forall runProject
+    |> List.forall dotnetExec
 
-runSequentially [
-    "FSMPack.Tests"
-    "FSMPack.Compile.Tests" ]
+execSequentually [
+    "FSMPack.Tests", "run"
+    "FSMPack.Compile.Tests", "run"
+    "TestProject", "build" ]
