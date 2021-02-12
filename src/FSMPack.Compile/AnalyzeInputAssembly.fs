@@ -56,11 +56,14 @@ let generalize (typ: Type) =
     else
         typ
 
-// Formats found in FSMPack/BasicFormats.fs
+// Formats found in FSMPack/Formats/
 let knownTypes = HashSet [
     typedefof<Map<_,_>>
     typedefof<Dictionary<_,_>>
     typedefof<IDictionary<_,_>>
+
+    typedefof<Tuple<_,_>>
+    typedefof<Tuple<_,_,_>>
 
     typedefof<_ list>
     typedefof<_ option>

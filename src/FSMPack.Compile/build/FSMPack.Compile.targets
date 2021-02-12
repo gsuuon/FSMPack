@@ -3,17 +3,18 @@
         <FSMPackGeneratedDir Condition="$(FSMPackGeneratedDir) == ''">Generated</FSMPackGeneratedDir>
         <FSMPackGeneratedDll Condition="$(FSMPackGeneratedDll) == ''">FSMPack.GeneratedFormats.dll</FSMPackGeneratedDll>
         <FSMPackGeneratedPath>$(FSMPackGeneratedDir)/$(FSMPackGeneratedDll)</FSMPackGeneratedPath>
+        <FSMPackProjPath Condition="$(FSMPackProjPath) == ''">$(MSBuildThisFileDirectory)/../../FSMPack</FSMPackProjPath>
     </PropertyGroup>
 
     <Target Name="TryInitializeFSMPack"
             BeforeTargets="BeforeResolveReferences"
             Condition="!Exists('$(FSMPackGeneratedPath)')"
         >
-        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- init $(FSMPackGeneratedDir)" />
+        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- init $(FSMPackGeneratedDir) $(FSMPackProjPath)" />
     </Target>
 
     <Target Name="TryUpdateFSMPack" AfterTargets="AfterBuild">
-        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- update $(FSMPackGeneratedDir) $(OutputPath)/$(AssemblyName).dll" />
+        <Exec Command="dotnet run -p $(MSBuildThisFileDirectory)/../ -- update $(FSMPackGeneratedDir) $(FSMPackProjPath) $(OutputPath)/$(AssemblyName).dll" />
         <Copy SourceFiles="$(FSMPackGeneratedPath)" DestinationFolder="$(OutputPath)" />
     </Target>
 </Project>

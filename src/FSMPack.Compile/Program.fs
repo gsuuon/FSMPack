@@ -7,11 +7,16 @@ open FSMPack.Compile.GenerateFormat
 open FSMPack.Compile.AnalyzeInputAssembly
 open FSMPack.Compile.Generator.Common
 
-// FIXME this path is untested
-let compileTypes
-    (generateOutDir: string)
-    generateOutFsFilename
-    addlRefs
+
+type CompileOptions = {
+    outDir : string
+    outFilename : string
+    references : string list
+    fsmPackProjDir : string
+}
+
+let compileTypes // FIXME this path is untested
+    (opts : CompileOptions)
     (categorizedTypes: CategorizedTypes)
     =
 
@@ -47,45 +52,57 @@ let compileTypes
         |> produceUnitFn "verifyFormatsUnknownTypes"
         )
 
-    let formatsOutpath = Path.Join(generateOutDir, generateOutFsFilename)
+    let formatsOutpath = Path.Join(opts.outDir, opts.outFilename)
 
     categorizedTypes
     |> produceFormatsText
     |> fun formatsText -> formatsText + skipNoticeText
     |> writeText formatsOutpath
-
     printfn "FSMPack: Formats written to %s" formatsOutpath
 
-    // TODO How to include references correctly?
-    // - [ ] Kick off process to publish FSMPack and add output directory as libDir
-    // - [ ] Add System.Memory as a dependency to FSMPack.Compile, and get assembly.Location from compile host process (and also FSMPack)
+    printfn "FSMPack: Publishing FSMPack project %s" opts.fsmPackProjDir
+    let fsmpPublishPath = publishProject opts.fsmPackProjDir "-c:Release"
+    printfn "FSMPack: Adding references from %s" fsmpPublishPath
+
+    let dllOutPath = Path.Join(opts.outDir, "FSMPack.GeneratedFormats.dll")
+
+    printfn "FSMPack: Compiling to %s" dllOutPath
 
     runCompileProcess {
-        outfile = Path.Join(generateOutDir, "FSMPack.GeneratedFormats.dll")
+        outfile = dllOutPath
         files = [formatsOutpath]
         references = [
             "FSMPack"
             "System.Memory"
-            ] @ addlRefs
-        libDirs = [
-            @"C:\Users\Steven\Projects\FSMPack\src\FSMPack\bin\Debug\netstandard2.0\publish"
-            ]
+        ] @ opts.references
+        libDirs = [fsmpPublishPath]
     }
 
-let generatedFsFileName = "Formats.fs"
 
 [<EntryPoint>]
 let main args =
+    let generatedFsFileName = "Formats.fs"
+
     match args.[0] with
     | "init" -> 
         printfn "FSMPack: Creating placeholder dll"
+
         let generatedDir = args.[1]
+        let fsmpackProjDir = args.[2]
+
         if not <| Directory.Exists generatedDir then Directory.CreateDirectory generatedDir |> ignore
-        compileTypes generatedDir generatedFsFileName [] CategorizedTypes.Empty
+
+        compileTypes
+          { outDir = generatedDir
+            outFilename = generatedFsFileName
+            references = []
+            fsmPackProjDir = fsmpackProjDir }
+            CategorizedTypes.Empty
 
     | "update" ->
         let generatedDir = args.[1]
-        let targetDllPath = args.[2]
+        let fsmpackProjDir = args.[2]
+        let targetDllPath = args.[3]
 
         printfn "FSMPack: Updating generated dll using %s" targetDllPath
 
@@ -93,7 +110,11 @@ let main args =
         |> Assembly.LoadFrom
         |> discoverRootTypes
         |> discoverAllChildTypes
-        |> compileTypes generatedDir generatedFsFileName [targetDllPath]
+        |> compileTypes {
+            outDir = generatedDir
+            outFilename = generatedFsFileName
+            references = [targetDllPath]
+            fsmPackProjDir = fsmpackProjDir }
 
     | "help" ->
         printfn "init [generated dir] - create placeholder dll"
