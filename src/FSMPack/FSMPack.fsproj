@@ -17,7 +17,7 @@
         <Compile Include="Format.fs" />
         <Compile Include="Formats/Standard/IDict.fs" />
         <Compile Include="Formats/Standard/Sequence.fs" />
-        <Compile Include="Formats/Standard/Tuple.fs" />
+        <Compile Include="Formats/Standard/Tuples.fs" />
         <Compile Include="Formats/Basic.fs" />
         <Compile Include="Formats/Default.fs" />
         <Compile Include="Attribute.fs" />

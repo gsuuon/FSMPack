@@ -1,4 +1,4 @@
-module FSMPack.Formats.Standard.Tuple
+module FSMPack.Formats.Standard.Tuples
 
 open FSMPack.Spec
 open FSMPack.Read
