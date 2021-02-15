@@ -22,4 +22,6 @@ let generateFormatEnum (enumType: Type) =
 {__}{__}member _.Read (br, bytes) = 
 {__}{__}{__}{getReadFieldCall underlyingTypeAsField "ev"}
 {__}{__}{__}LanguagePrimitives.EnumOfValue<{underlyingTypeAsField.typeFullName}, {names.dataType}> ev
+
+{writeCacheFormatLine enumType names}
 """
