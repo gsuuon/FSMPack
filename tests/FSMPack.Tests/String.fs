@@ -12,6 +12,9 @@ let stringOfSize size =
 [<Tests>]
 let tests =
     testList "String" [
+        testCase "roundtrip empty" <| fun _ ->
+            roundtrip (RawString "")
+
         testCase "roundtrip tiny" <| fun _ ->
             roundtrip (RawString "h")
             roundtrip (RawString "hello")

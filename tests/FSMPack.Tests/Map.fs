@@ -18,7 +18,6 @@ let tests =
             0b11000010uy
         |]
 
-
     testList "Map" [
         testCase "write tiny map" <| fun _ ->
             expectValueWrites tinyMap tinyBytes
@@ -38,6 +37,11 @@ let tests =
                         // Map as key is broken due to compare/equal
                     , generateRandomValue seed )
             |> dict
+            |> MapCollection
+            |> roundtrip
+
+        testCase "roundtrip empty" <| fun _ ->
+            dict []
             |> MapCollection
             |> roundtrip
     ]

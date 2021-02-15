@@ -8,31 +8,35 @@ open FSMPack.Write
 open FSMPack.Format
 
 let writeIDict (bw, v: IDictionary<'K, 'V>) =
-    let keyFormat = Cache<'K>.Retrieve()
-    let valueFormat = Cache<'V>.Retrieve()
 
     writeMapFormat bw v.Count
 
-    Seq.iter
-        (fun (kv: KeyValuePair<'K, 'V>) ->
-            keyFormat.Write bw kv.Key
-            valueFormat.Write bw kv.Value )
-        v
+    if v.Count > 0 then
+        let keyFormat = Cache<'K>.Retrieve()
+        let valueFormat = Cache<'V>.Retrieve()
+
+        Seq.iter
+            (fun (kv: KeyValuePair<'K, 'V>) ->
+                keyFormat.Write bw kv.Key
+                valueFormat.Write bw kv.Value )
+            v
 
 let readIDict (br, bytes) =
-    let keyFormat = Cache<'K>.Retrieve()
-    let valueFormat = Cache<'V>.Retrieve()
 
     let expectedCount = readMapFormatCount br &bytes
 
     let mutable items = 0
     let collection = Dictionary()
 
-    while items < expectedCount do
-        let key = keyFormat.Read (br, bytes)
-        let value = valueFormat.Read (br, bytes)
-        collection.[key] <- value
-        items <- items + 1
+    if expectedCount > 0 then
+        let keyFormat = Cache<'K>.Retrieve()
+        let valueFormat = Cache<'V>.Retrieve()
+
+        while items < expectedCount do
+            let key = keyFormat.Read (br, bytes)
+            let value = valueFormat.Read (br, bytes)
+            collection.[key] <- value
+            items <- items + 1
 
     collection :> IDictionary<'K, 'V>
 

@@ -32,6 +32,11 @@ let tests =
                 (ArrayCollection tinyArray)
                 tinyBytes
 
+        testCase "roundtrips empty" <| fun _ ->
+            [||]
+            |> ArrayCollection
+            |> roundtrip
+
         testCase "roundtrips tiny" <| fun _ ->
             let seed = System.Random()
 

@@ -53,7 +53,7 @@ let readMapFormatCount (br: BufReader) (bytes: inref<Bytes>) =
     | format ->
         match Cast.asValue format with
         | byt when
-            format > Format.FixMap &&
+            format >= Format.FixMap &&
             byt <= 0x8fuy ->
 
             maskByte 0b11110000uy byt
@@ -228,7 +228,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
             |> Value.Integer
 
         | byt when
-            format > Format.FixMap &&
+            format >= Format.FixMap &&
             byt <= 0x8fuy ->
 
             let len =
@@ -238,7 +238,7 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
             readMapValues br &bytes len
 
         | byt when
-            format > Format.FixArray &&
+            format >= Format.FixArray &&
             byt <= 0x9fuy ->
 
             let len =

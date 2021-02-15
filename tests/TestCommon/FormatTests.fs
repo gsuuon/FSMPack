@@ -121,6 +121,11 @@ module TestCases =
                     expectIDictEqual
 
             testCase "FSharp" <| fun _ ->
+                "roundtrip empty Map"
+                |> roundtripFormat
+                    (Cache<Map<int,string>>.Retrieve())
+                    (Map.empty)
+
                 "roundtrip Map"
                 |> roundtripFormat
                     (Cache<Map<int,string>>.Retrieve())
@@ -133,7 +138,6 @@ module TestCases =
                 |> roundtripFormat
                     (Cache<_ list>.Retrieve())
                     [ "a"; "foo"; "one" ]
-
 
                 "roundtrip different List"
                 |> roundtripFormat
