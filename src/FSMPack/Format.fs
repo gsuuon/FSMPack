@@ -68,14 +68,12 @@ type Cache<'T>() =
     static let mutable format : Format<'T> option = None
     
     static member Store _format =
-        printfn "Stored format: %A" typeof<'T>
-        _knownTypes <- _knownTypes @ [typeof<'T>]
+        _knownTypes <- typeof<'T> :: _knownTypes
 
         format <- Some _format
 
     static member StoreGeneric genFormatType =
-        printfn "Stored generic format: %A" typedefof<'T>
-        _knownTypes <- _knownTypes @ [typedefof<'T>]
+        _knownTypes <- typedefof<'T> :: _knownTypes
 
         GenericFormatCache.Generalized.[typedefof<'T>] <- genFormatType
         
