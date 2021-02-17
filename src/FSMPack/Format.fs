@@ -106,3 +106,14 @@ type Cache<'T>() =
                 failwith
                     <| "missing Format for " + string typ
                         + " -- known types:\n" + (_knownTypes |> List.map string |> String.concat "\n")
+
+let writeBytes<'T> value =
+    let bw = BufWriter.Create 0
+    Cache<'T>.Retrieve().Write bw value
+
+    bw.GetWritten()
+
+let readBytes<'T> bytes =
+    Cache<'T>.Retrieve().Read
+        (BufReader.Create(), ReadOnlySpan bytes)
+    
