@@ -46,13 +46,17 @@ module TypeName =
         type FullNameNullReason =
             | GenericTypeParameter
             | ContainsGenPrmsNotTypeDef
+            | ArrayWithGenPrms
             | Unknown
 
-        let fullnameIsFalseReason (typ: Type) =
+        let fullnameIsNullReason (typ: Type) =
             if typ.IsGenericTypeParameter then
                 GenericTypeParameter
-            else if typ.ContainsGenericParameters && not typ.IsGenericTypeDefinition then
+            else if typ.ContainsGenericParameters && typ.IsGenericType
+                    && not typ.IsGenericTypeDefinition then
                 ContainsGenPrmsNotTypeDef
+            else if typ.ContainsGenericParameters && typ.IsArray then
+                ArrayWithGenPrms
             else
                 Unknown
 
@@ -81,15 +85,17 @@ module TypeName =
             | true, typName -> typName
             | _ ->
                 if typ.FullName = null then
-                    match fullnameIsFalseReason typ with
+                    match fullnameIsNullReason typ with
                     | ContainsGenPrmsNotTypeDef ->
                         typ.GetGenericTypeDefinition().FullName
+                    | ArrayWithGenPrms ->
+                        "'" + typ.Name
                     | _ ->
                         failwith
                         <| sprintf
                             "Type had null FullName: %A\nReason: %A"
                                 typ
-                                (fullnameIsFalseReason typ)
+                                (fullnameIsNullReason typ)
                 else
                     typ.FullName
 
