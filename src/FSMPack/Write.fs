@@ -228,8 +228,9 @@ let rec writeValue (bw: BufWriter) mpv =
         for KeyValue(key, value) in x do // TODO-perf enumerator alloc
             writeValue bw key
             writeValue bw value
-    | x ->
-        let msg = "Tried to write unsupported value: " + x.ToString()
+    | Extension (_, _) as ext ->
+        let msg =
+            "Unsupported extension: " + ext.ToString()
 
         failwith msg
 

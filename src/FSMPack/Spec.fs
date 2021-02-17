@@ -56,6 +56,21 @@ type Value =
     | ArrayCollection of arr: Value array
     | MapCollection of map: IDictionary<Value, Value>
     | Extension of ty: int * data: byte[]
+    override x.ToString () =
+        match x with
+        | Nil -> "Nil"
+        | Boolean b -> "Boolean " + string b
+        | Integer i -> "Integer " + string i
+        | Integer64 i64 -> "Integer64 " + string i64
+        | UInteger ui -> "UInteger " + string ui
+        | UInteger64 ui64 -> "UInteger64 " + string ui64
+        | FloatSingle fs -> "FloatSingle " + string fs
+        | FloatDouble fd -> "FloatDouble " + string fd
+        | RawString rs -> "RawString " + string rs
+        | Binary bin -> "Binary " + string bin
+        | ArrayCollection arr -> "ArrayCollection " + string arr
+        | MapCollection map -> "MapCollection " + string map
+        | Extension (ty, data) -> "Extension " + string ty + ", " + string data
 
 module Cast =
     let asFormat (byt: byte) = LanguagePrimitives.EnumOfValue<byte, Format> byt
