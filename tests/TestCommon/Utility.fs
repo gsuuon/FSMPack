@@ -124,13 +124,16 @@ let generateRandomSimpleValue (seed: System.Random) =
 let generateRandomValue (seed: System.Random) =
     generateValue <| seed.Next(13)
 
-let roundtripFormatExpect (f: Format<'T>) v expect message =
+let roundtripFormatReturn (f: Format<'T>) v =
     let bw = BufWriter.Create 0
 
     f.Write bw v
 
     let written = bw.GetWritten()
-    let read = f.Read (BufReader.Create(), ReadOnlySpan(written))
+    f.Read (BufReader.Create(), ReadOnlySpan(written))
+
+let roundtripFormatExpect (f: Format<'T>) v expect message =
+    let read = roundtripFormatReturn f v
 
     expect read v message
 
