@@ -38,6 +38,7 @@ type FMT_TestProject_Types_Foo() =
                         let (Integer num') = readValue br &bytes
                         num <- num'
                     | _ -> failwith "Unknown key"
+                | notName -> failwith <| "Expected string field name, got " + string notName
                 items <- items + 1
 
             {
@@ -78,6 +79,7 @@ type FMT_TestProject_Types_Baz() =
                         let bar' = Cache<TestProject.Types.Bar>.Retrieve().Read(br, bytes)
                         bar <- bar'
                     | _ -> failwith "Unknown key"
+                | notName -> failwith <| "Expected string field name, got " + string notName
                 items <- items + 1
 
             {
@@ -119,6 +121,7 @@ type FMT_TestProject_Types_Quix() =
                         let (Integer a') = readValue br &bytes
                         a <- a'
                     | _ -> failwith "Unknown key"
+                | notName -> failwith <| "Expected string field name, got " + string notName
                 items <- items + 1
 
             {
