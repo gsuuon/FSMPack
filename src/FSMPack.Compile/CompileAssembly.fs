@@ -73,8 +73,9 @@ let runCompileProcess args =
 
     p.WaitForExit()
 
-let publishProject projectPath args =
-    let startInfo = ProcessStartInfo("dotnet", "publish " + projectPath + " " + args)
+let dotnetExec op args failMsg =
+    let startInfo = ProcessStartInfo("dotnet", op + " " + args)
+
     startInfo.UseShellExecute <- false
     startInfo.RedirectStandardOutput <- true
 
@@ -82,26 +83,34 @@ let publishProject projectPath args =
     p.WaitForExit()
     if p.ExitCode <> 0 then
         failwith
-        <| sprintf "Project %s failed to publish\n%s"
-            projectPath
+        <| sprintf "%s\n%s"
+            failMsg
             (p.StandardOutput.ReadToEnd())
     else
-        let output = p.StandardOutput.ReadToEnd()
-        let publishDirOpt =
-            output.Split("\n")
-            |> Array.tryPick (fun line ->
-                let m = Regex.Match(line, ".+ -> (.+publish.)")
+        p.StandardOutput.ReadToEnd()
 
-                if m.Success then
-                    Some m.Groups.[1].Value
-                else
-                    None
-                )
+let publishProject projectPath args =
+    let output =
+        dotnetExec "publish"
+        <| (projectPath + " " + args)
+        <| sprintf "Project %s failed to publish"
+            projectPath
 
-        match publishDirOpt with
-        | Some dir -> dir
-        | None ->
-            failwith
-            <| sprintf
-                "Failed to match publish directory from output:\n%s"
-                output
+    let publishDirOpt =
+        output.Split("\n")
+        |> Array.tryPick (fun line ->
+            let m = Regex.Match(line, ".+ -> (.+publish.)")
+
+            if m.Success then
+                Some m.Groups.[1].Value
+            else
+                None
+            )
+
+    match publishDirOpt with
+    | Some dir -> dir
+    | None ->
+        failwith
+        <| sprintf
+            "Failed to match publish directory from output:\n%s"
+            output
