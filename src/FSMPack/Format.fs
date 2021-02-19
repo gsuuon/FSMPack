@@ -30,7 +30,14 @@ module GenericFormatCache =
         | true, format ->
             format
         | false, _ ->
-            failwith ("missing Format type for " + string typeof<'Specialized>)
+            failwith 
+            <| "missing format type for " + string typeof<'Specialized>
+                + " which has a generic type def of " + string genType
+                + "\nKnown generic types:\n"
+                + (Generalized.Keys
+                    |> Seq.map string
+                    |> String.concat "\n"
+                    )
 
     let specializations<'Specialized> () =
         typeof<'Specialized>.GetGenericArguments()
@@ -114,6 +121,11 @@ let writeBytes<'T> value =
     bw.GetWritten()
 
 let readBytes<'T> bytes =
-    Cache<'T>.Retrieve().Read
-        (BufReader.Create(), ReadOnlySpan bytes)
+    try
+        Cache<'T>.Retrieve().Read
+            (BufReader.Create(), ReadOnlySpan bytes)
     
+    with
+    | :? MatchFailureException as ex  ->
+        failwith
+        <| "Match failure at " + ex.Data0 + " line: " + ex.Data1.ToString()

@@ -17,6 +17,7 @@ let tests =
             roundtrip (FloatSingle Single.MaxValue)
 
         testCase "roundtrips double" <| fun _ ->
+            roundtrip (FloatDouble 0.0)
             roundtrip (FloatDouble 312321.123124)
             roundtrip (FloatDouble Double.MinValue)
             roundtrip (FloatDouble Double.MaxValue)

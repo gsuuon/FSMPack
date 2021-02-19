@@ -75,6 +75,7 @@ let generateFormatRecord (typ: Type) =
     ] @ [ "| _ -> failwith \"Unknown key\"" ]
     |> List.map (indentLine 5)
     |> String.concat "\n" }
+{__}{__}{__}{__}| notName -> failwith <| "Expected string field name, got " + string notName
 {__}{__}{__}{__}items <- items + 1
 
 {__}{__}{__}{{
