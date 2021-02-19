@@ -109,9 +109,9 @@ let main args =
         targetDllPath
         |> Assembly.LoadFrom
         |> discoverRootTypes
-        |> discoverAllChildTypes
-        |> compileTypes {
-            outDir = generatedDir
+        |> uniqueGeneralizedTypes
+        |> compileTypes
+          { outDir = generatedDir
             outFilename = generatedFsFileName
             references = [targetDllPath]
             fsmPackProjDir = fsmpackProjDir }

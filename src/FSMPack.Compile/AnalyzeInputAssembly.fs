@@ -120,6 +120,10 @@ let discoverAllChildTypes rootTypes =
     |> List.fold
         getAllSubtypesOf
         (HashSet())
+
+/// Returns list of generalized types; ie Map<int, bool> is returned as Map<_, _>
+let uniqueGeneralizedTypes types =
+    types
     |> Seq.map generalize
     |> HashSet
     |> Seq.toList
