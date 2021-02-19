@@ -60,3 +60,40 @@ let produceFormatsText categorizedTypes =
 
 let writeText outpath text =
     File.WriteAllText (outpath, text)
+
+let generateFormatsText (categorizedTypes: CategorizedTypes) =
+    let skipNoticeText =
+        let produceCacheRetrieveCalls types =
+            types
+            |> List.map (fun typ ->
+                typ
+                |> TypeName.getFullCanonName
+                |> TypeName.Transform.addAnonArgs typ
+                |> sprintf "    ignore <| Cache<%s>.Retrieve()"
+                )
+
+        let produceUnitFn fnName (fnBodyLines: string list) =
+            fnBodyLines
+            |> String.concat "\n"
+            |> (+) (sprintf "\nlet %s () =\n" fnName)
+            |> fun t ->
+                if fnBodyLines.Length = 0 then
+                    t + "\n    ()\n"
+                else
+                    t + "\n"
+            
+        (categorizedTypes.knownTypes
+        |> produceCacheRetrieveCalls
+        |> produceUnitFn "verifyFormatsKnownTypes"
+        )
+
+        +
+
+        (categorizedTypes.unknownTypes
+        |> produceCacheRetrieveCalls
+        |> produceUnitFn "verifyFormatsUnknownTypes"
+        )
+
+    categorizedTypes
+    |> produceFormatsText
+    |> fun formatsText -> formatsText + skipNoticeText
