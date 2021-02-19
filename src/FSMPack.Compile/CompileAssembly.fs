@@ -35,6 +35,10 @@ let buildCompilerArgs args =
     |> List.append [
         "-o"; args.outfile 
         "--nocopyfsharpcore"
+        "--tailcalls-"
+            // .tail instruction in release breaks writeValue call in Unity. Also:
+            // https://github.com/dotnet/fsharp/issues/6329
+            // - Tail opcode being emitted for normal methods, destroys JIT optimizations
         ]
     |> List.toArray
 
