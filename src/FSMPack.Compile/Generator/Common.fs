@@ -79,25 +79,28 @@ module TypeName =
                 )
             |> String.concat "."
 
+        /// Microsoft.Collections.FSharp`2[[string, int]]
+        let fullCommonName (typ: Type) =
+            if typ.FullName = null then
+                match fullnameIsNullReason typ with
+                | ContainsGenPrmsNotTypeDef ->
+                    typ.GetGenericTypeDefinition().FullName
+                | ArrayWithGenPrms ->
+                    "'" + typ.Name
+                | _ ->
+                    failwith
+                    <| sprintf
+                        "Type had null FullName: %A\nReason: %A"
+                            typ
+                            (fullnameIsNullReason typ)
+            else
+                typ.FullName
+
         /// MyNamespace.MyModule+MyType`2[[string, int]]
         let fullName (typ: Type) =
             match knownGenTypeNames.TryGetValue (generalize typ) with
             | true, typName -> typName
-            | _ ->
-                if typ.FullName = null then
-                    match fullnameIsNullReason typ with
-                    | ContainsGenPrmsNotTypeDef ->
-                        typ.GetGenericTypeDefinition().FullName
-                    | ArrayWithGenPrms ->
-                        "'" + typ.Name
-                    | _ ->
-                        failwith
-                        <| sprintf
-                            "Type had null FullName: %A\nReason: %A"
-                                typ
-                                (fullnameIsNullReason typ)
-                else
-                    typ.FullName
+            | _ -> fullCommonName typ
 
         /// MyType`2
         let simpleName (typ: Type) =
@@ -148,12 +151,21 @@ module TypeName =
         |> canonName
         |> stripModuleSuffix
 
+    let getFullCommonName (typ: Type) =
+        typ
+        |> fullCommonName
+        |> lexName
+        |> canonName
+        |> stripModuleSuffix
+
+    let asFormatTypeName name =
+        name
+        |> declarableName
+        |> (+) "FMT_"
+
     let getGeneratorNames (typ: Type) =
         let fullName = getFullCanonName typ
-        let formatTypeName = 
-            fullName
-            |> declarableName
-            |> (+) "FMT_"
+        let formatTypeName = fullName |> asFormatTypeName
 
         {
             formatTypeNamedArgs =
