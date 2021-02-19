@@ -15,11 +15,7 @@ type CompileOptions = {
     fsmPackProjDir : string
 }
 
-let compileTypes // FIXME this path is untested
-    (opts : CompileOptions)
-    (categorizedTypes: CategorizedTypes)
-    =
-
+let generateFormatsText (categorizedTypes: CategorizedTypes) =
     let skipNoticeText =
         let produceCacheRetrieveCalls types =
             types
@@ -52,11 +48,17 @@ let compileTypes // FIXME this path is untested
         |> produceUnitFn "verifyFormatsUnknownTypes"
         )
 
-    let formatsOutpath = Path.Join(opts.outDir, opts.outFilename)
-
     categorizedTypes
     |> produceFormatsText
     |> fun formatsText -> formatsText + skipNoticeText
+
+let mainCompileTypes // FIXME this path is untested
+    (opts : CompileOptions)
+    (categorizedTypes: CategorizedTypes)
+    =
+    let formatsOutpath = Path.Join(opts.outDir, opts.outFilename)
+
+    generateFormatsText categorizedTypes
     |> writeText formatsOutpath
     printfn "FSMPack: Formats written to %s" formatsOutpath
 
@@ -92,7 +94,7 @@ let main args =
 
         if not <| Directory.Exists generatedDir then Directory.CreateDirectory generatedDir |> ignore
 
-        compileTypes
+        mainCompileTypes
           { outDir = generatedDir
             outFilename = generatedFsFileName
             references = []
@@ -110,7 +112,7 @@ let main args =
         |> Assembly.LoadFrom
         |> discoverRootTypes
         |> uniqueGeneralizedTypes
-        |> compileTypes
+        |> mainCompileTypes
           { outDir = generatedDir
             outFilename = generatedFsFileName
             references = [targetDllPath]
