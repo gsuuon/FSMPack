@@ -57,24 +57,26 @@ let generalize (typ: Type) =
         typ
 
 // Formats found in FSMPack/Formats/
-let knownTypes = HashSet [
-    typedefof<Map<_,_>>
-    typedefof<Dictionary<_,_>>
-    typedefof<IDictionary<_,_>>
+open FSMPack.Formats.Standard
 
-    typedefof<Tuple<_,_>>
-    typedefof<Tuple<_,_,_>>
+let knownTypes = dict [
+    typedefof<Map<_,_>>, typeof<IDict.FormatMap<_,_>>
+    typedefof<Dictionary<_,_>>, typeof<IDict.FormatDictionary<_,_>>
+    typedefof<IDictionary<_,_>>, typeof<IDict.FormatIDictionary<_,_>>
 
-    typedefof<_ list>
-    typedefof<_ option>
-    typedefof<_ array>
+    typedefof<Tuple<_,_>>, typeof<Core.FormatFSharpTuple2<_,_>>
+    typedefof<Tuple<_,_,_>>, typeof<Core.FormatFSharpTuple3<_,_,_>>
+    typedefof<_ option>, typeof<Core.FormatOption<_>>
 
-    typeof<string>
-    typeof<int>
-    typeof<int16>
-    typeof<float>
-    typeof<bool>
-    typeof<unit>
+    typedefof<_ list>, typeof<Sequence.FormatFSharpList<_>>
+    typedefof<_ array>, typeof<Sequence.FormatFSharpArray<_>>
+
+    typeof<string>, typeof<Primitives.FormatString>
+    typeof<int>, typeof<Primitives.FormatInt>
+    typeof<int16>, typeof<Primitives.FormatInt16>
+    typeof<float>, typeof<Primitives.FormatFloat>
+    typeof<bool>, typeof<Primitives.FormatBool>
+    typeof<unit>, typeof<FSMPack.FormatUnitWorkaround.FormatUnit>
 ]
 
 type CategorizedTypes =

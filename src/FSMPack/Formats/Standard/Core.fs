@@ -1,13 +1,32 @@
-module FSMPack.Formats.Standard.Tuples
+module FSMPack.Formats.Standard.Core
 
 open FSMPack.Spec
 open FSMPack.Read
 open FSMPack.Write
 open FSMPack.Format
 
+#nowarn "0025"
+
 #nowarn "3220"
 // v.Item1
 // This method or property is not normally used from F# code, use an explicit tuple pattern for deconstruction instead
+
+type FormatOption<'T>() =
+    interface Format<'T option> with
+        member _.Write bw v =
+            match v with
+            | Some x ->
+                Cache<'T>.Retrieve().Write bw x
+            | None ->
+                writeValue bw Nil
+        member _.Read (br, bytes) =
+            match Cast.asFormat bytes.[br.idx] with
+            | Format.Nil ->
+                br.Advance 1
+                None
+            | _ ->
+                Cache<'T>.Retrieve().Read (br, bytes)
+                |> Some
 
 type FormatFSharpTuple2<'T1,'T2>() =
     interface Format<System.Tuple<'T1,'T2>> with

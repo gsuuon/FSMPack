@@ -15,10 +15,10 @@
         <Compile Include="WritePrimitive.fs" />
         <Compile Include="Write.fs" />
         <Compile Include="Format.fs" />
+        <Compile Include="Formats/Standard/Primitives.fs" />
         <Compile Include="Formats/Standard/IDict.fs" />
         <Compile Include="Formats/Standard/Sequence.fs" />
-        <Compile Include="Formats/Standard/Tuples.fs" />
-        <Compile Include="Formats/Basic.fs" />
+        <Compile Include="Formats/Standard/Core.fs" />
         <Compile Include="Formats/Default.fs" />
         <Compile Include="Attribute.fs" />
     </ItemGroup>
