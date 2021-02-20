@@ -42,4 +42,4 @@ let execSequentually (projectDirs: (string * string) list) =
 execSequentually [
     "FSMPack.Tests", "run"
     "FSMPack.Compile.Tests", "run"
-    "TestProject", "build" ]
+    "TestProject", "build" ] // FIXME try to actually run the thing

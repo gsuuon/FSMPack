@@ -74,6 +74,7 @@ let main args =
         targetDllPath
         |> Assembly.LoadFrom
         |> discoverRootTypes
+        |> discoverAllChildTypes
         |> uniqueGeneralizedTypes
         |> mainCompileTypes
           { outDir = generatedDir

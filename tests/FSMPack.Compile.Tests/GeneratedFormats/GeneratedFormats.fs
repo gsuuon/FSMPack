@@ -38,6 +38,7 @@ type FMT_FSMPack_Tests_Types_Collection_FSharpCollectionContainer() =
                         let myMap' = Cache<Map<_,_>>.Retrieve().Read(br, bytes)
                         myMap <- myMap'
                     | _ -> failwith "Unknown key"
+                | notName -> failwith <| "Expected string field name, got " + string notName
                 items <- items + 1
 
             {
@@ -84,6 +85,7 @@ type FMT_FSMPack_Tests_Types_Mixed_Baz<'T>() =
                         let c' = Cache<'T>.Retrieve().Read(br, bytes)
                         c <- c'
                     | _ -> failwith "Unknown key"
+                | notName -> failwith <| "Expected string field name, got " + string notName
                 items <- items + 1
 
             {
@@ -120,6 +122,7 @@ type FMT_FSMPack_Tests_Types_Mixed_Foo() =
                         let (Integer a') = readValue br &bytes
                         a <- a'
                     | _ -> failwith "Unknown key"
+                | notName -> failwith <| "Expected string field name, got " + string notName
                 items <- items + 1
 
             {
@@ -154,6 +157,7 @@ type FMT_FSMPack_Tests_Types_Record_MyGenericRecord<'T>() =
                         let foo' = Cache<'T>.Retrieve().Read(br, bytes)
                         foo <- foo'
                     | _ -> failwith "Unknown key"
+                | notName -> failwith <| "Expected string field name, got " + string notName
                 items <- items + 1
 
             {
@@ -200,6 +204,7 @@ type FMT_FSMPack_Tests_Types_Record_MyTestType() =
                         let inner' = Cache<FSMPack.Tests.Types.Record.MyInnerType>.Retrieve().Read(br, bytes)
                         inner <- inner'
                     | _ -> failwith "Unknown key"
+                | notName -> failwith <| "Expected string field name, got " + string notName
                 items <- items + 1
 
             {
@@ -236,6 +241,7 @@ type FMT_FSMPack_Tests_Types_Record_MyInnerType() =
                         let (RawString C') = readValue br &bytes
                         C <- C'
                     | _ -> failwith "Unknown key"
+                | notName -> failwith <| "Expected string field name, got " + string notName
                 items <- items + 1
 
             {
