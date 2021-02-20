@@ -8,11 +8,10 @@
         <Version>0.0.1</Version>
     </PropertyGroup>
 
-    <PropertyGroup>
-        <!-- This may not do anything, could still need <PrivateAssets>all<> in consuming project -->
-        <!-- https://github.com/NuGet/Home/issues/4125 -->
-        <DevelopmentDependency>true</DevelopmentDependency>
-    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="../FSMPack/FSMPack.fsproj" />
+        <Reference Include="../FSMPack/FSMPack.FormatUnitWorkaround/FSMPack.FormatUnitWorkaround.dll" />
+    </ItemGroup>
 
     <ItemGroup>
         <Compile Include="TypeInfo.fs" />
@@ -24,9 +23,5 @@
         <Compile Include="Generator\Enum.fs" />
         <Compile Include="GenerateFormat.fs" />
         <Compile Include="Program.fs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="../FSMPack/FSMPack.fsproj" />
     </ItemGroup>
 </Project>
