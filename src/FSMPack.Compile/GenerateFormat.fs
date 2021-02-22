@@ -26,7 +26,7 @@ open FSMPack.Write
 
 #nowarn "0025"
 
-let mutable _initStartupCode = 0
+let mutable initialized = false
 
 """
 
@@ -34,7 +34,17 @@ let footer = """
 let initialize () =
     FSMPack.Formats.Default.setup ()
 
-    _initStartupCode
+    initialized <- true
+
+let write value =
+    if not initialized then initialize()
+
+    FSMPack.Format.writeBytes value
+
+let read bytes =
+    if not initialized then initialize()
+
+    FSMPack.Format.readBytes bytes
 """
 
 let addFormattersFileHeader (formatters: string list) =
