@@ -72,10 +72,15 @@ let knownTypes = dict [
     typedefof<_ array>, typeof<Sequence.FormatFSharpArray<_>>
 
     typeof<string>, typeof<Primitives.FormatString>
+
     typeof<int>, typeof<Primitives.FormatInt>
     typeof<int16>, typeof<Primitives.FormatInt16>
+    typeof<int64>, typeof<Primitives.FormatInt64>
+
+    typeof<byte>, typeof<Primitives.FormatByte>
     typeof<float>, typeof<Primitives.FormatFloat>
     typeof<bool>, typeof<Primitives.FormatBool>
+
     typeof<unit>, typeof<FSMPack.FormatUnitWorkaround.FormatUnit>
 ]
 
