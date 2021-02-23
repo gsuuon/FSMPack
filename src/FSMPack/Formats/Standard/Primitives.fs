@@ -23,6 +23,14 @@ type FormatInt16() =
             let (Integer x) = readValue br &bytes
             int16 x
 
+type FormatInt64() =
+    interface Format<int64> with
+        member _.Write bw (v: int64) =
+            writeValue bw (Integer64 v)
+        member _.Read (br, bytes) =
+            let (Integer64 x) = readValue br &bytes
+            x
+
 type FormatFloat() =
     interface Format<float> with
         member _.Write bw (v: float) =
@@ -39,6 +47,13 @@ type FormatBool() =
             let (Boolean x) = readValue br &bytes
             x 
 
+type FormatByte() =
+    interface Format<byte> with
+        member _.Write bw (v: byte) =
+            writeByte bw v
+        member _.Read (br, bytes) =
+            readByte br &bytes
+
 type FormatString() = // Not actually a primitive but..
     interface Format<string> with
         member _.Write bw (v: string) =
@@ -46,4 +61,3 @@ type FormatString() = // Not actually a primitive but..
         member _.Read (br, bytes) =
             let (RawString x) = readValue br &bytes
             x
-
