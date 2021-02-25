@@ -83,8 +83,9 @@ let main args =
             fsmPackProjDir = fsmpackProjDir }
 
     | "help" ->
-        printfn "init [generated dir] - create placeholder dll"
-        printfn "update [generated dir] [target dll path] - update dll with generated formats from target dll"
+        printfn "init [generated dir] [fsmpackProjDir] - create placeholder dll"
+        printfn "update [generated dir] [fsmpackProjDir] [target dll path] - update dll with generated formats from target dll"
+
     | _ ->
         printfn "FSMPack: Unknown command"
 

@@ -9,7 +9,7 @@ open FSMPack.Write
 
 #nowarn "0025"
 
-let mutable _initStartupCode = 0
+let mutable initialized = false
 
 
 type FMT_FSMPack_Tests_Types_Collection_FSharpCollectionContainer() =
@@ -368,4 +368,14 @@ Cache<FSMPack.Tests.Types.DU.MyInnerDU>.Store (FMT_FSMPack_Tests_Types_DU_MyInne
 let initialize () =
     FSMPack.Formats.Default.setup ()
 
-    _initStartupCode
+    initialized <- true
+
+let write value =
+    if not initialized then initialize()
+
+    FSMPack.Format.writeBytes value
+
+let read bytes =
+    if not initialized then initialize()
+
+    FSMPack.Format.readBytes bytes

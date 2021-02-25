@@ -12,9 +12,6 @@ open FSMPack.Compile.Generator.Record
 open FSMPack.Compile.Generator.DU
 open FSMPack.Compile.Generator.Enum
 
-(* NOTE
-Using the mutable _initStartupCode to kick off initialization code of the generated module w/o reflection.
-Is there a better way to do this? *)
 let header = """module FSMPack.GeneratedFormats
 
 open System
@@ -72,7 +69,7 @@ let writeText outpath text =
     File.WriteAllText (outpath, text)
 
 let generateFormatsText (categorizedTypes: CategorizedTypes) =
-    let skipNoticeText =
+    let verifyFormatsFnsText =
         let produceCacheRetrieveCalls types =
             types
             |> List.map (fun typ ->
@@ -88,7 +85,7 @@ let generateFormatsText (categorizedTypes: CategorizedTypes) =
             |> (+) (sprintf "\nlet %s () =\n" fnName)
             |> fun t ->
                 if fnBodyLines.Length = 0 then
-                    t + "\n    ()\n"
+                    t + "    ()\n"
                 else
                     t + "\n"
             
@@ -106,4 +103,4 @@ let generateFormatsText (categorizedTypes: CategorizedTypes) =
 
     categorizedTypes
     |> produceFormatsText
-    |> fun formatsText -> formatsText + skipNoticeText
+    |> fun formatsText -> formatsText + verifyFormatsFnsText

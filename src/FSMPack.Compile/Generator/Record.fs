@@ -1,8 +1,8 @@
 module FSMPack.Compile.Generator.Record
 
 open System
-open System.Collections.Generic
 open System.Reflection
+open System.Collections.Generic
 open Microsoft.FSharp.Reflection
 
 open FSMPack.Compile.Generator.Common

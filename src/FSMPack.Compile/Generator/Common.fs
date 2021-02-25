@@ -119,11 +119,11 @@ module TypeName =
             else
                 typName
             
-        /// myTypeNameString -> myType -> MyTypeNameString<'A,'B>
+        /// MyTypeNameString -> MyTypeNameString<'A,'B>
         let addNamedArgs (typ: Type) typName =
             addArgsString typ typName (fun arg -> "'" + arg.Name)
 
-        /// myTypeNameString -> myType -> MyTypeNameString<_,_>
+        /// MyTypeNameString -> MyTypeNameString<_,_>
         let addAnonArgs (typ: Type) typName =
             addArgsString typ typName (fun _ -> "_")
 
@@ -201,11 +201,8 @@ module TypeName =
 
 let writeCacheFormatLine (typ: Type) (names: TypeName.GeneratorNames) =
     if typ.IsGenericType then
-        // Cache<Foo<_>>.StoreGeneric typedefof<FormatFoo<_>>
         $"Cache<{names.dataTypeAnonArgs}>.StoreGeneric typedefof<{names.formatTypeAnonArgs}>"
-
     else
-        // Cache<Foo>.Store (FormatFoo :> typeof<FormatFoo>
         $"Cache<{names.dataTypeAnonArgs}>.Store ({names.formatTypeNamedArgs}() :> Format<{names.dataTypeAnonArgs}>)"
 
 let getWriteFieldCall (field: Field) valueText =

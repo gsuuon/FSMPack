@@ -56,7 +56,6 @@ let generalize (typ: Type) =
     else
         typ
 
-// Formats found in FSMPack/Formats/
 open FSMPack.Formats.Standard
 
 let knownTypes = dict [
@@ -128,7 +127,6 @@ let discoverAllChildTypes rootTypes =
         getAllSubtypesOf
         (HashSet())
 
-/// Returns list of generalized types; ie Map<int, bool> is returned as Map<_, _>
 let uniqueGeneralizedTypes types =
     types
     |> Seq.map generalize

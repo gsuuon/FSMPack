@@ -35,9 +35,6 @@ let destructFields case =
     else
         ""
 
-let canonTypeName (fullName: string) =
-    fullName.Replace ("+", ".")
-
 let generateFormatDU (typ: Type) =
     let cases = getCases typ
     let names = TypeName.getGeneratorNames typ

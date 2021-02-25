@@ -9,7 +9,7 @@ open FSMPack.Write
 
 #nowarn "0025"
 
-let mutable _initStartupCode = 0
+let mutable initialized = false
 
 
 type FMT_TestProject_Types_Foo() =
@@ -167,7 +167,17 @@ Cache<TestProject.Types.Bar>.Store (FMT_TestProject_Types_Bar() :> Format<TestPr
 let initialize () =
     FSMPack.Formats.Default.setup ()
 
-    _initStartupCode
+    initialized <- true
+
+let write value =
+    if not initialized then initialize()
+
+    FSMPack.Format.writeBytes value
+
+let read bytes =
+    if not initialized then initialize()
+
+    FSMPack.Format.readBytes bytes
 
 let verifyFormatsKnownTypes () =
     ignore <| Cache<System.Double>.Retrieve()
@@ -175,5 +185,4 @@ let verifyFormatsKnownTypes () =
     ignore <| Cache<System.String>.Retrieve()
 
 let verifyFormatsUnknownTypes () =
-
     ()

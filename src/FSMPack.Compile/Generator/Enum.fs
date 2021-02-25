@@ -1,6 +1,7 @@
 module FSMPack.Compile.Generator.Enum
 
 open System
+
 open FSMPack.Format
 open FSMPack.Compile.Generator.Common
 

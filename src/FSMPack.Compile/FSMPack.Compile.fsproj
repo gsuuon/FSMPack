@@ -14,7 +14,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="TypeInfo.fs" />
         <Compile Include="AnalyzeInputAssembly.fs" />
         <Compile Include="CompileAssembly.fs" />
         <Compile Include="Generator\Common.fs" />
