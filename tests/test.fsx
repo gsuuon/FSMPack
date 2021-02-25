@@ -7,39 +7,93 @@ let writeColor color (msg: string) =
     Console.WriteLine msg
     Console.ResetColor()
 
-let dotnetExec (projectDirectory, op) =
-    writeColor ConsoleColor.White
-    <| sprintf "%s -- %s" op projectDirectory
+let runCapturedProcess (startInfo: ProcessStartInfo) = async {
+    let readWaitInterval = 100
+    let mutable stdOut = ""
+    let mutable stdErr = ""
+
+    startInfo.UseShellExecute <- false
+    startInfo.CreateNoWindow <- true
+    startInfo.RedirectStandardOutput <- true
+    startInfo.RedirectStandardError <- true
+
+    let p = Process.Start(startInfo)
+
+    AppDomain.CurrentDomain.ProcessExit.Add
+        (fun _ ->
+            if not p.HasExited then
+                stdErr + p.StandardError.ReadToEnd()
+                |> writeColor ConsoleColor.Red
+
+                stdOut + p.StandardOutput.ReadToEnd() 
+                |> printf "%s"
+
+                p.Kill() )
+
+    while not p.HasExited do
+        let! newStdOut =
+            p.StandardOutput.ReadToEndAsync() |> Async.AwaitTask
+        stdOut <- stdOut + newStdOut
+
+        let! newStdErr =
+            p.StandardError.ReadToEndAsync() |> Async.AwaitTask
+        stdErr <- stdErr + newStdErr
+
+        do! Async.Sleep readWaitInterval
+
+    stdOut <- stdOut + p.StandardOutput.ReadToEnd()
+    stdErr <- stdErr + p.StandardError.ReadToEnd()
+
+    return stdOut, stdErr, p.ExitCode
+}
+
+let dotnetExec (projectDirectory, op) = async {
+    sprintf "%s -- %s" op projectDirectory
+    |> writeColor ConsoleColor.White
 
     let startInfo = ProcessStartInfo("dotnet", op)
     startInfo.WorkingDirectory <- projectDirectory
-    startInfo.UseShellExecute <- false
-    startInfo.RedirectStandardOutput <- true
 
-    let p = Process.Start(startInfo)
-    p.WaitForExit()
+    let! (stdOut, stdErr, exitCode) = runCapturedProcess startInfo
 
-    Console.ResetColor()
+    if exitCode = 0 then
+        sprintf "%s -- %s success" op projectDirectory
+        |> writeColor ConsoleColor.Green
 
-    if p.ExitCode = 0 then
-        writeColor ConsoleColor.Green
-        <| sprintf "%s -- %s success" op projectDirectory
-
-        true
+        return true
     else
+        stdOut
+        |> printfn "%s"
 
-        printfn "%s" <| p.StandardOutput.ReadToEnd() 
+        stdErr
+        |> writeColor ConsoleColor.Red
 
-        writeColor ConsoleColor.Red
-        <| sprintf "%s -- %s failure" projectDirectory op
+        sprintf "%s -- %s failure" op projectDirectory
+        |> writeColor ConsoleColor.Red
 
-        false
+        return false
+    }
 
-let execSequentually (projectDirs: (string * string) list) =
-    projectDirs
-    |> List.forall dotnetExec
+let rec execSequentually (projOps: (string * string) list) = async {
+    match projOps with
+    | [] ->
+        return true
+
+    | [head] ->
+        return! dotnetExec head
+
+    | head::rest ->
+        match! dotnetExec head with
+        | true ->
+            return! execSequentually rest
+        | false ->
+            return false
+}
 
 execSequentually [
     "FSMPack.Tests", "run"
     "FSMPack.Compile.Tests", "run"
-    "TestProject", "run" ]
+    "TestProject", "clean"
+    "TestProject", "run"
+    ]
+|> Async.RunSynchronously
