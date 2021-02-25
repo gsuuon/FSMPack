@@ -1,14 +1,30 @@
 module TestProject.Run
 
 open System
-open TestProject.Roundtrip
+
+open TestProject.Types
 
 [<EntryPoint>]
 let main argv =
-    printfn "TestProject running"
-    if tryRoundtrip () then
-        printfn "Worked"
-    else
-        printfn "Oh no"
+    let myQuix = {
+        baz = {
+            word = "hi"
+            bar = BarFoo {
+                num = 2
+            }
+        }
+        a = 1
+    }
 
-    0
+    let tryRoundtrip () =
+        ignore <| FSMPack.GeneratedFormats.initialize()
+
+        let writtenBytes = FSMPack.GeneratedFormats.write myQuix
+        let read = FSMPack.GeneratedFormats.read writtenBytes
+
+        read = myQuix
+
+    if tryRoundtrip () then
+        0
+    else
+        1
