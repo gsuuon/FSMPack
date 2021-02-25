@@ -25,14 +25,17 @@ open FSMPack.Tests.Types.Collection
 
 [<AutoOpen>]
 module Configuration =
-    let generatedModuleName = "FSMPack.GeneratedFormats"
-    let generatedOutputDirectory = "GeneratedFormats"
+    [<Literal>]
+    let GeneratedModuleName = "FSMPack.GeneratedFormats"
+    [<Literal>]
+    let GeneratedOutputDirectory = "GeneratedFormats"
+
     let formattersOutPath =
-        Path.Join (generatedOutputDirectory, "GeneratedFormats.fs")
+        Path.Join (GeneratedOutputDirectory, "GeneratedFormats.fs")
 
     let outAsmName = "outasmtest"
     let outAsmPath =
-        Path.Join (generatedOutputDirectory, outAsmName + ".dll")
+        Path.Join (GeneratedOutputDirectory, outAsmName + ".dll")
 
     let assemblyReferences = [
         "System.Memory"
@@ -67,10 +70,10 @@ let getTypeFromAssembly (asm: Assembly) typeName =
     formatterTyp
 
 let getGenericTypeFromAsm asm typeName =
-    getTypeFromAssembly asm (generatedModuleName + "+" + typeName)
+    getTypeFromAssembly asm (GeneratedModuleName + "+" + typeName)
 
 let createFormatterFromAsm asm typeName =
-    let searchName = generatedModuleName + "+" + typeName
+    let searchName = GeneratedModuleName + "+" + typeName
 
     try
         getTypeFromAssembly asm searchName
@@ -84,8 +87,6 @@ let createFormatterFromAsm asm typeName =
                 System.Exception (sprintf "Found type name: %s, searched for: %s" typ.FullName searchName)
                 |])
 
-// NOTE need to dotnet publish `TestCommon` project
-// TODO add item to start publish process
 [<Tests>]
 let tests =
     testSequencedGroup "Generate Assembly" <| testList "Generator" [
@@ -137,7 +138,7 @@ let tests =
                 getTypeFromAssembly
                     asm
                     ("<StartupCode$" + outAsmName +
-                        ">.$" + generatedModuleName)
+                        ">.$" + GeneratedModuleName)
 
             Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor startupType.TypeHandle
 

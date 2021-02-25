@@ -66,6 +66,7 @@ let writeFormat (bw: BufWriter) (format: Format) =
 
 [<Literal>]
 let WriteSizeIntError = "Write value was expected to be int size or smaller"
+[<Literal>]
 let WriteSizeIntElemsError = "Write value was expected to be int size elements or fewer"
 
 /// Positive or negative integer of 4 bytes max
