@@ -10,13 +10,16 @@ open FSMPack.Format
 #nowarn "0025"
 
 let writeSeq bw (v: 'T seq) len =
-    writeValue bw (Integer len)
-    
-    let format = Cache<'T>.Retrieve()
+    if len > 0 then
+        writeValue bw (Integer len)
 
-    Seq.iter
-        (fun x -> format.Write bw x)
-        v
+        let format = Cache<'T>.Retrieve()
+
+        Seq.iter
+            (fun x -> format.Write bw x)
+            v
+    else
+        writeValue bw (Integer 0)
 
 let readSeq (br, bytes) =
     let (Integer expectedCount) = readValue br &bytes
@@ -24,11 +27,12 @@ let readSeq (br, bytes) =
     let mutable count = 0
     let items = Queue()
 
-    let format = Cache<'T>.Retrieve()
+    if expectedCount > 0 then
+        let format = Cache<'T>.Retrieve()
 
-    while count < expectedCount do
-        items.Enqueue <| format.Read (br, bytes)
-        count <- count + 1
+        while count < expectedCount do
+            items.Enqueue <| format.Read (br, bytes)
+            count <- count + 1
 
     items
     

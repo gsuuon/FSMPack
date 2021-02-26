@@ -134,6 +134,11 @@ module TestCases =
                         1, "bye"
                         4, "hi again"] )
 
+                "roundtrip empty List"
+                |> roundtripFormat
+                    (Cache<_ list>.Retrieve())
+                    []
+
                 "roundtrip List"
                 |> roundtripFormat
                     (Cache<_ list>.Retrieve())
@@ -143,6 +148,11 @@ module TestCases =
                 |> roundtripFormat
                     (Cache<_ list>.Retrieve())
                     [ 0; 10; 12 ]
+
+                "roundtrip empty Array"
+                |> roundtripFormat
+                    (Cache<_ array>.Retrieve())
+                    [||]
 
                 "roundtrip Array"
                 |> roundtripFormat

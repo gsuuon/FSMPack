@@ -95,5 +95,4 @@ execSequentually [
     "FSMPack.Compile.Tests", "run"
     "TestProject", "clean"
     "TestProject", "run"
-    ]
-|> Async.RunSynchronously
+] |> Async.RunSynchronously
