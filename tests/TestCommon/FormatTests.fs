@@ -4,8 +4,6 @@ open System.Collections.Generic
 
 open Expecto
 
-open FSMPack.Format
-
 open FSMPack.Tests.Utility
 open FSMPack.Tests.Types.Record
 open FSMPack.Tests.Types.DU
@@ -14,6 +12,7 @@ open FSMPack.Tests.Types.Collection
 open FSMPack.Spec
 open FSMPack.Read
 open FSMPack.Write
+open FSMPack.Format
 
 let roundtripSimpleRecord _ =
     "Simple record can roundtrip"

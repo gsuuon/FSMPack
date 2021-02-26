@@ -49,14 +49,6 @@ module Configuration =
         "../TestCommon/bin/Debug/netstandard2.0/publish"
     ]
 
-let cacheGenFormatterTypeWithReflection<'T> formatterTyp = 
-    let mi = (typeof<Cache<'T>>).GetMethod "StoreGeneric"
-    ignore <| mi.Invoke (null, [| formatterTyp |])
-
-let cacheFormatterWithReflection<'T> formatterObj = 
-    let mi = (typeof<Cache<'T>>).GetMethod "Store"
-    ignore <| mi.Invoke (null, [| formatterObj |])
-
 let getTypeFromAssembly (asm: Assembly) typeName =
     let formatterTyp = asm.GetType typeName
 
@@ -134,13 +126,9 @@ let tests =
         testCase "can initialize Cache" <| fun _ ->
             let asm = Assembly.LoadFrom outAsmPath
 
-            let startupType =
-                getTypeFromAssembly
-                    asm
-                    ("<StartupCode$" + outAsmName +
-                        ">.$" + GeneratedModuleName)
-
-            Runtime.CompilerServices.RuntimeHelpers.RunClassConstructor startupType.TypeHandle
+            let generatedFormatsType = getTypeFromAssembly asm "FSMPack.GeneratedFormats"
+            let mi = generatedFormatsType.GetMethod("initialize")
+            ignore <| mi.Invoke(null, [||])
 
         testList "Roundtrip" [
             testCase "Setup basic formatters" FSMPack.Formats.Default.setup
