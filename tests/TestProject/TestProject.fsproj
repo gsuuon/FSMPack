@@ -24,4 +24,8 @@
         <ProjectReference Include="../../src/FSMPack/FSMPack.fsproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Update="FSharp.Core" Version="5.*" />
+    </ItemGroup>
+
 </Project>
