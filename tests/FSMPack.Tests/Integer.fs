@@ -20,7 +20,7 @@ let readWriteTests =
         |], Integer 1
         [| 0b01111111uy
         |], Integer 0b01111111
-        [| 0b11100001uy
+        [| 0b11111111uy
         |], Integer -1
     ]
 

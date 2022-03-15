@@ -261,7 +261,8 @@ let rec readValue (br: BufReader) (bytes: inref<Bytes>) =
             format >= Format.NegativeFixInt ->
 
             byt
-            |> intFromNegFixNum
+            |> sbyte
+            |> int
             |> Value.Integer
 
         | byt ->

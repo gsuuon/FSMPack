@@ -7,9 +7,6 @@ open System.Buffers.Binary
 module Byte =
     type Bytes = System.ReadOnlySpan<byte>
 
-    let intFromNegFixNum (byt: byte) =
-        -(int <| byt ^^^ 0b11100000uy)
-
     let intFromBytes (bytes: Bytes) =
         BinaryPrimitives.ReadInt32BigEndian bytes
 

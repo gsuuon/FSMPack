@@ -71,26 +71,28 @@ let WriteSizeIntElemsError = "Write value was expected to be int size elements o
 
 /// Positive or negative integer of 4 bytes max
 let writeInteger (bw: BufWriter) i =
+    // TODO treat all positives as unsigned
+    // It looks like the more standard approach is to use integer format only for negative 
+    // integers, positives are always represented as unsigned ints. We lose the signed / unsigned
+    // distinction which makes reads a little ambiguous.
     if i >= 0 then
         if i < 128 then
             Cast.asValue Format.PositiveFixInt ||| byte i 
             |> writeByte bw
-        else if i <= 127 then
-            writeByte bw (Cast.asValue Format.Int8)
-            writeByte bw (byte i)
-        else if i <= 32767 then
+        // Format.Int8 is an impossible case since 1 bit for sign leaves 2^7 = 127
+        else if i <= 65536 then
             writeByte bw (Cast.asValue Format.Int16)
             writeInt16 bw i
         else
             writeByte bw (Cast.asValue Format.Int32)
             writeInt32 bw i
     else
-        if i > -32 then
-            Cast.asValue Format.NegativeFixInt ||| byte (-i)
+        if i >= -32 then
+            Cast.asValue Format.NegativeFixInt ||| byte i
             |> writeByte bw
         else if i >= -128 then
             writeByte bw (Cast.asValue Format.Int8)
-            writeByte bw (byte (sbyte i))
+            writeByte bw (byte i)
         else if i >= -32768 then
             writeByte bw (Cast.asValue Format.Int16)
             writeInt16 bw i
