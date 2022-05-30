@@ -1,11 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
-        <TargetFramework>net50</TargetFramework>
+        <TargetFrameworks>net60</TargetFrameworks>
+        <!-- Will break if we try to target netstandard2.1 as well, Process.Start has different overloads and lsp doesn't pick it up or something -->
         <OutputType>Exe</OutputType>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <PackageId>FSMPack.Compile</PackageId>
-        <Version>0.0.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -22,9 +19,5 @@
         <Compile Include="Generator\Enum.fs" />
         <Compile Include="GenerateFormat.fs" />
         <Compile Include="Program.fs" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <PackageReference Update="FSharp.Core" Version="5.*" />
     </ItemGroup>
 </Project>
