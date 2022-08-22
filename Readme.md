@@ -45,6 +45,7 @@ file: `$dllnameA-$commit1-$commit2.fs`
 ```fsharp
 FSMPack.Upversion.register $fooHashA $fooHashB
     { new Converts<$commit1.AliasShim.Foo, $commit2.AliasShim.Foo> with
+        member _.Deser x = $commit1.AliasShim.Deserialize<$commit1.AliasShim.Foo> x // TODO
         member _.Convert x =
             () // FIXME write conversion
     }
@@ -75,10 +76,13 @@ type Upversion() =
         let targetHash = (Hashes :>FSMPackHash<'T>).Hash
         // get converters
         let converters = graph.Resolve originHash targetHash
+        // TODO deserialize the first type
+        let data = deserialize originHash binary
         // Apply all and runtime-cast
         converters
          |> List.Fold (fun data converter -> converter.Convert data)
          :?> 'T
+         
 
             
         ..
