@@ -1,6 +1,6 @@
 ## Upversion
 
-From [#1](/../../issues/3)
+From [#1](/../../issues/1)
 
 - [ ] Root type field which contains a stable hash of itself and all subtypes (stable relative to field types)
     - [ ] serialized as an invisible field using a custom msgpack type
