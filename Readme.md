@@ -16,20 +16,23 @@ type Hashes = // these are the current hashes of these types
         member _.Hash = $hash
 ```
 - [ ] Generated deserialize on root types check expected hash against provided and warns against mismatch
-- [ ] Tool verifies two versions can roundtrip
-- [ ] Tool takes 2 commits of an fsmpack project and generates or adds to an upversion project
-- [ ] Tool works with CI / hooks (`git work-tree .. && fsmpack verify ..`)
-- [ ] Seperate helper project which references upversion projects
+- [ ] Verifies two versions can roundtrip by comparing hashes
+- [ ] Take 2 commits of an fsmpack project and generate or add to an upversion project
+- [ ] Works with CI / hooks (`git work-tree .. && dotnet run -- verify ..`)
 
 Upversion project:
 * References multiple versions
 * `<Aliases>` + extern alias -- F# doesn't support `extern alias` so we'll need an extra csproj
 ```csproj
-<Reference Include="$dllname-$commit.dll">
+<Reference Include="$dllnameA-$commit.dll">
     <Aliases>$commit</Aliases>
+</Reference
+<Reference Include="$dllnameB-$commit.dll">
+    <Aliases>$commit</Aliases>
+</Reference
 ```
 * Generated placeholders for every type which doesn't match
-file: `$dllname-$commit.fs`
+file: `$dllnameA-$commit.fs`
 ```fsharp
 open $commit.CSharpExternShim // or however this would work
 
