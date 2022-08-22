@@ -7,7 +7,8 @@ From [#1](/../../issues/1)
     - [-] as a static field fsmpackHash? -- may not be possible, adds external data
     - [ ] doesn't alter the type
     - [ ] added during code generation to a separate type?
-File: Generated.Hashes.fs
+
+file: Generated.Hashes.fs
 ```fsharp
 type Hashes = // these are the current hashes of these types
     interface FSMPackHash<Foo> with
@@ -16,34 +17,40 @@ type Hashes = // these are the current hashes of these types
         member _.Hash = $hash
 ```
 - [ ] Generated deserialize on root types check expected hash against provided and warns against mismatch
-- [ ] Verifies two versions can roundtrip by comparing hashes
+- [ ] Verifies each subtype of the root has the same hash
 - [ ] Take 2 commits of an fsmpack project and generate or add to an upversion project
-- [ ] Works with CI / hooks (`git work-tree .. && dotnet run -- verify ..`)
+- [ ] Works with CI / hooks (`git work-tree .. && fsmpack -- verify ..`)
 
 Upversion project:
-* References multiple versions
+* Tool generates or adds to the project by commit hash
+    * checks out commit, builds, stores
+    * compares generated hashes
+* References multiple dll versions named by commits
 * `<Aliases>` + extern alias -- F# doesn't support `extern alias` so we'll need an extra csproj
-```csproj
-<Reference Include="$dllnameA-$commit.dll">
-    <Aliases>$commit</Aliases>
-</Reference
-<Reference Include="$dllnameB-$commit.dll">
-    <Aliases>$commit</Aliases>
-</Reference
-```
-* Generated placeholders for every type which doesn't match
-file: `$dllnameA-$commit.fs`
-```fsharp
-open $commit.CSharpExternShim // or however this would work
 
+file: AliasShim.csproj
+```csproj
+<Reference Include="$dllnameA-$commit1.dll">
+    <Aliases>$commit1</Aliases>
+</Reference>
+<Reference Include="$dllnameB-$commit1.dll">
+    <Aliases>$commit1</Aliases>
+</Reference>
+```
+
+
+* Generated placeholders for every type which doesn't match
+
+file: `$dllnameA-$commit1-$commit2.fs`
+```fsharp
 FSMPack.Upversion.register $fooHashA $fooHashB
-    { new Converts<Last.Foo, Next.Foo> with
+    { new Converts<$commit1.AliasShim.Foo, $commit2.AliasShim.Foo> with
         member _.Convert x =
             () // FIXME write conversion
     }
 
 FSMPack.Upversion.register $barHashA $barHashB
-    { new Converts<Last.Bar, Next.Bar> with
+    { new Converts<$commit1.AliasShim.Bar, $commit2.AliasShim.Bar> with
         member _.Convert x =
             () // FIXME write conversion
         interface Converter with // non-generic version?
@@ -88,3 +95,8 @@ let x : MyCurrentFoo = convert staleBinary
 * Library for running a binary through upversion projects, reading the version field
 * Upversion dlls saved to same directory, named `<hashA>_<hashB>.dll`
 * Library checks files, finds path from hash field of binary to desired type, executes conversions
+
+
+## Usage
+
+Each time a type within a root type changes, we'll generate file: `$dllnameA-$commit1-$commit2.fs` and AliasShim.csproj gets a copy of the dll -- nothing else changes. The commit hash is only used for the file name, it's not used during ser/de - just the hash of the type.
